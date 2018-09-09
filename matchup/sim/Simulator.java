@@ -229,7 +229,7 @@ public class Simulator {
             "\",\"grp_a_score\":\"" + game.player_aScore +
             "\",\"grp_b_score\":\"" + game.player_bScore + "\"}";
 
-        System.out.println(json);
+        //System.out.println(json);
 
         return json;
     }

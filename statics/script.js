@@ -5,22 +5,39 @@
 // text_pos: -1/+1 - text is above/below.
 // x_start: x starting position of the drawing.
 // y_start: y starting position of the drawing.
-function drawPlayers(ctx, x_start, y_start, skills, type, name, score, text_pos) {
+function drawPlayers(ctx, x_start, y_start, skills, type, name, score, text_pos, fill, isWin) {
 	var x_off = 10;
 	var y_off = 20;
 
 	ctx.font = '20px Arial';
+	ctx.fillStyle = 'black';
 
 	for (var i=0; i<skills.length; ++i) {
 		ctx.beginPath();
 		ctx.arc(x_start + 5 + x_off, y_start-7, 5, 0*Math.PI, 2*Math.PI);
+
+		if (fill[i]) {
+			ctx.fill();
+		}
+
 		ctx.stroke();
-		ctx.fillText(skills[i], x_start + x_off, y_start + text_pos*y_off);
+		ctx.fillText(skills[i], x_start + x_off - 2, y_start + text_pos*y_off);
 	
 		x_off += 40;
 	}
 
+	if (isWin) {
+		ctx.font = 'bold 20px Arial';
+	}
+
 	ctx.fillText(type + '(' + name + '): ' + score, x_start + x_off, y_start);
+	ctx.stroke();
+}
+
+function drawLine(ctx, x_start, y_start, x_end) {
+	ctx.beginPath();
+	ctx.moveTo(x_start, y_start);
+	ctx.lineTo(x_end, y_start);
 	ctx.stroke();
 }
 
@@ -51,10 +68,25 @@ function process(data) {
 	var grp_a_score = Number(result.grp_a_score);
 	var grp_b_score = Number(result.grp_b_score);
 
+	var fill_a = [false, false, false, false, false];
+	var fill_b = [false, false, false, false, false];
+	for (var i=0; i<5; ++i) {
+		if (grp_a_round[i] - grp_b_round[i] > 2) {
+			fill_a[i] = true;
+		}
+		else if (grp_b_round[i] - grp_a_round[i] > 2) {
+			fill_b[i] = true;
+		}
+	}
+
 	canvas = document.getElementById('canvas');
 	ctx = canvas.getContext('2d');
-	drawPlayers(ctx, 20, y_pos, grp_a_round, isHome? 'Home' : 'Away', grp_a, grp_a_score, -1);
-	drawPlayers(ctx, 20, y_pos+50, grp_b_round, !isHome? 'Home' : 'Away', grp_b, grp_b_score, 1);
+
+	drawPlayers(ctx, 20, y_pos, grp_a_round, isHome? 'Home' : 'Away', 
+		grp_a, grp_a_score, -1, fill_a, grp_a_score > grp_b_score);
+	drawPlayers(ctx, 20, y_pos+40, grp_b_round, !isHome? 'Home' : 'Away',
+		grp_b, grp_b_score, 1, fill_b, grp_b_score > grp_a_score);
+	drawLine(ctx, 20, y_pos+80, 420);
 
 	if (document.getElementById('grp-a-skills').innerHTML == "") {
 		// Populate the info tables.
@@ -85,7 +117,7 @@ function process(data) {
 		}
 	}
 
-	y_pos += 160;
+	y_pos += 140;
 
 	return refresh;
 }
