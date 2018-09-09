@@ -29,20 +29,19 @@ var y_pos = 40;
 function process(data) {
 	var result = JSON.parse(data)
 
-	var refresh = Number(result.refresh);
+	var refresh = parseFloat(result.refresh);
 	var grp_a = result.grp_a;
 	var grp_b = result.grp_b;
 
-	// Skill set of 5 players.
-	var grp_a_round = result.grp_a_round.split(',');
-	var grp_b_round = result.grp_b_round.split(',');
+	var isHome = (result.is_home === 'true');
 
-	var grp_a_round = result.grp_a_round.split(',');
-	var grp_b_round = result.grp_b_round.split(',');
+	// Skill set of 5 players.
+	var grp_a_round = result.grp_a_round.split(",");
+	var grp_b_round = result.grp_b_round.split(",");
 
 	// Skill set of all players
-	var grp_a_skills = result.grp_a_skills.split(',');
-	var grp_b_skills = result.grp_b_skills.split(',');
+	var grp_a_skills = result.grp_a_skills;
+	var grp_b_skills = result.grp_b_skills;
 
 	// Skill distribution per round.
 	var grp_a_dist = result.grp_a_dist.split(';');
@@ -54,8 +53,8 @@ function process(data) {
 
 	canvas = document.getElementById('canvas');
 	ctx = canvas.getContext('2d');
-	drawPlayers(ctx, 20, y_pos, grp_a_round, 'Home', grp_a, grp_a_score, -1);
-	drawPlayers(ctx, 20, y_pos+60, grp_b_round, 'Away', grp_b, grp_a_score, 1);
+	drawPlayers(ctx, 20, y_pos, grp_a_round, isHome? 'Home' : 'Away', grp_a, grp_a_score, -1);
+	drawPlayers(ctx, 20, y_pos+50, grp_b_round, !isHome? 'Home' : 'Away', grp_b, grp_b_score, 1);
 
 	if (document.getElementById('grp-a-skills').innerHTML == "") {
 		// Populate the info tables.
@@ -86,7 +85,7 @@ function process(data) {
 		}
 	}
 
-	y_pos += 120;
+	y_pos += 160;
 
 	return refresh;
 }
@@ -111,6 +110,8 @@ function ajax(version, retries, timeout) {
 			} catch (message) {
 				alert(message);
 			}
+
+			console.log(refresh);
 			if (refresh >= 0)
 				setTimeout(function() { ajax(version + 1, 10, 100); }, refresh);
 		});
@@ -132,9 +133,9 @@ function ajax(version, retries, timeout) {
 	xhttp.send();
 }
 
-//ajax(1, 10, 100);
+ajax(1, 10, 100);
 
-process('{"refresh":0, "grp_a":"g1", "grp_b":"g2", "grp_a_round":"1,2,3,4,5", "grp_b_round":"4,5,6,7,8",' + 
-	'"grp_a_skills":"4,3,2,5,6,7,3", "grp_b_skills":"2,3,5,7,5,4,3", "grp_a_dist":"1,2;4,3;6,7", "grp_b_dist":"3,4;5,1;8,7", ' + 
-	'"grp_a_score":"3", "grp_b_score":"0", "past_games":"1,2,3,4,5;1,2,3,4,5;1,2,3,4,5:5,6,7,8,9;4,5,6,7,8;3,4,5,6,7"}');
+// process('{"refresh":0, "grp_a":"g1", "grp_b":"g2", "grp_a_round":"1,2,3,4,5", "grp_b_round":"4,5,6,7,8",' +
+//	'"grp_a_skills":"4,3,2,5,6,7,3", "grp_b_skills":"2,3,5,7,5,4,3", "grp_a_dist":"1,2;4,3;6,7", "grp_b_dist":"3,4;5,1;8,7", ' +
+//	'"grp_a_score":"3", "grp_b_score":"0"}');
 

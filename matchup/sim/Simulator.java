@@ -9,8 +9,9 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.tools.JavaCompiler;
 import javax.tools.StandardJavaFileManager;
@@ -61,11 +62,9 @@ public class Simulator {
     private static String[] player_names;
 
     public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
-//		args = new String[] {"-p", "random", "random", "random", "-v", "-g"};
         parseArgs(args);
 
         if (!tournament) {
-
             try {
                 player_a = loadPlayerWrapper(player_a_name);
                 player_b = loadPlayerWrapper(player_b_name);
@@ -110,8 +109,8 @@ public class Simulator {
 
                     for (int i = 0; i < 2; ++i)
                     {
-                        System.out.println("\nHome: " + 
-                            (isHome ? player_a.getName() : player_b.getName()) + 
+                        System.out.println("\nHome: " +
+                            (isHome ? player_a.getName() : player_b.getName()) +
                             ", Away: " + (!isHome ? player_a.getName() : player_b.getName()));
 
                         distribution.add(player_a.getDistribution(skills.get(1), isHome));
@@ -122,14 +121,14 @@ public class Simulator {
 
                         for (int turn = 0; turn < 3; ++turn) {
                         	System.out.println("\nRound " + (turn + 1));
-                        	
+
                             if (isHome) {
                                 round_b = player_b.playRound(round_a);
                                 round_a = player_a.playRound(round_b);
                             }
                             else {
                                 round_a = player_a.playRound(round_b);
-                                round_b = player_b.playRound(round_a);                                
+                                round_b = player_b.playRound(round_a);
                             }
 
                             game.player_bRounds.add(round_b);
@@ -143,15 +142,15 @@ public class Simulator {
                                 ", " + player_b.getName() + " " + scores[1]);
 
                         	if (gui) {
-                                gui(server, state(turn == 2 ? -1 : fps, skills, distribution, game));
+                                gui(server, state(i == 1 && turn == 2 ? -1 : fps, skills, distribution, game));
                             }
                         }
 
                         System.out.println("\nTotal score: " + player_a.getName() +
-                            " " + game.player_aScore + " " + player_b.getName() + 
+                            " " + game.player_aScore + " " + player_b.getName() +
                             " " + game.player_bScore);
 
-                        swapPlayers();           
+                        swapPlayers();
                     }
                 } catch (Exception ex) {
                     System.out.println("Exception! " + ex.getMessage());
@@ -159,9 +158,9 @@ public class Simulator {
                 }
 
                 if (game.player_aScore != game.player_bScore) {
-                    System.out.println("\nWinner: " + 
-                        (game.player_aScore > game.player_bScore ? 
-                            player_a.getName() + " " + game.player_aScore : 
+                    System.out.println("\nWinner: " +
+                        (game.player_aScore > game.player_bScore ?
+                            player_a.getName() + " " + game.player_aScore :
                             player_b.getName() + " " + game.player_bScore));
                 }
                 else {
@@ -171,8 +170,6 @@ public class Simulator {
                 games.add(game);
             }
         }
-
-
 
         System.exit(0);
     }
@@ -211,8 +208,34 @@ public class Simulator {
 
     // The state that is sent to the GUI. (JSON)
     private static String state(double fps, List<List<Integer>> skills, List<List<List<Integer>>> distribution, Game game) {
-        // TODO
-        return null;
+
+        List<String> distrib_a = new ArrayList<String>();
+        List<String> distrib_b = new ArrayList<String>();
+        for (int i=0; i<3; ++i) {
+            distrib_a.add(join(", ", distribution.get(0).get(i)));
+            distrib_b.add(join(", ", distribution.get(1).get(i)));
+        }
+
+        // Aaaaaaaaaaaaa!!!!
+        String json = "{\"refresh\":" + (1000.0/fps) + ",\"is_home\":\"" + isHome +
+            "\",\"grp_a\":\"" + player_a.getName() +
+            "\",\"grp_b\":\"" + player_b.getName() +
+            "\",\"grp_a_skills\":\"" + join(", ", skills.get(0)) +
+            "\",\"grp_b_skills\":\"" + join(", ", skills.get(1)) +
+            "\",\"grp_a_round\":\"" + join(",", game.player_aRounds.get(game.player_aRounds.size()-1)) +
+            "\",\"grp_b_round\":\"" + join(",", game.player_bRounds.get(game.player_bRounds.size()-1)) +
+            "\",\"grp_a_dist\":\"" + String.join(";", distrib_a) +
+            "\",\"grp_b_dist\":\"" + String.join(";", distrib_b) +
+            "\",\"grp_a_score\":\"" + game.player_aScore +
+            "\",\"grp_b_score\":\"" + game.player_bScore + "\"}";
+
+        System.out.println(json);
+
+        return json;
+    }
+
+    private static String join(String joins, List<Integer> list) {
+        return list.stream().map(Object::toString).collect(Collectors.joining(joins));
     }
 
     private static void gui(HTTPServer server, String content) {
@@ -294,17 +317,17 @@ public class Simulator {
                     } else if (args[i].equals("-v") || args[i].equals("--verbose")) {
                     	Log.activate();
                     } else {
-                        throw new IllegalArgumentException("Unknown argument \"" + args[i] + "\"");
+                        throw new IllegalArgumentException("Unknown argument '" + args[i] + "'");
                     }
                     break;
                 default:
-                    throw new IllegalArgumentException("Unknown argument \"" + args[i] + "\"");
+                    throw new IllegalArgumentException("Unknown argument '" + args[i] + "'");
             }
         }
 
         Log.record("Players: " + playerNames.toString());
         Log.record("GUI " + (gui ? "enabled" : "disabled"));
-        Log.record("Tournament " + (tournament ? "enabled" : "disabled"));   
+        Log.record("Tournament " + (tournament ? "enabled" : "disabled"));
 
         if (gui)
             Log.record("FPS: " + fps);

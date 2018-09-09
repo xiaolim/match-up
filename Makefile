@@ -8,4 +8,7 @@ clean:
 	rm matchup/*/*.class
 
 run:
+	java matchup.sim.Simulator -p random random
+
+gui:
 	java matchup.sim.Simulator -p random random --gui --fps 1
