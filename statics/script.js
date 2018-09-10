@@ -61,8 +61,16 @@ function process(data) {
 	var grp_b_skills = result.grp_b_skills;
 
 	// Skill distribution per round.
-	var grp_a_dist = result.grp_a_dist.split(';');
-	var grp_b_dist = result.grp_b_dist.split(';');
+	var grp_a_dist1 = result.grp_a_dist1.split(';');
+	var grp_b_dist1 = result.grp_b_dist1.split(';');
+
+	if (!!result.grp_a_dist2) {
+		// Skill distribution per round.
+		var grp_a_dist2 = result.grp_a_dist2.split(';');
+		var grp_b_dist2 = result.grp_b_dist2.split(';');
+
+		console.log(grp_a_dist2);
+	}
 
 	// Scores.
 	var grp_a_score = Number(result.grp_a_score);
@@ -92,29 +100,70 @@ function process(data) {
 		// Populate the info tables.
 		document.getElementsByName('grp-a-name').forEach(function(elem) {
 			elem.innerHTML = grp_a;
+
+			console.log(elem.class);
+
+			if (elem.className == "distrib1") {
+				elem.innerHTML += " (H)";
+			}
+			else if (elem.className == "distrib2") {
+				elem.innerHTML += " (A)";
+			}
 		});
 		document.getElementsByName('grp-b-name').forEach(function(elem) {
 			elem.innerHTML = grp_b;
+
+			if (elem.className == "distrib2") {
+				elem.innerHTML += " (H)";
+			}
+			else if (elem.className == "distrib1") {
+				elem.innerHTML += " (A)";
+			}
 		});
 
 		document.getElementById('grp-a-skills').innerHTML = grp_a_skills;
 		document.getElementById('grp-b-skills').innerHTML = grp_b_skills;
 
-		var tab = document.getElementById('distrib');
+		var tab = document.getElementById('distrib1');
 
 		for (var i=0; i<3; ++i) {
 			var tr = document.createElement('tr');
 			
 			var td = document.createElement('td');
-			td.innerHTML = grp_a_dist[i];
+			td.innerHTML = grp_a_dist1[i];
 			tr.appendChild(td);
 
 			var td = document.createElement('td');
-			td.innerHTML = grp_b_dist[i];
+			td.innerHTML = grp_b_dist1[i];
 			tr.appendChild(td);
 
 			tab.appendChild(tr);
 		}
+
+		tab.style.display = "inline-block";
+	}
+
+	var tab = document.getElementById('distrib2');
+
+	if (tab.style.display == "none" && typeof grp_a_dist2 != "undefined") {
+
+		var tab = document.getElementById('distrib2');
+
+		for (var i=0; i<3; ++i) {
+			var tr = document.createElement('tr');
+			
+			var td = document.createElement('td');
+			td.innerHTML = grp_a_dist2[i];
+			tr.appendChild(td);
+
+			var td = document.createElement('td');
+			td.innerHTML = grp_b_dist2[i];
+			tr.appendChild(td);
+
+			tab.appendChild(tr);
+		}
+
+		tab.style.display = "inline-block";
 	}
 
 	y_pos += 140;

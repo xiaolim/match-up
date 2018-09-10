@@ -4,7 +4,13 @@
     <title>PPS 2018 - Match up</title>
     <style type="text/css">
       table, th, td {
-        border: 1px solid black;
+        border: 1px solid;
+      }
+      table.skills {
+        width: 60%;
+      }
+      td {
+        text-align: center;
       }
       canvas {
         padding-left: 0;
@@ -25,27 +31,43 @@
 
   <hr/>
 
-  <!-- All 15 skills. -->
-  <table style="float: left;">
-    <caption>Skills</caption>
-    <tr>
-      <th name="grp-a-name">random</th>
-      <td id="grp-a-skills"></td>
-    </tr>
-    <tr>
-      <th name="grp-b-name">random</th>
-      <td id="grp-b-skills"></td>
-    </tr>
-  </table>
+  <center>
+    <div style="width:800px">
+      <!-- All 15 skills. -->
+      <table class="skills">
+        <caption>Skills</caption>
+        <tr>
+          <th name="grp-a-name" width="30%">random</th>
+          <td id="grp-a-skills" width="70%"></td>
+        </tr>
+        <tr>
+          <th name="grp-b-name">random</th>
+          <td id="grp-b-skills"></td>
+        </tr>
+      </table>
+    </div>
+  </center>
 
-  <!-- 3 x 5 skill distribution. -->
-  <table id="distrib" style="float: left;">
-    <caption>Distribution</caption>
-    <tr>
-      <th name="grp-a-name">random</th>
-      <th name="grp-b-name">random</th>
-    </tr>
-  </table>
+  <center>
+    <div style="width:800px">
+      <!-- 3 x 5 skill distribution. -->
+      <table id="distrib1" style="display: none;">
+        <caption>Distribution (game1)</caption>
+        <tr>
+          <th name="grp-a-name" width="50%" class="distrib1">random</th>
+          <th name="grp-b-name" width="50%" class="distrib1">random</th>
+        </tr>
+      </table>
+      <table id="distrib2" style="display: none;">
+        <caption>Distribution (game2)</caption>
+        <tr>
+          <th name="grp-a-name" width="50%" class="distrib2">random</th>
+          <th name="grp-b-name" width="50%" class="distrib2">random</th>
+        </tr>
+      </table>
+
+    </div>
+  </center>
 
   <script type="text/javascript" src="script.js"></script>
   </body>

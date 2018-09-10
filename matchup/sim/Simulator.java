@@ -9,7 +9,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -203,17 +202,24 @@ public class Simulator {
             System.exit(1);
         }
 
-        return new PlayerWrapper(p, (name + new Random().nextInt(5)));
+        return new PlayerWrapper(p, name);
     }
 
     // The state that is sent to the GUI. (JSON)
     private static String state(double fps, List<List<Integer>> skills, List<List<List<Integer>>> distribution, Game game) {
 
-        List<String> distrib_a = new ArrayList<String>();
-        List<String> distrib_b = new ArrayList<String>();
+        List<String> distrib_a1 = new ArrayList<String>();
+        List<String> distrib_b1 = new ArrayList<String>();
+        List<String> distrib_a2 = new ArrayList<String>();
+        List<String> distrib_b2 = new ArrayList<String>();
         for (int i=0; i<3; ++i) {
-            distrib_a.add(join(", ", distribution.get(0).get(i)));
-            distrib_b.add(join(", ", distribution.get(1).get(i)));
+            distrib_a1.add(join(", ", distribution.get(0).get(i)));
+            distrib_b1.add(join(", ", distribution.get(1).get(i)));
+
+            if (distribution.size() > 2) {
+                distrib_a2.add(join(", ", distribution.get(2).get(i)));
+                distrib_b2.add(join(", ", distribution.get(3).get(i)));
+            }
         }
 
         // Aaaaaaaaaaaaa!!!!
@@ -224,9 +230,15 @@ public class Simulator {
             "\",\"grp_b_skills\":\"" + join(", ", skills.get(1)) +
             "\",\"grp_a_round\":\"" + join(",", game.player_aRounds.get(game.player_aRounds.size()-1)) +
             "\",\"grp_b_round\":\"" + join(",", game.player_bRounds.get(game.player_bRounds.size()-1)) +
-            "\",\"grp_a_dist\":\"" + String.join(";", distrib_a) +
-            "\",\"grp_b_dist\":\"" + String.join(";", distrib_b) +
-            "\",\"grp_a_score\":\"" + game.player_aScore +
+            "\",\"grp_a_dist1\":\"" + String.join(";", distrib_a1) +
+            "\",\"grp_b_dist1\":\"" + String.join(";", distrib_b1);
+
+        if (distrib_a2.size() > 0) {
+            json += "\",\"grp_a_dist2\":\"" + String.join(";", distrib_a2) +
+            "\",\"grp_b_dist2\":\"" + String.join(";", distrib_b2);
+        }
+
+        json += "\",\"grp_a_score\":\"" + game.player_aScore +
             "\",\"grp_b_score\":\"" + game.player_bScore + "\"}";
 
         //System.out.println(json);
