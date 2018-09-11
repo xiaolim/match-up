@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.Arrays;
 
 public class Player implements matchup.sim.Player {
 	private List<Integer> skills;
@@ -39,24 +40,77 @@ public class Player implements matchup.sim.Player {
 	}
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
-    	List<Integer> index = new ArrayList<Integer>();
-    	for (int i=0; i<15; ++i) index.add(i);
+        distribution = new ArrayList<List<Integer>>();
 
-    	distribution = new ArrayList<List<Integer>>();
+        skills.sort(null);
+        System.out.println("Sorted skills: " + skills); //
 
-		Collections.shuffle(index);
-		int n = 0;
-    	for (int i=0; i<3; ++i) {
-    		List<Integer> row = new ArrayList<Integer>();
-    		for (int j=0; j<5; ++j) {
-    			row.add(skills.get(index.get(n)));
-    			++n;
-    		}
+        if (isHome) {
+            // arrange rows to be optimal for HOME play
+            System.out.println("HOME play"); //
 
-    		distribution.add(row);
-    	}
+            List<Integer> skills_leftover = new ArrayList<Integer>();
 
-    	return distribution;
+            for (int i=0; i<3; ++i) {
+                List<Integer> row = new ArrayList<Integer>();
+                List<Integer> indices = new ArrayList<Integer>(Arrays.asList(i, i+3, i+6, (14-(i+3)), (14-i)));
+                System.out.println("row " + i + ": " + indices + " (indices)"); //
+
+                for (int ix : indices) {
+                    if (!row.contains(skills.get(ix))) row.add(skills.get(ix));
+                    else skills_leftover.add(skills.get(ix));
+                }
+
+                System.out.println("row " + i + ": " + row + " (values)");
+                distribution.add(row);
+            }
+
+            
+            System.out.println("skills leftover: " + skills_leftover);
+            System.out.println("distributions: " + distribution.get(0) + ", " + distribution.get(1) + ", " + distribution.get(2));
+
+            for (int s : skills_leftover) {
+                boolean added = false;
+                for (int i=0; i<3; ++i) {
+                    if ((distribution.get(i).size() < 5) && !(distribution.get(i).contains(s))) {
+                        distribution.get(i).add(s);
+                        added = true;
+                    } else {
+                        continue;
+                    }
+                }
+                if (!added) {
+                    for (int i=0; i<3; ++i) {if (distribution.get(i).size() < 5) distribution.get(i).add(s);}
+                }
+            }
+
+            System.out.println("distributions: " + distribution.get(0) + ", " + distribution.get(1) + ", " + distribution.get(2));
+
+
+
+        } else {
+            // arrange rows to be optimal for AWAY play
+            System.out.println("AWAY play");
+            
+            List<Integer> index = new ArrayList<Integer>();
+            for (int i=0; i<15; ++i) index.add(i);
+
+            distribution = new ArrayList<List<Integer>>();
+
+            Collections.shuffle(index);
+            int n = 0;
+            for (int i=0; i<3; ++i) {
+                List<Integer> row = new ArrayList<Integer>();
+                for (int j=0; j<5; ++j) {
+                    row.add(skills.get(index.get(n)));
+                    ++n;
+                }
+
+                distribution.add(row);
+            }
+        }
+
+        return distribution;
     }
 
     public List<Integer> playRound(List<Integer> opponentRound) {
