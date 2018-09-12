@@ -18,7 +18,7 @@ public class Player implements matchup.sim.Player {
 		//skills = new ArrayList<Integer>();
 		// TODO Find out a good skill set
 		skills = new ArrayList<Integer>(Arrays.asList(1, 1, 2, 3, 4, 5, 6, 6, 7, 8, 8, 9, 9, 10, 11));
-		availableRows = new ArrayList<Integer>();
+		availableRows = new ArrayList<Integer>(Arrays.asList(0, 1, 2));
 	}
 	
 	@Override
@@ -57,7 +57,11 @@ public class Player implements matchup.sim.Player {
 		for (int i : line) sum += i;
 		return sum / 5.0F;
 	}
-
+	
+	private float findVariance(List<Integer> line) {
+		// TODO
+	}
+	
 	/**
 	 * Find out the optimal permutation of our line against the opponent
 	 * @param row The index of our line used
@@ -69,10 +73,18 @@ public class Player implements matchup.sim.Player {
 		return new Pair<Integer, List<Integer>>(0, distribution.get(row));
 	}
 	
+	protected int useRows(){
+		// TODO
+		n = availableRows.get(0);
+		availableRows.remove(0);
+		return n;
+	}
+
+	
 	@Override
 	public List<Integer> playRound(List<Integer> opponentRound) {
 		// TODO Assigned to Will
-		return distribution.get(availableRows.get(0));
+		return distribution.get(useRows());
 	}
 
 	@Override
