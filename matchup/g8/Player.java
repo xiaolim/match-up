@@ -1,4 +1,4 @@
-package matchup.rational;
+package matchup.g8;
 
 import java.util.ArrayList;
 import java.util.Collections;
