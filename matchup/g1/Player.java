@@ -1,4 +1,4 @@
-package matchup.two_large_two_small_vary_risk;
+package matchup.g1;
 
 import java.util.ArrayList;
 import java.util.Collections;
