@@ -7,8 +7,8 @@ public interface Player {
     // opponent: Name of the opponent.
     public void init(String opponent);
 
-	// Gets skills of all 15 players.
-	public List<Integer> getSkills();
+    // Gets skills of all 15 players.
+    public List<Integer> getSkills();
 
     // Gets distribution of skills for each round.
     // Returns an array of size 3x15.
