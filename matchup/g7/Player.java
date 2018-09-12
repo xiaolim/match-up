@@ -72,7 +72,7 @@ public class Player implements matchup.sim.Player {
 	@Override
 	public List<Integer> playRound(List<Integer> opponentRound) {
 		// TODO Assigned to Will
-		return null;
+		return distribution.get(availableRows.get(0));
 	}
 
 	@Override
