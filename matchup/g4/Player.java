@@ -1,4 +1,4 @@
-package matchup.random;
+package matchup.g4;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,45 +25,40 @@ public class Player implements matchup.sim.Player {
     public void init(String opponent) {
     }
 
-	public List<Integer> getSkills() {
-		for (int i=0; i<7; ++i) {
-			int x = rand.nextInt(11) + 1;
-			skills.add(x);
-			skills.add(12 - x);
-		}
-
-		skills.add(6);
-		Collections.shuffle(skills);
-
-		return skills;
+    public List<Integer> getSkills() {
+	Integer s[] = {6,6,6,6,6,8,8,8,8,8,4,4,4,4,4};
+	
+	for (int i=0; i<s.length; ++i) {
+		skills.add(s[i]);
 	}
 
+	return skills;
+    }
+
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
-    	List<Integer> index = new ArrayList<Integer>();
-    	for (int i=0; i<15; ++i) index.add(i);
+	Integer rows[][];
 
-    	distribution = new ArrayList<List<Integer>>();
-
-		Collections.shuffle(index);
-		int n = 0;
-    	for (int i=0; i<3; ++i) {
-    		List<Integer> row = new ArrayList<Integer>();
-    		for (int j=0; j<5; ++j) {
-    			row.add(skills.get(index.get(n)));
-    			++n;
-    		}
-
-    		distribution.add(row);
-    	}
+        if (isHome) {
+		rows = new Integer[][] {{8,8,6,4,4},{8,8,6,6,4},{8,6,6,4,4}};
+	} else {
+		rows = new Integer[][] {{6,6,6,6,6},{8,8,8,8,8},{4,4,4,4,4}};
+	}
+	
+	for (int i = 0; i < 3; ++i) {
+		distribution.add(new ArrayList<Integer>());
+		for (int j = 0; j < 5; ++j) {
+			distribution.get(i).add(rows[i][j]);
+		}
+	}
 
     	return distribution;
     }
 
     public List<Integer> playRound(List<Integer> opponentRound) {
-    	int n = rand.nextInt(availableRows.size());
+    	//int n = rand.nextInt(availableRows.size());
 
-    	List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(n)));
-    	availableRows.remove(n);
+    	List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(0)));
+    	availableRows.remove(0);
 
     	Collections.shuffle(round);
 
@@ -73,5 +68,7 @@ public class Player implements matchup.sim.Player {
     public void clear() {
     	availableRows.clear();
     	for (int i=0; i<3; ++i) availableRows.add(i);
+
+	distribution.clear();
     }
 }
