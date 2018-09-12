@@ -116,16 +116,27 @@ public class Player implements matchup.sim.Player {
 
     public List<Integer> playRound(List<Integer> opponentRound) {
  
-	if(opponentRound == null)
-	{
-		int n = rand.nextInt(availableRows.size());
+	List<Integer> round = null;
+	if (opponentRound == null) {
+    	int min_sum = 60;
+    	int min_row = -1;
 
-    		List<Integer> Awayround = new ArrayList<Integer>(distribution.get(availableRows.get(n)));
-    		availableRows.remove(n);
+    	for (int i = 0; i < availableRows.size(); i++){
+    		int sum = 0;
+    		for(int j: distribution.get(i)) {
+    			sum += j;
+			}
 
-    		Collections.shuffle(Awayround);
+			if (sum < min_sum){
+				min_sum = sum;
+				min_row = i;
+			}
+    	}
 
-    		return Awayround;
+    	round = distribution.get(min_row);
+    	availableRows.remove(min_row);
+    	return round;
+
 	}
 
 //	System.out.println("rational playing home strategy");
@@ -134,7 +145,7 @@ public class Player implements matchup.sim.Player {
         ArrayList<List<Integer>> Candidates = new ArrayList<List<Integer>>();
 	for(int i=0;i<n;i++)
 	{
-		List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(i)));
+		round = new ArrayList<Integer>(distribution.get(availableRows.get(i)));
 		
 		Collections.sort(round);
 		
