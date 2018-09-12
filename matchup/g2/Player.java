@@ -1,4 +1,4 @@
-package matchup.random;
+package matchup.g2;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -101,7 +101,9 @@ public class Player implements matchup.sim.Player {
             row2 = new ArrayList<Integer>(Arrays.asList(skills.get(0), skills.get(1), skills.get(2), skills.get(4), skills.get(10)));
             row3 = new ArrayList<Integer>(Arrays.asList(skills.get(5), skills.get(6), skills.get(7), skills.get(8), skills.get(9)));
 
-            distribution.addAll(row1, row2, row3);
+            distribution.add(row1);
+            distribution.add(row2);
+            distribution.add(row3);
         }
 
         //System.out.println("distributions: " + distribution.get(0) + ", " + distribution.get(1) + ", " + distribution.get(2));
