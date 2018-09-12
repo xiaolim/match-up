@@ -34,7 +34,7 @@ public class Player implements matchup.sim.Player {
 
 		// skills.add(6);
 		// Collections.shuffle(skills);
-
+		
 		List<Integer> skills = new ArrayList<>();
 
 		for (int i = 0; i < 4; i++) {
