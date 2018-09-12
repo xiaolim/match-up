@@ -18,7 +18,7 @@ public class Player implements matchup.sim.Player {
 		//skills = new ArrayList<Integer>();
 		// TODO Find out a good skill set
 		skills = new ArrayList<Integer>(Arrays.asList(1, 1, 2, 3, 4, 5, 6, 6, 7, 8, 8, 9, 9, 10, 11));
-		availableRows = new ArrayList<Integer>();
+		availableRows = new ArrayList<Integer>(Arrays.asList(0, 1, 2));
 	}
 	
 	@Override
