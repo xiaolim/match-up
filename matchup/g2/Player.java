@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.Arrays;
 import java.lang.Math;
 
 public class Player implements matchup.sim.Player {
@@ -40,25 +41,70 @@ public class Player implements matchup.sim.Player {
 	}
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
-	
-    	List<Integer> index = new ArrayList<Integer>();
-    	for (int i=0; i<15; ++i) index.add(i);
+        distribution = new ArrayList<List<Integer>>();
 
-    	distribution = new ArrayList<List<Integer>>();
+        skills.sort(null);
+        //System.out.println("Sorted skills: " + skills); //
 
-		Collections.shuffle(index);
-		int n = 0;
-    	for (int i=0; i<3; ++i) {
-    		List<Integer> row = new ArrayList<Integer>();
-    		for (int j=0; j<5; ++j) {
-    			row.add(skills.get(index.get(n)));
-    			++n;
-    		}
+        if (isHome) {
+            // arrange rows to be optimal for HOME play
+            //System.out.println("HOME play"); //
 
-    		distribution.add(row);
-    	}
+            List<Integer> skills_leftover = new ArrayList<Integer>();
 
-    	return distribution;
+            for (int i=0; i<3; ++i) {
+                List<Integer> row = new ArrayList<Integer>();
+                List<Integer> indices = new ArrayList<Integer>(Arrays.asList(i, i+3, i+6, (14-(i+3)), (14-i)));
+                System.out.println("row " + i + ": " + indices + " (indices)"); //
+
+                for (int ix : indices) {
+                    if (!row.contains(skills.get(ix))) row.add(skills.get(ix));
+                    else skills_leftover.add(skills.get(ix));
+                }
+
+                //System.out.println("row " + i + ": " + row + " (values)");
+                distribution.add(row);
+            }
+
+            
+            //System.out.println("skills leftover: " + skills_leftover);
+            //System.out.println("distributions: " + distribution.get(0) + ", " + distribution.get(1) + ", " + distribution.get(2));
+
+            for (int s : skills_leftover) {
+                boolean added = false;
+                for (int i=0; i<3; ++i) {
+                    if ((distribution.get(i).size() < 5) && !(distribution.get(i).contains(s))) {
+                        distribution.get(i).add(s);
+                        added = true;
+                    } else {
+                        continue;
+                    }
+                }
+                if (!added) {
+                    for (int i=0; i<3; ++i) {if (distribution.get(i).size() < 5) distribution.get(i).add(s);}
+                }
+            }
+
+            //System.out.println("distributions: " + distribution.get(0) + ", " + distribution.get(1) + ", " + distribution.get(2));
+
+
+
+        } else {
+            // arrange rows to be optimal for AWAY play
+            //System.out.println("AWAY play");
+
+            List<Integer> row1, row2, row3;
+
+            row1 = new ArrayList<Integer>(Arrays.asList(skills.get(14), skills.get(13), skills.get(12), skills.get(3), skills.get(11)));
+            row2 = new ArrayList<Integer>(Arrays.asList(skills.get(0), skills.get(1), skills.get(2), skills.get(4), skills.get(10)));
+            row3 = new ArrayList<Integer>(Arrays.asList(skills.get(5), skills.get(6), skills.get(7), skills.get(8), skills.get(9)));
+
+            distribution.addAll(row1, row2, row3);
+        }
+
+        //System.out.println("distributions: " + distribution.get(0) + ", " + distribution.get(1) + ", " + distribution.get(2));
+
+        return distribution;
     }
 
     public List<Integer> playRound(List<Integer> opponentRound) {
@@ -75,15 +121,17 @@ public class Player implements matchup.sim.Player {
     	return round;
     }
 
+
+
     public void clear() {
     	availableRows.clear();
     	for (int i=0; i<3; ++i) availableRows.add(i);
     }
-    
+
     """
     This selects the best list to play for each round and returns its index in availableRows
     """
-    public Integer selectLine(List<Integer> opponentRound) {
+    public int selectLine(List<Integer> opponentRound) {
 
 	"""
         If we are picking first, start with mid range line.
@@ -176,3 +224,4 @@ public class Player implements matchup.sim.Player {
 	return line;
     }
 }
+
