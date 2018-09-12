@@ -1,4 +1,4 @@
-package matchup.hardcode;
+package matchup.g7;
 
 import java.util.ArrayList;
 import java.util.Arrays;
