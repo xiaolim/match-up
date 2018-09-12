@@ -57,7 +57,11 @@ public class Player implements matchup.sim.Player {
 		for (int i : line) sum += i;
 		return sum / 5.0F;
 	}
-
+	
+	private float findVariance(List<Integer> line) {
+		// TODO
+	}
+	
 	/**
 	 * Find out the optimal permutation of our line against the opponent
 	 * @param row The index of our line used
