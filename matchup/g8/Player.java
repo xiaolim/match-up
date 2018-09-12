@@ -26,72 +26,67 @@ public class Player implements matchup.sim.Player {
     }
 
 	public List<Integer> getSkills() {
-/*		for (int i=0; i<7; ++i) {
-			int x = rand.nextInt(11) + 1;
-			skills.add(x);
-			skills.add(12 - x);
+		// for (int i=0; i<7; ++i) {
+		// 	int x = rand.nextInt(11) + 1;
+		// 	skills.add(x);
+		// 	skills.add(12 - x);
+		// }
+
+		// skills.add(6);
+		// Collections.shuffle(skills);
+		
+		List<Integer> skills = new ArrayList<>();
+
+		for (int i = 0; i < 4; i++) {
+			skills.add(9);
 		}
 
-		skills.add(6);
-*/
-		skills.clear();
-                for(int i=0;i<4;i++)
-                skills.add(9);
+		for (int i = 0; i < 3; i++) {
+			skills.add(7);
+		}
 
-		 for(int i=0;i<5;i++)
-                skills.add(7);
+		for (int i = 0; i < 3; i++) {
+			skills.add(5);
+		}
 
-		 for(int i=0;i<5;i++)
-                skills.add(3);
+		for (int i = 0; i < 4; i++) {
+			skills.add(4);
+		}
 
-                skills.add(4);
-		
-		Collections.shuffle(skills);
+		for (int i = 0; i < 1; i++) {
+			skills.add(2);
+		}
 
 		return skills;
 	}
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
-    	List<Integer> index = new ArrayList<Integer>();
- //   	for (int i=0; i<15; ++i) index.add(i);
+    	List<Integer> row1 = new ArrayList<Integer>();
+    	row1.add(9);
+    	row1.add(9);
+    	row1.add(5);
+    	row1.add(5);
+    	row1.add(4);
+
+    	List<Integer> row2 = new ArrayList<Integer>();
+    	row2.add(9);
+    	row2.add(7);
+    	row2.add(7);
+    	row2.add(4);
+    	row2.add(2);
+
+    	List<Integer> row3 = new ArrayList<Integer>();
+    	row3.add(9);
+    	row3.add(7);
+    	row3.add(5);
+    	row3.add(4);
+    	row3.add(4);
 
     	distribution = new ArrayList<List<Integer>>();
 
-//		Collections.shuffle(index);
-
-		List<Integer> row1 = new ArrayList<Integer>();
-		row1.add(9);
-		row1.add(9);
-		row1.add(7);
-		row1.add(3);
-		row1.add(3);
-
-		List<Integer> row2 = new ArrayList<Integer>();
-		row2.add(9);
-		row2.add(7);
-		row2.add(7);
-		row2.add(4);
-		row2.add(3);
-
-		List<Integer> row3 = new ArrayList<Integer>();
-		row3.add(9);
-		row3.add(7);
-		row3.add(7);
-		row3.add(3);
-		row3.add(3);
-
-/*		int n = 0;
-    	for (int i=0; i<3; ++i) {
-    		List<Integer> row = new ArrayList<Integer>();
-    		for (int j=0; j<5; ++j) {
-    			row.add(skills.get(index.get(n)));
-    			++n;
-    		} */
-
-    		distribution.add(row1);
-		distribution.add(row2);
-		distribution.add(row3);
-    	
+    	distribution.add(row1);
+    	distribution.add(row2);
+    	distribution.add(row3);
 
     	return distribution;
     }
