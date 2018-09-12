@@ -39,8 +39,6 @@ public class Simulator {
     private static final String root = "matchup";
     private static final String statics_root = "statics";
 
-    private static final int turnLimit = 100000;
-
     private static boolean gui = false;
     private static boolean tournament = false;
 
@@ -119,7 +117,7 @@ public class Simulator {
                         List<Integer> round_b = null;
 
                         for (int turn = 0; turn < 3; ++turn) {
-                        	System.out.println("\nRound " + (turn + 1));
+                            System.out.println("\nRound " + (turn + 1));
 
                             if (isHome) {
                                 round_b = player_b.playRound(round_a);
@@ -140,7 +138,7 @@ public class Simulator {
                             System.out.println("Score: " + player_a.getName() + " " + scores[0] +
                                 ", " + player_b.getName() + " " + scores[1]);
 
-                        	if (gui) {
+                            if (gui) {
                                 gui(server, state(i == 1 && turn == 2 ? -1 : fps, skills, distribution, game));
                             }
                         }
@@ -251,42 +249,42 @@ public class Simulator {
     }
 
     private static void gui(HTTPServer server, String content) {
-    	if (server == null) return;
-    	String path = null;
-    	for (;;) {
-    		for (;;) {
-    			try {
-    				path = server.request();
-    				break;
-    			} catch (IOException e) {
-    				Log.record("HTTP request error " + e.getMessage());
-    			}
-    		}
-    		if (path.equals("data.txt")) {
-    			try {
-    				server.reply(content);
-    			} catch (IOException e) {
-    				Log.record("HTTP dynamic reply error " + e.getMessage());
-    			}
-				return;
-    		}
-    		if (path.equals("")) path = "webpage.html";
-    		else if (!Character.isLetter(path.charAt(0))) {
-    			Log.record("Potentially malicious HTTP request \"" + path + "\"");
-    			break;
-    		}
+        if (server == null) return;
+        String path = null;
+        for (;;) {
+            for (;;) {
+                try {
+                    path = server.request();
+                    break;
+                } catch (IOException e) {
+                    Log.record("HTTP request error " + e.getMessage());
+                }
+            }
+            if (path.equals("data.txt")) {
+                try {
+                    server.reply(content);
+                } catch (IOException e) {
+                    Log.record("HTTP dynamic reply error " + e.getMessage());
+                }
+                return;
+            }
+            if (path.equals("")) path = "webpage.html";
+            else if (!Character.isLetter(path.charAt(0))) {
+                Log.record("Potentially malicious HTTP request \"" + path + "\"");
+                break;
+            }
 
-    		File file = new File(statics_root + File.separator + path);
-    		if (file == null) {
-    			Log.record("Unknown HTTP request \"" + path + "\"");
-    		} else {
-    			try {
-    				server.reply(file);
-    			} catch (IOException e) {
-    				Log.record("HTTP static reply error " + e.getMessage());
-    			}
-    		}
-    	}
+            File file = new File(statics_root + File.separator + path);
+            if (file == null) {
+                Log.record("Unknown HTTP request \"" + path + "\"");
+            } else {
+                try {
+                    server.reply(file);
+                } catch (IOException e) {
+                    Log.record("HTTP static reply error " + e.getMessage());
+                }
+            }
+        }
     }
 
     private static void parseArgs(String[] args) {
@@ -327,7 +325,7 @@ public class Simulator {
                         }
                         n_games = Integer.parseInt(args[i]);
                     } else if (args[i].equals("-v") || args[i].equals("--verbose")) {
-                    	Log.activate();
+                        Log.activate();
                     } else {
                         throw new IllegalArgumentException("Unknown argument '" + args[i] + "'");
                     }
