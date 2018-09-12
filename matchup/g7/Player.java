@@ -73,10 +73,18 @@ public class Player implements matchup.sim.Player {
 		return new Pair<Integer, List<Integer>>(0, distribution.get(row));
 	}
 	
+	protected int useRows(){
+		// TODO
+		n = availableRows.get(0);
+		availableRows.remove(0);
+		return n;
+	}
+
+	
 	@Override
 	public List<Integer> playRound(List<Integer> opponentRound) {
 		// TODO Assigned to Will
-		return distribution.get(availableRows.get(0));
+		return distribution.get(useRows());
 	}
 
 	@Override
