@@ -32,6 +32,13 @@ public class Player implements matchup.sim.Player {
             int stdVar = 3;
             int mean = 6;
             int x = (((int) rand.nextGaussian()) * stdVar  + mean );
+
+            if( x < 1 ){
+                x = 1;
+            }
+            else if (x > 11){
+                x = 11;
+            }
             skills.add(x);
             skills.add(12 - x);
         }
@@ -45,23 +52,30 @@ public class Player implements matchup.sim.Player {
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
         distribution = new ArrayList<List<Integer>>();
 
-        skills.sort(null);
+        // List<Integer> skills_L = getSkills().subList(0, 15);
+        // System.out.println("skills: " + skills_L);
+        // System.out.println("skills: " + skills_L.size());
+        List<Integer> skills_L = skills;
+
+        skills_L.sort(null);
+
+
         //System.out.println("Sorted skills: " + skills); //
 
         if (isHome) {
             // arrange rows to be optimal for HOME play
             //System.out.println("HOME play"); //
 
-            List<Integer> skills_leftover = new ArrayList<Integer>();
+            List<Integer> leftover = new ArrayList<Integer>();
 
             for (int i=0; i<3; ++i) {
                 List<Integer> row = new ArrayList<Integer>();
                 List<Integer> indices = new ArrayList<Integer>(Arrays.asList(i, i+3, i+6, (14-(i+3)), (14-i)));
-                System.out.println("row " + i + ": " + indices + " (indices)"); //
+                //System.out.println("row " + i + ": " + indices + " (indices)"); //
 
                 for (int ix : indices) {
-                    if (!row.contains(skills.get(ix))) row.add(skills.get(ix));
-                    else skills_leftover.add(skills.get(ix));
+                    if (!row.contains(skills_L.get(ix))) row.add(skills_L.get(ix));
+                    else leftover.add(skills_L.get(ix));
                 }
 
                 //System.out.println("row " + i + ": " + row + " (values)");
@@ -69,10 +83,10 @@ public class Player implements matchup.sim.Player {
             }
 
             
-            //System.out.println("skills leftover: " + skills_leftover);
+            //System.out.println("skills leftover: " + leftover);
             //System.out.println("distributions: " + distribution.get(0) + ", " + distribution.get(1) + ", " + distribution.get(2));
 
-            for (int s : skills_leftover) {
+            for (int s : leftover) {
                 boolean added = false;
                 for (int i=0; i<3; ++i) {
                     if ((distribution.get(i).size() < 5) && !(distribution.get(i).contains(s))) {
@@ -97,9 +111,9 @@ public class Player implements matchup.sim.Player {
 
             List<Integer> row1, row2, row3;
 
-            row1 = new ArrayList<Integer>(Arrays.asList(skills.get(14), skills.get(13), skills.get(12), skills.get(3), skills.get(11)));
-            row2 = new ArrayList<Integer>(Arrays.asList(skills.get(0), skills.get(1), skills.get(2), skills.get(4), skills.get(10)));
-            row3 = new ArrayList<Integer>(Arrays.asList(skills.get(5), skills.get(6), skills.get(7), skills.get(8), skills.get(9)));
+            row1 = new ArrayList<Integer>(Arrays.asList(skills_L.get(14), skills_L.get(13), skills_L.get(12), skills_L.get(3), skills_L.get(11)));
+            row2 = new ArrayList<Integer>(Arrays.asList(skills_L.get(0), skills_L.get(1), skills_L.get(2), skills_L.get(4), skills_L.get(10)));
+            row3 = new ArrayList<Integer>(Arrays.asList(skills_L.get(5), skills_L.get(6), skills_L.get(7), skills_L.get(8), skills_L.get(9)));
 
             distribution.add(row1);
             distribution.add(row2);
