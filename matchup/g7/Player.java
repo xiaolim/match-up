@@ -62,13 +62,12 @@ public class Player implements matchup.sim.Player {
 	}
 	
 	private float findVariance(List<Integer> line) {
-		// TODO
-		float sum = 0;
+		float sum = 0.0F;
 		float mean = findAverage(line);
 		for (int i : line){
-			sum += (i - mean)* (i - mean);
+			sum += i * i;
 		}
-		return sum/(line.size()-1.0f);
+		return sum - mean * mean / line.size();
 	}
 	
 	/**
