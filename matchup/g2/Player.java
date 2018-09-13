@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Arrays;
+import java.lang.Math;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Player implements matchup.sim.Player {
 	private List<Integer> skills;
@@ -13,6 +16,8 @@ public class Player implements matchup.sim.Player {
 	private List<Integer> availableRows;
 
 	private Random rand;
+
+    private boolean home;
 	
 	public Player() {
 		rand = new Random();
@@ -50,21 +55,39 @@ public class Player implements matchup.sim.Player {
     }
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
+        
+        home = isHome; //store as class member for the playRound function
+
         distribution = new ArrayList<List<Integer>>();
 
-        // List<Integer> skills_L = getSkills().subList(0, 15);
-        // System.out.println("skills: " + skills_L);
-        // System.out.println("skills: " + skills_L.size());
-        List<Integer> skills_L = skills;
-
-        skills_L.sort(null);
-
-
-        //System.out.println("Sorted skills: " + skills); //
+        skills.sort(null);
 
         if (isHome) {
             // arrange rows to be optimal for HOME play
             //System.out.println("HOME play"); //
+
+            // Gather information about opponent's skills
+            //opp_mean = 6
+            //opp_stdv = 2.47
+
+            opponentSkills.sort(null);
+            System.out.println("sorted skills: " + opponentSkills); //
+            int opp_range = opponentSkills.get(14) - opponentSkills.get(0);
+            System.out.println("range: " + opp_range); //
+
+            // If RANGE is HIGH or LOW do something different
+
+            Map<Integer, Integer> opp_skill_count = new HashMap<Integer, Integer>();
+            for (int s : opponentSkills) {
+                if (!opp_skill_count.containsKey(s)) {
+                    opp_skill_count.put(s, 1);
+                } else {
+                    int s_inc = opp_skill_count.get(s);
+                    opp_skill_count.replace(s, ++s_inc);
+                }
+            }
+            System.out.println("skill count: " + opp_skill_count);
+
 
             List<Integer> leftover = new ArrayList<Integer>();
 
@@ -74,8 +97,8 @@ public class Player implements matchup.sim.Player {
                 //System.out.println("row " + i + ": " + indices + " (indices)"); //
 
                 for (int ix : indices) {
-                    if (!row.contains(skills_L.get(ix))) row.add(skills_L.get(ix));
-                    else leftover.add(skills_L.get(ix));
+                    if (!row.contains(skills.get(ix))) row.add(skills.get(ix));
+                    else leftover.add(skills.get(ix));
                 }
 
                 //System.out.println("row " + i + ": " + row + " (values)");
@@ -111,9 +134,9 @@ public class Player implements matchup.sim.Player {
 
             List<Integer> row1, row2, row3;
 
-            row1 = new ArrayList<Integer>(Arrays.asList(skills_L.get(14), skills_L.get(13), skills_L.get(12), skills_L.get(3), skills_L.get(11)));
-            row2 = new ArrayList<Integer>(Arrays.asList(skills_L.get(0), skills_L.get(1), skills_L.get(2), skills_L.get(4), skills_L.get(10)));
-            row3 = new ArrayList<Integer>(Arrays.asList(skills_L.get(5), skills_L.get(6), skills_L.get(7), skills_L.get(8), skills_L.get(9)));
+            row1 = new ArrayList<Integer>(Arrays.asList(skills.get(14), skills.get(13), skills.get(12), skills.get(3), skills.get(11)));
+            row2 = new ArrayList<Integer>(Arrays.asList(skills.get(0), skills.get(1), skills.get(2), skills.get(4), skills.get(10)));
+            row3 = new ArrayList<Integer>(Arrays.asList(skills.get(5), skills.get(6), skills.get(7), skills.get(8), skills.get(9)));
 
             distribution.add(row1);
             distribution.add(row2);
