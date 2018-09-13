@@ -15,6 +15,11 @@ public class Player implements matchup.sim.Player {
 
 	private Random rand;
 
+
+    private List<Integer> bestLine = new ArrayList<Integer>();
+    private int score; 
+    private int counter; 
+
 	public Player() {
 		rand = new Random();
 		skills = new ArrayList<Integer>();
@@ -141,6 +146,7 @@ public class Player implements matchup.sim.Player {
 
 		List<Integer> round = distribution.get(n);
 
+        //TODO: make permutation work here 
 		if (opponentRound != null) {
 			round = bestPermutation(round, opponentRound);
 		}
@@ -241,7 +247,7 @@ public class Player implements matchup.sim.Player {
 	}
 
 	public Integer totalLineWins(List<Integer> line, List<Integer> opponentLine) {
-		line = bestPermutation(line, opponentLine);
+		line = bestPermutation(line,  opponentLine);
        	int rowWins = 0;
        	
        	for(int j=0; j<5; j++){
@@ -251,4 +257,57 @@ public class Player implements matchup.sim.Player {
        	return rowWins;
     }
 
+    public void permute(List<Integer> line, int j, List<Integer> opponentLine){ 
+        for(int i = j; i < line.size(); i++){
+            java.util.Collections.swap(line, i, j);
+            permute(line, j+1, opponentLine); 
+            java.util.Collections.swap(line, j, i);
+        }
+
+        if(j == line.size() -1){
+            counter++; 
+            System.out.println(counter + java.util.Arrays.toString(line.toArray())); 
+            int temp = compareLine(line, opponentLine); 
+
+            if(temp > score){ 
+                score = temp; 
+                System.out.println("I just set the score: " + score); 
+                bestLine.clear(); 
+                bestLine.addAll(line); 
+                System.out.println("I just set best line: " + bestLine); 
+            }
+        }
+    }
+
+   //System.out.println("This is the best line end of permute: " + bestLine); 
+ 
+
+    //figure out which of two lines win 
+    public int compareLine(List<Integer> home, List<Integer> away){ 
+        int homeScore = 0; 
+
+        //System.out.println("I'm in compare line!"); 
+        for(int i=0; i<5; i++){ 
+            if(home.get(i) - away.get(i) >= 3){
+                homeScore ++; 
+            }
+            if(away.get(i) - home.get(i) >= 3){ 
+                homeScore --; 
+            }
+        }
+        return homeScore; 
+    }
+
+    
+
+    private List<Integer> bestPermutation(List<Integer> home, List<Integer> away){ 
+        bestLine.clear(); 
+        score = -100; 
+        counter = 0; 
+
+        permute(home, 0, away); 
+
+        return bestLine; 
+
+    }
 }
