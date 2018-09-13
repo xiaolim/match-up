@@ -23,6 +23,7 @@ public class Player implements matchup.sim.Player {
 	
 	@Override
 	public void init(String opponent) {
+
 	}
 
 	@Override
@@ -45,21 +46,23 @@ public class Player implements matchup.sim.Player {
 			distribution.add(new ArrayList<Integer>(Arrays.asList(6, 3, 2, 1, 1)));
 		}
 		
-		// Calculating the average of player skills in each line
-		for (List<Integer> line : distribution)
-			averageStrength.add(findAverage(line));
-		
 		return distribution;
 	}
 	
 	private float findAverage(List<Integer> line) {
 		int sum = 0;
 		for (int i : line) sum += i;
-		return sum / 5.0F;
+		return sum / (float)line.size();
 	}
 	
 	private float findVariance(List<Integer> line) {
 		// TODO
+		float sum = 0;
+		float mean = findAverage(line);
+		for (int i : line){
+			sum += (i - mean)* (i - mean);
+		}
+		return sum/(line.size()-1.0f);
 	}
 	
 	/**
@@ -70,21 +73,71 @@ public class Player implements matchup.sim.Player {
 	 */
 	private Pair<Integer, List<Integer>> permutation(int row, List<Integer> opponentRound) {
 		// TODO Assigned to Warren
-		return new Pair<Integer, List<Integer>>(0, distribution.get(row));
+		ArrayList<ArrayList<Integer>> all_possible = new ArrayList<ArrayList<Integer>>();
+ 		
+ 		all_possible.add(new ArrayList<Integer>());
+ 		List<Integer> line = distribution.get(row);
+		for (int i = 0; i < line.size(); i++) {
+			//list of list in current iteration of the array num
+			ArrayList<ArrayList<Integer>> current = new ArrayList<ArrayList<Integer>>();
+ 
+			for (ArrayList<Integer> l : all_possible) {
+				// # of locations to insert is largest index + 1
+				for (int j = 0; j < l.size()+1; j++) {
+					// + add num[i] to different locations
+					l.add(j, line.get(i));
+ 
+					ArrayList<Integer> temp = new ArrayList<Integer>(l);
+					current.add(temp);
+					l.remove(j);
+				}
+			}
+			all_possible = new ArrayList<ArrayList<Integer>>(current);
+
+		}
+
+		int best_score = 0;
+		List<Integer> best_lineup = line;
+		for (int i=0; i<all_possible.size();i++){
+			if (ComputeScore(all_possible.get(i),opponentRound)>best_score){
+				best_score = ComputeScore(all_possible.get(i),opponentRound);
+				best_lineup = all_possible.get(i);
+			}
+		}
+		return new Pair<Integer, List<Integer>>(best_score,best_lineup); 
 	}
-	
+
+
+
+
+	private int ComputeScore(List<Integer> line1, List<Integer> line2){
+		int score = 0;
+		for (int i=0; i< line1.size(); i++){
+			if (line1.get(i) - line2.get(i) >= 3){
+				score += 1;
+			}
+			if (line2.get(i) - line1.get(i) >= 3){
+				score -= 1;
+			}
+		}
+		return score;
+	}
+
+
 	protected int useRows(){
 		// TODO
-		n = availableRows.get(0);
+		int k = availableRows.get(0);
 		availableRows.remove(0);
-		return n;
+		return k;
 	}
 
 	
 	@Override
 	public List<Integer> playRound(List<Integer> opponentRound) {
 		// TODO Assigned to Will
-		return distribution.get(useRows());
+    	List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(0)));
+    	availableRows.remove(0);
+		return round;
 	}
 
 	@Override
