@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+// To get game history.
+import matchup.sim.utils.*;
+
 public class Player implements matchup.sim.Player {
     private List<Integer> skills;
     private List<List<Integer>> distribution;
@@ -36,7 +39,7 @@ public class Player implements matchup.sim.Player {
         }
 
         skills.add(6);
-        Collections.shuffle(skills);
+        Collections.shuffle(skills, rand);
 
         return skills;
     }
@@ -47,7 +50,7 @@ public class Player implements matchup.sim.Player {
 
         distribution = new ArrayList<List<Integer>>();
 
-        Collections.shuffle(index);
+        Collections.shuffle(index, rand);
         int n = 0;
         for (int i=0; i<3; ++i) {
             List<Integer> row = new ArrayList<Integer>();
@@ -68,7 +71,7 @@ public class Player implements matchup.sim.Player {
         List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(n)));
         availableRows.remove(n);
 
-        Collections.shuffle(round);
+        Collections.shuffle(round, rand);
 
         return round;
     }
@@ -76,5 +79,9 @@ public class Player implements matchup.sim.Player {
     public void clear() {
         availableRows.clear();
         for (int i=0; i<3; ++i) availableRows.add(i);
+
+        // Get history of games.
+        // List<Game> games = History.getHistory();
+        // System.out.println(games.size());
     }
 }
