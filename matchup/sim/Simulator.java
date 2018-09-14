@@ -188,7 +188,7 @@ public class Simulator {
         playerA.clear();
         playerB.clear();
 
-        isHome = false;
+        isHome = !isHome;
     }
 
     private static PlayerWrapper loadPlayerWrapper(String name) throws Exception {
