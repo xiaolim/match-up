@@ -7,6 +7,7 @@ import java.util.Random;
 import java.util.Arrays;
 
 public class Player implements matchup.sim.Player {
+<<<<<<< 9c9dfa87184ec960c7cf12278e05922f0ad4217a
     private List<Integer> skills;
     private List<List<Integer>> distribution;
     private List<Integer> availableRows;
