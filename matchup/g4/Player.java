@@ -7,7 +7,6 @@ import java.util.Random;
 import java.util.Arrays;
 
 public class Player implements matchup.sim.Player {
-<<<<<<< 9c9dfa87184ec960c7cf12278e05922f0ad4217a
     private List<Integer> skills;
     private List<List<Integer>> distribution;
     private List<Integer> availableRows;
@@ -29,9 +28,9 @@ public class Player implements matchup.sim.Player {
     }
 
     public List<Integer> getSkills() {
-        Integer s[] = {9,9,9,9,9,8,8,8,8,8,1,1,1,1,1};
-        skills = new ArrayList<Integer>(Arrays.asList(s));
-        return skills;
+		Integer s[] = {9,9,9,9,9,8,8,8,8,8,1,1,1,1,1};
+		skills = new ArrayList<Integer>(Arrays.asList(s));
+		return skills;
     }
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {

@@ -30,6 +30,7 @@ public class Player implements matchup.sim.Player {
     public void init(String opponent) {
     }
 
+<<<<<<< 6e9c342f195de1eef23c2a25e76e882f5916cdd6
     public List<Integer> getSkills() {
         skills.clear();
         for (int i=0; i<7; ++i) {
@@ -37,6 +38,16 @@ public class Player implements matchup.sim.Player {
             skills.add(x);
             skills.add(12 - x);
         }
+=======
+	public List<Integer> getSkills() {
+        skills.clear();
+        
+		for (int i=0; i<7; ++i) {
+			int x = rand.nextInt(11) + 1;
+			skills.add(x);
+			skills.add(12 - x);
+		}
+>>>>>>> redo skills and clear in random
 
         skills.add(6);
         Collections.shuffle(skills, rand);
@@ -77,11 +88,16 @@ public class Player implements matchup.sim.Player {
     }
 
     public void clear() {
+<<<<<<< 6e9c342f195de1eef23c2a25e76e882f5916cdd6
         availableRows.clear();
         for (int i=0; i<3; ++i) availableRows.add(i);
 
         // Get history of games.
         // List<Game> games = History.getHistory();
         // System.out.println(games.size());
+=======
+    	availableRows.clear();
+    	for (int i=0; i<3; ++i) { availableRows.add(i); }
+>>>>>>> redo skills and clear in random
     }
 }
