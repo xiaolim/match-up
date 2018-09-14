@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.Comparator;
 
 public class Player implements matchup.sim.Player {
 	private List<Integer> skills;
 	private List<List<Integer>> distribution;
 
 	private List<Integer> availableRows;
-
+    private boolean ishome = true; 
 	private Random rand;
 	
 	public Player() {
@@ -64,14 +65,29 @@ public class Player implements matchup.sim.Player {
 //     int n = rand.nextInt(availableRows.size());
 //     List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(n)));
 //     availableRows.remove(n);
-     if(opponentRound == null) {
-            int n = rand.nextInt(availableRows.size());
-            List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(n)));
-            availableRows.remove(n);
+     if(opponentRound == null || !ishome) {
+    	    ishome = false; 
+    	    System.out.println("away");
+    	    Collections.sort(availableRows, new Comparator<Integer>(){
+    	    	@Override
+    	    	public int compare(Integer a, Integer b) {
+    	    		List<Integer> roundA = new ArrayList<Integer>(distribution.get(a));
+    	    		List<Integer> roundB = new ArrayList<Integer>(distribution.get(b));
+    	    		int resultA=0, resultB=0;
+    	    		for(int i=0;i<roundA.size();i++) resultA=resultA+roundA.get(i);
+    	    		for(int i=0;i<roundB.size();i++) resultB=resultB+roundB.get(i);
+    	    		return resultA-resultB;
+    	    	}
+    	    });
+    	    System.out.println("away");
+    	    List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(0)));
+            availableRows.remove(0);
         	Collections.shuffle(round);
+        	if(availableRows.size()==0) ishome = true;
         	return round;
      }
-     int skills = 0, score = 0, ratio = 0, index = 0;
+	 int index = 0;
+	 float skills = 0, score = 0, ratio = 0;
      List<Integer> result = null;
      for(int n=0;n<availableRows.size();n++) {
     	List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(n)));
