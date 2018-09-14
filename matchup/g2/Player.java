@@ -15,10 +15,9 @@ public class Player implements matchup.sim.Player {
 
 	private Random rand;
 
-
-    private List<Integer> bestLine = new ArrayList<Integer>();
-    private int score; 
-    private int counter; 
+	private List<Integer> bestLine = new ArrayList<Integer>();
+	private int score; 
+	private int counter; 
 
 	public Player() {
 		rand = new Random();
@@ -75,8 +74,7 @@ public class Player implements matchup.sim.Player {
 
 			for (int i = 0; i < 3; ++i) {
 				List<Integer> row = new ArrayList<Integer>();
-				List<Integer> indices = new ArrayList<Integer>(
-						Arrays.asList(i, i + 3, i + 6, (14 - (i + 3)), (14 - i)));
+				List<Integer> indices = new ArrayList<Integer>(Arrays.asList(i, i + 3, i + 6, (14 - (i + 3)), (14 - i)));
 				// System.out.println("row " + i + ": " + indices + " (indices)"); //
 
 				for (int ix : indices) {
