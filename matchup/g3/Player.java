@@ -67,7 +67,6 @@ public class Player implements matchup.sim.Player {
 //     availableRows.remove(n);
      if(opponentRound == null || !ishome) {
     	    ishome = false; 
-    	    System.out.println("away");
     	    Collections.sort(availableRows, new Comparator<Integer>(){
     	    	@Override
     	    	public int compare(Integer a, Integer b) {
@@ -79,7 +78,6 @@ public class Player implements matchup.sim.Player {
     	    		return resultA-resultB;
     	    	}
     	    });
-    	    System.out.println("away");
     	    List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(0)));
             availableRows.remove(0);
         	Collections.shuffle(round);
