@@ -2,18 +2,23 @@ package matchup.g7;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javafx.util.Pair;
 
 public class Player implements matchup.sim.Player {
 	
-	// The list of all players, should be finalized before game starts
-	private final List<Integer> skills;
+	// The list of all player skill levels
+	private List<Integer> skills;
 	private List<List<Integer>> distribution;
 	private List<Float> averageStrength;
 	private List<Integer> availableRows;
-	private boolean state;
+	
+	private List<Integer> opponentRemainSkills;
+	
+	private boolean state; // Whether the player is playing as the home team
+	
 	public Player() {
 		//skills = new ArrayList<Integer>();
 		// TODO Find out a good skill set
@@ -38,6 +43,7 @@ public class Player implements matchup.sim.Player {
 		// TODO Come up with a way to form distribution against opponentSkills and the team position
 		state = isHome;
 		distribution = new ArrayList<List<Integer>>();
+		this.opponentRemainSkills = opponentSkills;
 		if (isHome) {
 			distribution.add(new ArrayList<Integer>(Arrays.asList(11, 10, 8, 6, 4)));
 			distribution.add(new ArrayList<Integer>(Arrays.asList(9, 7, 5, 3, 1)));
@@ -77,7 +83,6 @@ public class Player implements matchup.sim.Player {
 	 * @return a pair containing score difference and the optimal permutation
 	 */
 	private Pair<Integer, List<Integer>> permutation(int row, List<Integer> opponentRound) {
-		// TODO Assigned to Warren
 		ArrayList<ArrayList<Integer>> all_possible = new ArrayList<ArrayList<Integer>>();
  		all_possible.add(new ArrayList<Integer>());
  		List<Integer> line = distribution.get(row);
@@ -121,32 +126,67 @@ public class Player implements matchup.sim.Player {
 		}
 		return score;
 	}
-
-	protected Pair<Integer, List<Integer>> useRows(List<Integer> opponentRound){
-		int best_line = availableRows.get(0);
-		int best_score = permutation(availableRows.get(0),opponentRound).getKey();
-		List <Integer> line_up = permutation(availableRows.get(0),opponentRound).getValue();
-		for (int i=1; i<availableRows.size(); i++){
-			int index = availableRows.get(i);
-			int cur_score = permutation(index,opponentRound).getKey();
-			List <Integer> cur_line_up = permutation(index,opponentRound).getValue();
-			if (cur_score > best_score && averageStrength.get(index) > averageStrength.get(best_line)){
-				best_line = index;
-				best_score = cur_score;
-				line_up = cur_line_up;
-			}
+	
+	private class PlayRow {
+		private List<List<Integer>> opponentRemainDist;
+		private int maxScore = -16;
+		private int bestLine = -1;
+		
+		private <E> void swap(List<E> list, int i1, int i2) {
+			E temp = list.get(i1);
+			list.set(i1, list.get(i2));
+			list.set(i2, temp);
 		}
-		//System.out.println(best_score);
-		return new Pair<Integer, List<Integer>>(best_line, line_up);
+		
+		private void permuteRow(List<Integer> availableRows, int l, int score) {
+			if (l != 0)
+	        score += permutation(availableRows.get(l - 1), opponentRemainDist.get(l - 1)).getKey();
+			if (l == availableRows.size()) {
+				if (score > maxScore) {
+					maxScore = score;
+					bestLine = availableRows.get(0);
+				}
+			}
+	        else {
+	            for (int i = l; i < availableRows.size(); i++) {
+	                swap(availableRows, l, i);
+	                permuteRow(availableRows, l + 1, availableRows.size()); 
+	                swap(availableRows, l, i); 
+	            } 
+	        } 
+	    }
+		
+		protected Pair<Integer, List<Integer>> useRows(List<Integer> opponentRound){
+			// Predict opponent's line distributions
+			opponentRemainDist = new ArrayList<List<Integer>>();
+			opponentRemainDist.add(opponentRound);
+			
+			for (int i = 0; i < opponentRemainSkills.size(); i += 5) {
+				// Prediction policy
+				opponentRemainDist.add(new ArrayList<Integer>(
+						opponentRemainSkills.subList(i, i + 5)));
+			}
+    		System.out.println("breakpoint a");
+			// Finding the best strategy to counter the prediction
+			permuteRow(availableRows, 0, 0);
+			
+			//System.out.println(best_score);
+			return new Pair<Integer, List<Integer>>(bestLine, 
+					permutation(bestLine, opponentRound).getValue());
+		}
 	}
+	
 
 	@Override
 	public List<Integer> playRound(List<Integer> opponentRound) {
-		// TODO Assigned to Will
 		List<Integer> round = new ArrayList<Integer>();
-
+		
     	if (state){
-    		Pair<Integer, List<Integer>> temp = useRows(opponentRound);
+    		for (Integer i : opponentRound) {
+    			opponentRemainSkills.remove(i);
+    		}
+    		Collections.sort(opponentRemainSkills);
+    		Pair<Integer, List<Integer>> temp = new PlayRow().useRows(opponentRound);
     		round = temp.getValue();
     		availableRows.remove(temp.getKey());
     	}
