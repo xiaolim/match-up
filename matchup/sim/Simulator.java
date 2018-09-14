@@ -92,8 +92,8 @@ public class Simulator {
                     game.playerA.skills = skillsA;
                     game.playerB.skills = skillsB;
 
-                    game.playerA.distribution = playerA.getDistribution(skillsA, isHome);
-                    game.playerB.distribution = playerB.getDistribution(skillsB, !isHome);
+                    game.playerA.distribution = playerA.getDistribution(skillsB, isHome);
+                    game.playerB.distribution = playerB.getDistribution(skillsA, !isHome);
 
                     List<Integer> roundA = null;
                     List<Integer> roundB = null;
@@ -188,7 +188,7 @@ public class Simulator {
         playerA.clear();
         playerB.clear();
 
-        isHome = false;
+        isHome = !isHome;
     }
 
     private static PlayerWrapper loadPlayerWrapper(String name) throws Exception {
