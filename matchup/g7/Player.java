@@ -43,7 +43,7 @@ public class Player implements matchup.sim.Player {
 		// TODO Come up with a way to form distribution against opponentSkills and the team position
 		state = isHome;
 		distribution = new ArrayList<List<Integer>>();
-		this.opponentRemainSkills = opponentSkills;
+		this.opponentRemainSkills = new ArrayList<Integer>(opponentSkills);
 		if (isHome) {
 			distribution.add(new ArrayList<Integer>(Arrays.asList(11, 10, 8, 6, 4)));
 			distribution.add(new ArrayList<Integer>(Arrays.asList(9, 7, 5, 3, 1)));
@@ -166,7 +166,6 @@ public class Player implements matchup.sim.Player {
 				opponentRemainDist.add(new ArrayList<Integer>(
 						opponentRemainSkills.subList(i, i + 5)));
 			}
-    		System.out.println("breakpoint a");
 			// Finding the best strategy to counter the prediction
 			permuteRow(availableRows, 0, 0);
 			
