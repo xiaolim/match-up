@@ -19,7 +19,7 @@ public class Player implements matchup.sim.Player {
 
     /* helper variable to pass back results from permutation */
     private List<Integer> permute_result;
-    private int best_score;
+    private int best_permuted_score_cur_line;
 
     private boolean isHome;
 	
@@ -33,7 +33,7 @@ public class Player implements matchup.sim.Player {
         opponentDistribution = new ArrayList<List<Integer>>();
         isHome = true; // default
         permute_result = new ArrayList<Integer>();
-        best_score = -6;
+        best_permuted_score_cur_line = -6;
 
 		for (int i=0; i<3; ++i) availableRows.add(i);
 	}
@@ -101,8 +101,8 @@ public class Player implements matchup.sim.Player {
 
         /* permutation when isHome = True */
         if (isHome == true) {
-            int best_line_score = -6;
-            int selected_line = 0; // default first line, will be overwritten
+            int selected_line_score = -6;
+            int selected_line_index = 0; // default first line, will be overwritten
             for (int i = 0; i < availableRows.size(); i++) {
                 
                 /* TEST */
@@ -111,14 +111,14 @@ public class Player implements matchup.sim.Player {
                 System.out.println("--------------------------------------------------------------------");
                 /* TEST END */
                 line_permute(distribution.get(availableRows.get(i)), opponentRound);
-                if (best_score > best_line_score) {
+                if (best_permuted_score_cur_line > selected_line_score) {
                     /* test */
                     System.out.println("1.!!!!!!!!!!!!!!!!!!");
 
-                    best_line_score = best_score;
-                    selected_line = i;
+                    selected_line_score = best_permuted_score_cur_line;
+                    selected_line_index = i;
                     round = permute_result;
-                } else if (best_score == best_line_score) {
+                } else if (best_permuted_score_cur_line == selected_line_score) {
                     int selected_line_skill_sum = 0;
                     int current_line_skill_sum = 0;
                     for (int j = 0; j < 5; j++) {
@@ -129,21 +129,21 @@ public class Player implements matchup.sim.Player {
                         /* test */
                         System.out.println("2.!!!!!!!!!!!!!!!!!!");
 
-                        best_line_score = best_score;
-                        selected_line = i;
+                        selected_line_score = best_permuted_score_cur_line;
+                        selected_line_index = i;
                         round = permute_result;
                     }
                 } else {}
 
                 /* test */
                 System.out.println("test: Best permutation of the line: " + permute_result);
-                System.out.println("test: Resulting net Score of best permutation: " + best_score);
+                System.out.println("test: Resulting net Score of best permutation: " + best_permuted_score_cur_line);
             
             }
-            availableRows.remove(selected_line);
+            availableRows.remove(selected_line_index);
 
             System.out.println("Selected Line: " + round);
-            System.out.println("Resulting net Score: " + best_line_score);
+            System.out.println("Resulting net Score: " + selected_line_score);
 
         } else {
 
@@ -169,7 +169,7 @@ public class Player implements matchup.sim.Player {
          */
         int l = 0;
         int r = ourTeam.size() - 1;
-        best_score = -6; // resets best_score for each line permutation
+        best_permuted_score_cur_line = -6; // resets best_permuted_score_cur_line for each line permutation
         permute(ourTeam, l, r, opponent);
         return 0;
     }
@@ -185,8 +185,8 @@ public class Player implements matchup.sim.Player {
                     cur_score--;
                 } else {}
                 //System.out.println(cur_score); // test
-                if (cur_score > best_score) {
-                    best_score = cur_score;
+                if (cur_score > best_permuted_score_cur_line) {
+                    best_permuted_score_cur_line = cur_score;
                     permute_result = ourTeam;
                 }
             }
