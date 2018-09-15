@@ -170,6 +170,7 @@ public class Player implements matchup.sim.Player {
         int l = 0;
         int r = ourTeam.size() - 1;
         best_permuted_score_cur_line = -6; // resets best_permuted_score_cur_line for each line permutation
+        permute_result = null;
         permute(ourTeam, l, r, opponent);
         return 0;
     }
@@ -185,10 +186,13 @@ public class Player implements matchup.sim.Player {
                     cur_score--;
                 } else {}
                 //System.out.println(cur_score); // test
-                if (cur_score > best_permuted_score_cur_line) {
-                    best_permuted_score_cur_line = cur_score;
-                    permute_result = ourTeam;
-                }
+            }
+            if (cur_score > best_permuted_score_cur_line) {
+                /* test */
+                System.out.println("!?!?!?!?!?!?!?");
+
+                best_permuted_score_cur_line = cur_score;
+                permute_result = ourTeam;
             }
             System.out.println(" : best perm. score = " + cur_score);
 
