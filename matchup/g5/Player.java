@@ -17,6 +17,10 @@ public class Player implements matchup.sim.Player {
     private List<Integer> opponentSkills;
     private List<List<Integer>> opponentDistribution;
 
+    /* helper variable to pass back results from permutation */
+    private List<Integer> permute_result;
+    private int best_score;
+
     private boolean isHome;
 	
     /* created once for repeated games */
@@ -28,6 +32,8 @@ public class Player implements matchup.sim.Player {
         opponentSkills = new ArrayList<Integer>();
         opponentDistribution = new ArrayList<List<Integer>>();
         isHome = true; // default
+        permute_result = new ArrayList<Integer>();
+        best_score = -6;
 
 		for (int i=0; i<3; ++i) availableRows.add(i);
 	}
@@ -91,17 +97,123 @@ public class Player implements matchup.sim.Player {
         opponentDistribution.add(opponentRound);
 
         /* print tests */
-        System.out.println(isHome);
+        //System.out.println(isHome);
 
-        /* random fillers */
-        int n = rand.nextInt(availableRows.size());
-        round = new ArrayList<Integer>(distribution.get(availableRows.get(n)));
-        availableRows.remove(n);
-        Collections.shuffle(round);
+        /* permutation when isHome = True */
+        if (isHome == true) {
+            int best_line_score = -6;
+            int selected_line = 0; // default first line, will be overwritten
+            for (int i = 0; i < availableRows.size(); i++) {
+                
+                /* TEST */
+                System.out.println("--------------------------------------------------------------------");
+                System.out.println("Line permuting currently: " + distribution.get(availableRows.get(i)));
+                System.out.println("--------------------------------------------------------------------");
+                /* TEST END */
+                line_permute(distribution.get(availableRows.get(i)), opponentRound);
+                if (best_score > best_line_score) {
+                    /* test */
+                    System.out.println("1.!!!!!!!!!!!!!!!!!!");
 
+                    best_line_score = best_score;
+                    selected_line = i;
+                    round = permute_result;
+                } else if (best_score == best_line_score) {
+                    int selected_line_skill_sum = 0;
+                    int current_line_skill_sum = 0;
+                    for (int j = 0; j < 5; j++) {
+                        selected_line_skill_sum = selected_line_skill_sum + round.get(j);
+                        current_line_skill_sum = current_line_skill_sum + permute_result.get(j);
+                    }
+                    if (current_line_skill_sum < selected_line_skill_sum) {
+                        /* test */
+                        System.out.println("2.!!!!!!!!!!!!!!!!!!");
+
+                        best_line_score = best_score;
+                        selected_line = i;
+                        round = permute_result;
+                    }
+                } else {}
+
+                /* test */
+                System.out.println("test: Best permutation of the line: " + permute_result);
+                System.out.println("test: Resulting net Score of best permutation: " + best_score);
+            
+            }
+            availableRows.remove(selected_line);
+
+            System.out.println("Selected Line: " + round);
+            System.out.println("Resulting net Score: " + best_line_score);
+
+        } else {
+
+            /* random fillers */
+            int n = rand.nextInt(availableRows.size());
+            round = new ArrayList<Integer>(distribution.get(availableRows.get(n)));
+            availableRows.remove(n);
+            Collections.shuffle(round);
+        }
 
     	return round;
     }
+
+    /* permutation function 
+     * returns ourPoint - opponentPoint under our best permutation
+     * permutation algorithm is based on:
+     * https://www.geeksforgeeks.org/write-a-c-program-to-print-all-permutations-of-a-given-string/
+     */
+    private int line_permute(List<Integer> ourTeam, List<Integer> opponent) {
+        /* 
+         * l = starting index of the string
+         * r = ending index of the string
+         */
+        int l = 0;
+        int r = ourTeam.size() - 1;
+        best_score = -6; // resets best_score for each line permutation
+        permute(ourTeam, l, r, opponent);
+        return 0;
+    }
+
+    private void permute(List<Integer> ourTeam, int l, int r, List<Integer> opponent) {
+        if (l == r) {
+            System.out.print(ourTeam);
+            int cur_score = 0;
+            for (int i = 0; i < ourTeam.size(); i++) {
+                if(ourTeam.get(i) - opponent.get(i) >= 3) {
+                    cur_score++;
+                } else if (opponent.get(i) - ourTeam.get(i) >= 3) {
+                    cur_score--;
+                } else {}
+                //System.out.println(cur_score); // test
+                if (cur_score > best_score) {
+                    best_score = cur_score;
+                    permute_result = ourTeam;
+                }
+            }
+            System.out.println(" : best perm. score = " + cur_score);
+
+        } else {
+            for (int i = l; i <= r; i++) {
+                /* SWAP */
+                int temp = ourTeam.get(l);
+                ourTeam.add(l, ourTeam.get(i));
+                ourTeam.remove(l + 1);
+                ourTeam.add(i, temp);
+                ourTeam.remove(i + 1);
+                
+
+                permute(ourTeam, l + 1, r, opponent);
+
+                /* SWAP */
+                temp = ourTeam.get(l);
+                ourTeam.add(l, ourTeam.get(i));
+                ourTeam.remove(l + 1);
+                ourTeam.add(i, temp);
+                ourTeam.remove(i + 1);
+            }
+        }
+    }
+
 
     public void clear() {
     	availableRows.clear();
