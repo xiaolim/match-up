@@ -69,5 +69,4 @@ public class Line extends java.util.ArrayList<Integer> {
             }
         }
     }
-
 }
