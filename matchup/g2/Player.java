@@ -64,8 +64,11 @@ public class Player implements matchup.sim.Player {
 	        skills.add(9);
 
 	        //adding five 1s
-	        if(i%2 == 0)
+	        if(i%2 == 0){
 	            skills.add(1);
+	        }
+
+	        Collections.shuffle(skills);
 
 	    }
 	    return skills;
