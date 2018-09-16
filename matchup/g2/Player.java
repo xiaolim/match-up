@@ -58,7 +58,7 @@ public class Player implements matchup.sim.Player {
 	public List<Integer> getSkills() {
 
 	    skills.add(4); // adding one 4
-	    for (int i = 0 ; i < 9){
+	    for (int i = 0 ; i < 9; i++){
 
 	        //adding nine 9s
 	        skills.add(9);
