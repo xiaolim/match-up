@@ -94,7 +94,6 @@ public class Player implements matchup.sim.Player {
         for (int i=0; i<3; ++i) availableRows.add(i);
 
         distribution.clear();
-
     }
 
     private int lineToUse(Line opponent) {
