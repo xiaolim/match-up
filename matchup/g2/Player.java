@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.lang.Math;
 
 public class Player implements matchup.sim.Player {
-	private List<Integer> skills;
+	private List<Integer> skills; 
 	private List<List<Integer>> distribution;
 
 	private List<Integer> availableRows;
@@ -78,10 +78,10 @@ public class Player implements matchup.sim.Player {
 		// List<Integer> skills_L = getSkills().subList(0, 15);
 		// System.out.println("skills: " + skills_L);
 		// System.out.println("skills: " + skills_L.size());
-		List<Integer> skills_L = skills;
+		//List<Integer> skills_L = new ArrayList<>(); 
 
-		skills_L.sort(null);
-
+        //skills_L.addAll(skills); 
+		//skills_L.sort(null);
 		// System.out.println("Sorted skills: " + skills); //
 
 		if (isHome) {
@@ -96,10 +96,10 @@ public class Player implements matchup.sim.Player {
 				// System.out.println("row " + i + ": " + indices + " (indices)"); //
 
 				for (int ix : indices) {
-					if (!row.contains(skills_L.get(ix)))
-						row.add(skills_L.get(ix));
+					if (!row.contains(skills.get(ix)))
+						row.add(skills.get(ix));
 					else
-						leftover.add(skills_L.get(ix));
+						leftover.add(skills.get(ix));
 				}
 
 				// System.out.println("row " + i + ": " + row + " (values)");
@@ -137,12 +137,12 @@ public class Player implements matchup.sim.Player {
 
 			List<Integer> row1, row2, row3;
 
-			row1 = new ArrayList<Integer>(Arrays.asList(skills_L.get(14), skills_L.get(13), skills_L.get(12),
-					skills_L.get(3), skills_L.get(11)));
-			row2 = new ArrayList<Integer>(Arrays.asList(skills_L.get(0), skills_L.get(1), skills_L.get(2),
-					skills_L.get(4), skills_L.get(10)));
+			row1 = new ArrayList<Integer>(Arrays.asList(skills.get(14), skills.get(13), skills.get(12),
+					skills.get(3), skills.get(11)));
+			row2 = new ArrayList<Integer>(Arrays.asList(skills.get(0), skills.get(1), skills.get(2),
+					skills.get(4), skills.get(10)));
 			row3 = new ArrayList<Integer>(
-					Arrays.asList(skills_L.get(5), skills_L.get(6), skills_L.get(7), skills_L.get(8), skills_L.get(9)));
+					Arrays.asList(skills.get(5), skills.get(6), skills.get(7), skills.get(8), skills.get(9)));
 
 			distribution.add(row1);
 			distribution.add(row2);
