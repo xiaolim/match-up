@@ -32,26 +32,44 @@ public class Player implements matchup.sim.Player {
 	public void init(String opponent) {
 	}
 
+	// public List<Integer> getSkills() {
+	// 	for (int i = 0; i < 7; ++i) {
+
+	// 		int stdVar = 3;
+	// 		int mean = 6;
+	// 		int x = (((int) rand.nextGaussian()) * stdVar + mean);
+
+	// 		if (x < 1) {
+	// 			x = 1;
+	// 		} else if (x > 11) {
+	// 			x = 11;
+	// 		}
+	// 		skills.add(x);
+	// 		skills.add(12 - x);
+	// 	}
+
+	// 	skills.add(6);
+	// 	Collections.shuffle(skills);
+
+	// 	return skills;
+	// }
+
+	// NINE 9s one 4 five 1s
 	public List<Integer> getSkills() {
-		for (int i = 0; i < 7; ++i) {
 
-			int stdVar = 3;
-			int mean = 6;
-			int x = (((int) rand.nextGaussian()) * stdVar + mean);
+	    skills.add(4); // adding one 4
+	    for (int i = 0 ; i < 9){
 
-			if (x < 1) {
-				x = 1;
-			} else if (x > 11) {
-				x = 11;
-			}
-			skills.add(x);
-			skills.add(12 - x);
-		}
+	        //adding nine 9s
+	        skills.add(9);
 
-		skills.add(6);
-		Collections.shuffle(skills);
+	        //adding five 1s
+	        if(i%2 == 0)
+	            skills.add(1);
 
-		return skills;
+	    }
+	    return skills;
+	    
 	}
 
 	public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
