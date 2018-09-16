@@ -76,7 +76,7 @@ public class Player implements matchup.sim.Player {
 	}
 
 	public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
-		distribution = new ArrayList<List<Integer>>();
+		//distribution = new ArrayList<List<Integer>>();
 
 		// List<Integer> skills_L = getSkills().subList(0, 15);
 		// System.out.println("skills: " + skills_L);
