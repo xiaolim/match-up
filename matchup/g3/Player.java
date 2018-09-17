@@ -32,30 +32,30 @@ public class Player implements matchup.sim.Player {
     }
 
 	public List<Integer> getSkills() {
-		for (int i=0; i<7; ++i) {
-			int x = rand.nextInt(11) + 1;
-			skills.add(x);
-			skills.add(12 - x);
-		}
-
-		skills.add(6);
-		Collections.shuffle(skills);
-		
-		return skills;
-		
-//		for (int i = 0; i < 5; i++) {
-//			skills.add(1);
-//		}
-//		
-//		for (int i = 0; i < 5; i++) {
-//			skills.add(6);
-//		}
-//		
-//		for (int i = 0; i < 5; i++) {
-//			skills.add(11);
+//		for (int i=0; i<7; ++i) {
+//			int x = rand.nextInt(11) + 1;
+//			skills.add(x);
+//			skills.add(12 - x);
 //		}
 //
+//		skills.add(6);
+//		Collections.shuffle(skills);
+//		
 //		return skills;
+		
+		for (int i = 0; i < 5; i++) {
+			skills.add(1);
+		}
+		
+		for (int i = 0; i < 5; i++) {
+			skills.add(8);
+		}
+		
+		for (int i = 0; i < 5; i++) {
+			skills.add(9);
+		}
+
+		return skills;
 	}
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
@@ -67,7 +67,7 @@ public class Player implements matchup.sim.Player {
 
 		if (isHome) {
 			ishome = true;
-			distribution =  variateGroups();
+			distribution =  varyTeamSkills();
 			return distribution;
 		}
 		
@@ -129,31 +129,33 @@ public class Player implements matchup.sim.Player {
 //     availableRows.remove(index);
 //     return result;
     	
-//    	if (!ishome) {
-//    		int nextRow = availableRows.remove(0);
-//    		return new ArrayList<Integer>(distribution.get(nextRow));
-//    	}
+    	if (opponentRound == null || !ishome) {
+    		ishome = false;
+    		int nextRow = availableRows.remove(0);
+    		return new ArrayList<Integer>(distribution.get(nextRow));
+    	}
     	
-        if(opponentRound == null || !ishome) {
-    	    ishome = false; 
-    	    Collections.sort(availableRows, new Comparator<Integer>(){
-    	    	@Override
-    	    	public int compare(Integer a, Integer b) {
-    	    		List<Integer> roundA = new ArrayList<Integer>(distribution.get(a));
-    	    		List<Integer> roundB = new ArrayList<Integer>(distribution.get(b));
-    	    		int resultA=0, resultB=0;
-    	    		for(int i=0;i<roundA.size();i++) resultA=resultA+roundA.get(i);
-    	    		for(int i=0;i<roundB.size();i++) resultB=resultB+roundB.get(i);
-    	    		return resultA-resultB;
-    	    	}
-    	    });
-    	    List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(0)));
-            availableRows.remove(0);
-        	Collections.shuffle(round);
-        	if(availableRows.size()==0) ishome = true;
-        	return round;
-     }
+//        if(opponentRound == null || !ishome) {
+//    	    ishome = false; 
+//    	    Collections.sort(availableRows, new Comparator<Integer>(){
+//    	    	@Override
+//    	    	public int compare(Integer a, Integer b) {
+//    	    		List<Integer> roundA = new ArrayList<Integer>(distribution.get(a));
+//    	    		List<Integer> roundB = new ArrayList<Integer>(distribution.get(b));
+//    	    		int resultA=0, resultB=0;
+//    	    		for(int i=0;i<roundA.size();i++) resultA=resultA+roundA.get(i);
+//    	    		for(int i=0;i<roundB.size();i++) resultB=resultB+roundB.get(i);
+//    	    		return resultA-resultB;
+//    	    	}
+//    	    });
+//    	    List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(0)));
+//            availableRows.remove(0);
+//        	Collections.shuffle(round);
+//        	if(availableRows.size()==0) ishome = true;
+//        	return round;
+//     }
     	
+    	ishome = true;
     	int[][] teams = new int[availableRows.size()][5];
     	int[] wins = new int[availableRows.size()];
     	double[] wastes = new double[availableRows.size()];
@@ -307,7 +309,7 @@ public class Player implements matchup.sim.Player {
     	}
     }
     
-    private List<List<Integer>> variateGroups() {
+    private List<List<Integer>> varyTeamSkills() {
     	List<List<Integer>> varied = new ArrayList<List<Integer>>();
     	
     	for (int i = 0; i < 3; i++) {
