@@ -1,4 +1,4 @@
-package matchup.luc;
+package matchup.g3;
 
 import java.util.ArrayList;
 import java.util.Collections;
