@@ -58,6 +58,42 @@ public class Player implements matchup.sim.Player {
 		Collections.shuffle(skills);
 		return skills;
 	}
+	
+	// This algorithm will select 'num' random integers from the range [min, max] that add up to the desired 'sum'.
+	// It isn't hard coded to select 15 random numbers adding up to 90, and can be used to adaptively select a team
+	// by changing the range or manually selecting a few players and having the algorithm fill out the rest
+	public List<Integer> trueRandom(int min, int max, int sum, int num){
+		int desired_sum = sum;
+		int current_sum = 0;
+		int remaining = desired_sum - current_sum;
+		int current_min = min;
+		int current_max = max;
+		int num_players = num;
+		int player_skill = 0;
+
+		for(int i=0; i<num; i++){
+			num_players--;
+		  if(num_players != 0){
+				while (((remaining - current_max)/num_players) < current_min){
+					current_max -= 1;
+				}
+				while (((remaining - current_min)/num_players) > current_max){
+					current_min += 1;
+				}
+			player_skill = current_min + rand.nextInt(current_max - current_min + 1);
+			skills.add(player_skill);
+			current_sum += player_skill;
+			remaining = desired_sum - current_sum;
+			}
+		  else{
+				player_skill = remaining;
+				skills.add(player_skill);
+				current_sum += player_skill;
+				remaining = desired_sum - current_sum;
+			}
+		}
+		return skills;
+	}
 
     /* called every home/away switch */
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
