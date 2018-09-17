@@ -92,6 +92,8 @@ public class Player implements matchup.sim.Player {
 
 	public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
 		
+		distribution = new ArrayList<List<Integer>>();
+
 		skills.sort(null);
 
 		System.out.println(skills); //
@@ -145,82 +147,16 @@ public class Player implements matchup.sim.Player {
 					}
 				}
 			}
-		}
-
-
-
-
-		/*//distribution = new ArrayList<List<Integer>>();
-
-		// List<Integer> skills_L = getSkills().subList(0, 15);
-		// System.out.println("skills: " + skills_L);
-		// System.out.println("skills: " + skills_L.size());
-		//List<Integer> skills_L = new ArrayList<>(); 
-
-        	//skills_L.addAll(skills); 
-		//skills_L.sort(null);
-		// System.out.println("Sorted skills: " + skills); //
-
-		if (isHome) {
-			// arrange rows to be optimal for HOME play
-			// System.out.println("HOME play"); //
-
-			List<Integer> leftover = new ArrayList<Integer>();
-
-			for (int i = 0; i < 3; ++i) {
-				List<Integer> row = new ArrayList<Integer>();
-				List<Integer> indices = new ArrayList<Integer>(Arrays.asList(i, i + 3, i + 6, (14 - (i + 3)), (14 - i)));
-				// System.out.println("row " + i + ": " + indices + " (indices)"); //
-
-				for (int ix : indices) {
-					if (!row.contains(skills.get(ix)))
-						row.add(skills.get(ix));
-					else
-						leftover.add(skills.get(ix));
-				}
-
-				// System.out.println("row " + i + ": " + row + " (values)");
-				distribution.add(row);
-			}
-
-			// System.out.println("skills leftover: " + leftover);
-			// System.out.println("distributions: " + distribution.get(0) + ", " +
-			// distribution.get(1) + ", " + distribution.get(2));
-
-			for (int s : leftover) {
-				boolean added = false;
-				for (int i = 0; i < 3; ++i) {
-					if ((distribution.get(i).size() < 5) && !(distribution.get(i).contains(s))) {
-						distribution.get(i).add(s);
-						added = true;
-					} else {
-						continue;
-					}
-				}
-				if (!added) {
-					for (int i = 0; i < 3; ++i) {
-						if (distribution.get(i).size() < 5)
-							distribution.get(i).add(s);
-					}
-				}
-			}
-
-			// System.out.println("distributions: " + distribution.get(0) + ", " +
-			// distribution.get(1) + ", " + distribution.get(2));
-
 		} else {
 			// arrange rows to be optimal for AWAY play
-			// System.out.println("AWAY play");
 
 			List<Integer> row1, row2, row3;
 
-			row1 = new ArrayList<Integer>(Arrays.asList(skills.get(14), skills.get(13), skills.get(12),
-					skills.get(3), skills.get(11)));
-			row2 = new ArrayList<Integer>(Arrays.asList(skills.get(0), skills.get(1), skills.get(2),
-					skills.get(4), skills.get(10)));
-			row3 = new ArrayList<Integer>(
-					Arrays.asList(skills.get(5), skills.get(6), skills.get(7), skills.get(8), skills.get(9)));
+			row1 = new ArrayList<Integer>(Arrays.asList(skills.get(14), skills.get(13), skills.get(12), skills.get(3), skills.get(11)));
+			row2 = new ArrayList<Integer>(Arrays.asList(skills.get(0), skills.get(1), skills.get(2), skills.get(4), skills.get(10)));
+			row3 = new ArrayList<Integer>(Arrays.asList(skills.get(5), skills.get(6), skills.get(7), skills.get(8), skills.get(9)));
 
+			System.out.println("row1: " + row1);
 			distribution.add(row1);
 			distribution.add(row2);
 			distribution.add(row3);
