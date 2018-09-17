@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import matchup.sim.utils.*;
 
 public class Player implements matchup.sim.Player {
     private List<Integer> skills;
@@ -27,6 +28,23 @@ public class Player implements matchup.sim.Player {
     }
 
     public List<Integer> getSkills() {
+	    skills = new ArrayList<Integer>();
+            //Risky
+	    //Collections.addAll(skills, 11, 11, 1, 1, 6);
+	    //Collections.addAll(skills, 11, 11, 1, 1, 6);
+	    //Collections.addAll(skills, 11, 11, 1, 1, 6);
+
+	    //Safe
+	    //Collections.addAll(skills, 8, 8, 4, 4, 6);
+	    //Collections.addAll(skills, 8, 8, 4, 4, 6);
+	    //Collections.addAll(skills, 8, 8, 4, 4, 6);
+	    
+	    //Middle
+	    //Collections.addAll(skills, 10, 2, 9, 3, 6);
+	    //Collections.addAll(skills, 10, 2, 9, 3, 6);
+	    //Collections.addAll(skills, 10, 2, 9, 3, 6);
+	    
+	    //Old
 	    Collections.addAll(skills, 11, 11, 1, 1, 6, 8, 8, 4, 4, 6, 10, 2, 9, 3, 6);
 	    return skills;
     }
@@ -52,8 +70,10 @@ public class Player implements matchup.sim.Player {
     }
 
     public List<Integer> playRound(List<Integer> opponentRound) {
-	opponentRound = new ArrayList<Integer>();
-	Collections.addAll(opponentRound, 1, 2, 6, 10, 11);
+	if (opponentRound == null) {
+	    opponentRound = new ArrayList<Integer>();
+	    Collections.addAll(opponentRound, 1, 2, 6, 10, 11);
+	}
 	//System.out.println("inside playRound");
     	//System.out.println("oppTeam:");
 	//System.out.println(opponentRound);
@@ -65,7 +85,10 @@ public class Player implements matchup.sim.Player {
     	availableRows.remove(n);
 
 	bestTeam = new ArrayList<Integer>();
-	Collections.addAll(bestTeam, 0, 0, 0, 0, 0);
+	for (int i : round) {
+	    Collections.addAll(bestTeam, i);
+	}
+	//Collections.addAll(bestTeam, 0, 0, 0, 0, 0);
 	//System.out.println("bestTeam before permute:");
 	//System.out.println(bestTeam);
 
@@ -83,6 +106,52 @@ public class Player implements matchup.sim.Player {
     public void clear() {
     	availableRows.clear();
     	for (int i=0; i<3; ++i) availableRows.add(i);
+
+        // Get history of games.
+        List<Game> games = History.getHistory();
+	int friendly_total_score = 0;
+	int opponent_total_score = 0;
+	int friendly_total_wins = 0;
+	int opponent_total_wins = 0;
+	int numGames = 2000;
+	//int count_playerA_friendly = 0;
+	if (games.size() >= numGames) {
+	    System.out.println(games.size());
+	    Game game;
+	    PlayerData opponent;
+	    PlayerData friendly;
+	    for (int i = 0; i < numGames; i++) {
+		game = games.get(i);
+		if (game.playerA.name == "g1") {
+		    friendly = game.playerA;
+		    opponent = game.playerB;
+		    //count_playerA_friendly += 1;
+		} else {
+		    friendly = game.playerB;
+		    opponent = game.playerA;
+		}
+		if (friendly.score > opponent.score) {
+		    friendly_total_wins += 1;
+		} else if (friendly.score < opponent.score) {
+		    opponent_total_wins += 1;
+		}
+		friendly_total_score += friendly.score;
+		opponent_total_score += opponent.score;
+	    }
+	    System.out.println("end result:");
+	    System.out.println("friendly result:");
+	    //System.out.println("count_playerA_friendly:");
+	    //System.out.println(count_playerA_friendly);
+	    System.out.println("score:");
+	    System.out.println(friendly_total_score);
+	    System.out.println("wins:");
+	    System.out.println(friendly_total_wins);
+	    System.out.println("opponent result:");
+	    System.out.println("score:");
+	    System.out.println(opponent_total_score);
+	    System.out.println("wins:");
+	    System.out.println(opponent_total_wins);
+	}
     }
 
     public List<Integer> permuteHomeTeam(List<Integer> homeTeam, List<Integer> awayTeam){
