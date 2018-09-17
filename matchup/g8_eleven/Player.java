@@ -31,28 +31,20 @@ public class Player implements matchup.sim.Player
     	
     }
 
+    // We are going to assume this can beat the 7s Team.
+    // So we are assuming highest rank fighting us is 7. 
+    // 7 can be beaten by 10, 11. We can try using our lower ranks to tie either the 5s?
 	public List<Integer> getSkills()
 	{
 		// I need to check what the highest ranked player is...
 		// So I need to know whether I must draw/beat their highest ranked player for victory
 		List<Integer> skills = new ArrayList<>();
-		skills.add(10);
-		skills.add(10);
-		skill.add(6);
-		skill.add(2);
-		skill.add(2);
-		
-		skill.add(10);
-		skill.add(10);
-		skill.add(6);
-		skill.add(2);
-		skill.add(2);
-		
-		skill.add(10);
-		skill.add(10);
-		skill.add(6);
-		skill.add(2);
-		skill.add(2);
+		skills.add(6); // idx: 0
+		for (int i = 0; i < 7 i++) 
+		{
+			skills.add(7);// idx: 1, 3, 5, 7, 9, 11, 13
+			skills.add(5);// idx: 2, 4, 6, 8, 10, 12, 14
+		}
 		return skills;
 	}
 
@@ -130,7 +122,7 @@ public class Player implements matchup.sim.Player
 
     public int canTie(int score, List<Integer> round, int j)
     {
-    	for(int i=j;i < round.size();i++)
+    	for(int i=j;i<round.size();i++)
     	{
     		if(Math.abs(score - round.get(i)) < 3)
 		 	{
