@@ -22,7 +22,8 @@ public class Player implements matchup.sim.Player {
 	public Player() {
 		//skills = new ArrayList<Integer>();
 		// TODO Find out a good skill set
-		skills = new ArrayList<Integer>(Arrays.asList(1, 1, 2, 3, 4, 5, 6, 6, 7, 8, 8, 9, 9, 10, 11));
+		//skills = new ArrayList<Integer>(Arrays.asList(1, 1, 2, 3, 4, 5, 6, 6, 7, 8, 8, 9, 9, 10, 11));
+		skills = new ArrayList<Integer>(Arrays.asList(1, 1, 1, 1, 1, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9));
 		availableRows = new ArrayList<Integer>(Arrays.asList(0, 1, 2));
 		averageStrength = new ArrayList<Float>();
 		state = false;
@@ -45,20 +46,24 @@ public class Player implements matchup.sim.Player {
 		distribution = new ArrayList<List<Integer>>();
 		this.opponentRemainSkills = new ArrayList<Integer>(opponentSkills);
 		if (isHome) {
-			distribution.add(new ArrayList<Integer>(Arrays.asList(11, 10, 8, 6, 4)));
-			distribution.add(new ArrayList<Integer>(Arrays.asList(9, 7, 5, 3, 1)));
-			distribution.add(new ArrayList<Integer>(Arrays.asList(9, 8, 6, 2, 1)));
+			//distribution.add(new ArrayList<Integer>(Arrays.asList(11, 10, 8, 6, 4)));
+			//distribution.add(new ArrayList<Integer>(Arrays.asList(9, 7, 5, 3, 1)));
+			//distribution.add(new ArrayList<Integer>(Arrays.asList(9, 8, 6, 2, 1)));
+			distribution.add(new ArrayList<Integer>(Arrays.asList(9, 9, 4, 1, 1)));
+			distribution.add(new ArrayList<Integer>(Arrays.asList(9, 9, 9, 9, 1)));
+			distribution.add(new ArrayList<Integer>(Arrays.asList(9, 9, 9, 1, 1)));
 		}
 		else {
-			distribution.add(new ArrayList<Integer>(Arrays.asList(11, 10, 9, 9, 7)));
-			distribution.add(new ArrayList<Integer>(Arrays.asList(8, 8, 6, 5, 4)));
-			distribution.add(new ArrayList<Integer>(Arrays.asList(6, 3, 2, 1, 1)));
+			distribution.add(new ArrayList<Integer>(Arrays.asList(4, 9, 9, 9, 9)));
+			distribution.add(new ArrayList<Integer>(Arrays.asList(1, 1, 1, 1, 1)));
+			distribution.add(new ArrayList<Integer>(Arrays.asList(9, 9, 9, 9, 9)));
+
 		}
 		for (int i=0; i<distribution.size(); i++){
 			averageStrength.add(findAverage(distribution.get(i)));
 		}
 
-		return distribution;
+		return new ArrayList<List<Integer>>(distribution);
 	}
 	
 	private float findAverage(List<Integer> line) {
@@ -158,6 +163,7 @@ public class Player implements matchup.sim.Player {
 		
 		protected Pair<Integer, List<Integer>> useRows(List<Integer> opponentRound){
 			// Predict opponent's line distributions
+    		Collections.sort(opponentRemainSkills);
 			opponentRemainDist = new ArrayList<List<Integer>>();
 			opponentRemainDist.add(opponentRound);
 			
@@ -184,7 +190,6 @@ public class Player implements matchup.sim.Player {
     		for (Integer i : opponentRound) {
     			opponentRemainSkills.remove(i);
     		}
-    		Collections.sort(opponentRemainSkills);
     		Pair<Integer, List<Integer>> temp = new PlayRow().useRows(opponentRound);
     		round = temp.getValue();
     		availableRows.remove(temp.getKey());
