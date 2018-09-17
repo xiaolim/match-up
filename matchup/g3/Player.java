@@ -6,6 +6,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Comparator;
 
 public class Player implements matchup.sim.Player {
 	private List<Integer> skills;
@@ -15,14 +16,14 @@ public class Player implements matchup.sim.Player {
 
 	private Random rand;
 	
-	private boolean home;
+	private boolean ishome = true; 
 	
 	public Player() {
 		rand = new Random();
 		skills = new ArrayList<Integer>();
 		distribution = new ArrayList<List<Integer>>();
 		availableRows = new ArrayList<Integer>();
-		home = false;
+		ishome = false;
 
 		for (int i=0; i<3; ++i) availableRows.add(i);
 	}
@@ -58,21 +59,19 @@ public class Player implements matchup.sim.Player {
 	}
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
-    	System.out.println("original skills: " + skills);
     	quickSort(0, skills.size() - 1);
-    	System.out.println("sorted skills: " + skills);
     	List<Integer> index = new ArrayList<Integer>();
     	for (int i=0; i<15; ++i) index.add(i);
 
     	distribution = new ArrayList<List<Integer>>();
 
 		if (isHome) {
-			home = true;
+			ishome = true;
 			distribution =  variateGroups();
 			return distribution;
 		}
 		
-		home = false;
+		ishome = false;
 		int n = 0;
     	for (int i=0; i<3; ++i) {
     		List<Integer> row = new ArrayList<Integer>();
@@ -130,10 +129,30 @@ public class Player implements matchup.sim.Player {
 //     availableRows.remove(index);
 //     return result;
     	
-    	if (!home) {
-    		int nextRow = availableRows.remove(0);
-    		return new ArrayList<Integer>(distribution.get(nextRow));
-    	}
+//    	if (!ishome) {
+//    		int nextRow = availableRows.remove(0);
+//    		return new ArrayList<Integer>(distribution.get(nextRow));
+//    	}
+    	
+        if(opponentRound == null || !ishome) {
+    	    ishome = false; 
+    	    Collections.sort(availableRows, new Comparator<Integer>(){
+    	    	@Override
+    	    	public int compare(Integer a, Integer b) {
+    	    		List<Integer> roundA = new ArrayList<Integer>(distribution.get(a));
+    	    		List<Integer> roundB = new ArrayList<Integer>(distribution.get(b));
+    	    		int resultA=0, resultB=0;
+    	    		for(int i=0;i<roundA.size();i++) resultA=resultA+roundA.get(i);
+    	    		for(int i=0;i<roundB.size();i++) resultB=resultB+roundB.get(i);
+    	    		return resultA-resultB;
+    	    	}
+    	    });
+    	    List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(0)));
+            availableRows.remove(0);
+        	Collections.shuffle(round);
+        	if(availableRows.size()==0) ishome = true;
+        	return round;
+     }
     	
     	int[][] teams = new int[availableRows.size()][5];
     	int[] wins = new int[availableRows.size()];
