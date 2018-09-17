@@ -146,10 +146,15 @@ public class Player implements matchup.sim.Player {
                 System.out.println("Line permuting currently: " + distribution.get(availableRows.get(i)));
                 System.out.println("--------------------------------------------------------------------");
                 /* TEST END */
+                /* clear the return variables */
+                best_permuted_score_cur_line = -6; // resets best_permuted_score_cur_line for each line permutation
+                permute_result = null;
+
                 line_permute(distribution.get(availableRows.get(i)), opponentRound);
+
                 if (best_permuted_score_cur_line > selected_line_score) {
                     /* test */
-                    System.out.println("1.!!!!!!!!!!!!!!!!!!");
+                    //System.out.println("1.!!!!!!!!!!!!!!!!!!");
 
                     selected_line_score = best_permuted_score_cur_line;
                     selected_line_index = i;
@@ -163,7 +168,7 @@ public class Player implements matchup.sim.Player {
                     }
                     if (current_line_skill_sum < selected_line_skill_sum) {
                         /* test */
-                        System.out.println("2.!!!!!!!!!!!!!!!!!!");
+                        //System.out.println("2.!!!!!!!!!!!!!!!!!!");
 
                         selected_line_score = best_permuted_score_cur_line;
                         selected_line_index = i;
@@ -205,15 +210,13 @@ public class Player implements matchup.sim.Player {
          */
         int l = 0;
         int r = ourTeam.size() - 1;
-        best_permuted_score_cur_line = -6; // resets best_permuted_score_cur_line for each line permutation
-        permute_result = null;
         permute(ourTeam, l, r, opponent);
         return 0;
     }
 
     private void permute(List<Integer> ourTeam, int l, int r, List<Integer> opponent) {
         if (l == r) {
-            System.out.print(ourTeam);
+            //System.out.print(ourTeam);
             int cur_score = 0;
             for (int i = 0; i < ourTeam.size(); i++) {
                 if(ourTeam.get(i) - opponent.get(i) >= 3) {
@@ -225,12 +228,13 @@ public class Player implements matchup.sim.Player {
             }
             if (cur_score > best_permuted_score_cur_line) {
                 /* test */
-                System.out.println("!?!?!?!?!?!?!?");
+                //System.out.println("!?!?!?!?!?!?!?");
 
                 best_permuted_score_cur_line = cur_score;
-                permute_result = ourTeam;
+                permute_result = new ArrayList<Integer>(ourTeam);
             }
-            System.out.println(" : best perm. score = " + cur_score);
+            //System.out.println("permute_result: " + permute_result);
+            //System.out.println(" : best perm. score = " + cur_score);
 
         } else {
             for (int i = l; i <= r; i++) {
