@@ -11,7 +11,6 @@ public class Randomizer{
     List<Integer> selection = trueRandom(1,11,90,15);
     for(int i=0; i<selection.size(); i++){
       sum += selection.get(i);
-      System.out.println(selection.get(i));
     }
       System.out.println("The sum is: " + sum);
   }
@@ -28,19 +27,20 @@ public class Randomizer{
 		int player_skill = 0;
     List<Integer> skills = new ArrayList<Integer>();
 
-    for(int i=0; i<15; i++){
+    for(int i=0; i<num; i++){
       num_players--;
       if(num_players != 0){
-        while (((remaining - current_max)/num_players) < current_min){
+        while (((remaining - current_max)/num_players) <= min){
           current_max -= 1;
         }
-        while (((remaining - current_min)/num_players) > current_max){
+        while (((remaining - current_min)/num_players) >= max){
           current_min += 1;
         }
 
-        int range = current_max - current_min + 1;
+        int range = current_max - current_min;
+        System.out.println("The range is: (" + current_min + ", " + current_max + ")");
         if(range == 0){
-          player_skill = current_min;
+          player_skill = current_max;
         }
         else{
           player_skill = current_min + rand.nextInt(range);
@@ -55,6 +55,9 @@ public class Randomizer{
         current_sum += player_skill;
         remaining = desired_sum - current_sum;
       }
+      // System.out.println("Selected player with skill level: " + player_skill);
+      // System.out.println("The remainder is: " + remaining);
+      // System.out.println("Number of players left: " + num_players);
     }
     return skills;
   }
