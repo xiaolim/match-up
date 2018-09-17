@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Arrays;
 import java.lang.Math;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Player implements matchup.sim.Player {
 	private List<Integer> skills; 
@@ -71,42 +73,68 @@ public class Player implements matchup.sim.Player {
 		return skills;
 	}
 
-	/*public List<Integer> getSkills() {
-		skills.add(2);
-		skills.add(11);
-		skills.add(11);
-		skills.add(3);
-		skills.add(3);
-		skills.add(5);
-		skills.add(9);
-		skills.add(9);
-		skills.add(9);
-		skills.add(9);
-		skills.add(11);
-		skills.add(1);
-		skills.add(2);
-		skills.add(3);
-		skills.add(2);
-		return skills;
-	}*/
-
 	public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
 		
 		distribution = new ArrayList<List<Integer>>();
 
 		skills.sort(null);
 
-		System.out.println(skills); //
+		//System.out.println(skills); //
 
 		if (isHome) {
-			// Arrange rows to be optimal for HOME play
+			// -- Arrange rows to be optimal for HOME play --
 
+			// -- Gather information about opponent's skills --
+			// Opponent mean: 6
+
+			opponentSkills.sort(null);
+
+			// Opponent range:
+			int opp_range = opponentSkills.get(14) - opponentSkills.get(0);
+			System.out.println("opp_range: " + opp_range);
+
+			// If range is HIGH or LOW do something different <<<
+
+			// Opponent standard deviation:
+			double opp_stdev;
+			double sqr_sum = 0;
+			for (int s : opponentSkills) {
+				sqr_sum += Math.pow((s-6), 2);
+			}
+			opp_stdev = Math.sqrt(sqr_sum/14);
+			System.out.println("opp_stdev: " + opp_stdev);
+
+			// Opponent skill count:
+			Map<Integer, Integer> opp_skill_count = new HashMap<Integer, Integer>();
+			/*for (int s : opponentSkills) {
+				if (!opp_skill_count.containsKey(s))
+					opp_skill_count.put(s, 1);
+				else
+					opp_skill_count.replace(s, opp_skill_count.get(s)+1);
+			}
+			*/
+			opp_skill_count.put(4, 5);
+			opp_skill_count.put(6, 8);
+			opp_skill_count.put(8, 5);
+			System.out.println("opp_skill_count: " + opp_skill_count);
+
+			// >> Split lines differently depending on opponent skill count
+			if (opp_skill_count.values().equals(Arrays.asList(5, 5, 5))) {
+				System.out.println("! opponent has three values repeated 5 times each!");
+			} else if (Collections.max(opp_skill_count.values()) > 7) {
+				System.out.println("opponent has one value repeated over 7 times");
+			} else {
+				System.out.println("no specific opponent skill distribution");
+			}
+
+			
+			// -- Distribute skills into 3 lines --
 			List<Integer> leftover = new ArrayList<Integer>();
 
 			for (int i=0; i<3; i++) {
 				List<Integer> row = new ArrayList<Integer>();
 				List<Integer> indices = new ArrayList<Integer>(Arrays.asList(i, (i+3), (i+6), (14 - (i + 3)), (14 - i)));
-				System.out.println("row " + i + ": " + indices + " (indices)"); //
+				//System.out.println("row " + i + ": " + indices + " (indices)"); //
 
 				for (int ix : indices) {
 					int skill = skills.get(ix);
@@ -116,23 +144,23 @@ public class Player implements matchup.sim.Player {
 						leftover.add(skill);
 				}
 
-				System.out.println("row " + i + ": " + row + " (values)"); //
+				//System.out.println("row " + i + ": " + row + " (values)"); //
 				distribution.add(row);
 			}
 			leftover.sort(null);
-			System.out.println("leftover: " + leftover); //
+			//System.out.println("leftover: " + leftover); //
 
 			boolean added;
 			for (int c=0; c<leftover.size(); c++) {
 				int s = leftover.get(c);
-				System.out.println(c + ", " + s);
+				//System.out.println(c + ", " + s);
 				added = false;
 				for (int i=0; i<3; i++) {
 					//System.out.println(distribution.get(i));
 					if ((distribution.get(i).size() < 5) && (!distribution.get(i).contains(s))) {
 						distribution.get(i).add(s);
 						added = true;
-						System.out.println("added " + s + " >> " + distribution.get(i));
+						//System.out.println("added " + s + " >> " + distribution.get(i));
 						break;
 					}
 				}
@@ -141,7 +169,7 @@ public class Player implements matchup.sim.Player {
 						if (distribution.get(j).size() < 5) {
 							distribution.get(j).add(s);
 							added = true;
-							System.out.println("added " + s + " to row " + j + " >> " + distribution.get(j));
+							//System.out.println("added " + s + " to row " + j + " >> " + distribution.get(j));
 							break;
 						}
 					}
@@ -156,7 +184,6 @@ public class Player implements matchup.sim.Player {
 			row2 = new ArrayList<Integer>(Arrays.asList(skills.get(0), skills.get(1), skills.get(2), skills.get(4), skills.get(10)));
 			row3 = new ArrayList<Integer>(Arrays.asList(skills.get(5), skills.get(6), skills.get(7), skills.get(8), skills.get(9)));
 
-			System.out.println("row1: " + row1);
 			distribution.add(row1);
 			distribution.add(row2);
 			distribution.add(row3);
