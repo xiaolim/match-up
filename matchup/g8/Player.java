@@ -62,25 +62,54 @@ public class Player implements matchup.sim.Player {
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
     	List<Integer> row1 = new ArrayList<Integer>();
-    	row1.add(9);
+	List<Integer> row2 = new ArrayList<Integer>();
+	List<Integer> row3 = new ArrayList<Integer>();
+	if(isHome)
+    	{
+	row1.add(9);
     	row1.add(9);
     	row1.add(5);
     	row1.add(5);
     	row1.add(4);
 
-    	List<Integer> row2 = new ArrayList<Integer>();
+    	
     	row2.add(9);
     	row2.add(7);
     	row2.add(7);
     	row2.add(4);
     	row2.add(2);
 
-    	List<Integer> row3 = new ArrayList<Integer>();
+    	
     	row3.add(9);
     	row3.add(7);
     	row3.add(5);
     	row3.add(4);
     	row3.add(4);
+	}
+
+	else
+	{
+	row1.add(9);
+    	row1.add(9);
+    	row1.add(9);
+    	row1.add(9);
+    	row1.add(2);
+
+    	
+    	row2.add(7);
+    	row2.add(7);
+    	row2.add(7);
+    	row2.add(5);
+    	row2.add(5);
+
+    	
+    	row3.add(5);
+    	row3.add(4);
+    	row3.add(4);
+    	row3.add(4);
+    	row3.add(4);
+		
+	}
 
     	distribution = new ArrayList<List<Integer>>();
 
@@ -113,8 +142,11 @@ public class Player implements matchup.sim.Player {
  
 	List<Integer> round = null;
 	if (opponentRound == null) {
-    	int min_sum = 60;
-    	int min_row = -1;
+    	int max_sum = 0;
+    	int max_row = -1;
+
+	int mid_sum = 60;
+        int mid_row = -1;
 
     	for (int i = 0; i < availableRows.size(); i++){
     		int sum = 0;
@@ -122,14 +154,27 @@ public class Player implements matchup.sim.Player {
     			sum += j;
 			}
 
-			if (sum < min_sum){
+/*			if (sum < min_sum){
+				mid_sum = min_sum;
+				mid_row = min_row;
 				min_sum = sum;
 				min_row = i;
 			}
+			else if (sum < mid_sum)
+			{
+				mid_sum = sum;
+				mid_row = i;
+			}
+*/
+			if (sum > max_sum){				
+				max_sum = sum;
+				max_row = i;
+			}
     	}
 
-    	round = distribution.get(min_row);
-    	availableRows.remove(min_row);
+//	System.out.println("mid row is" + Integer.toString(mid_row));
+    	round = distribution.get(max_row);
+    	availableRows.remove(max_row);
     	return round;
 
 	}
