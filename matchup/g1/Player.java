@@ -54,11 +54,11 @@ public class Player implements matchup.sim.Player {
     public List<Integer> playRound(List<Integer> opponentRound) {
 	opponentRound = new ArrayList<Integer>();
 	Collections.addAll(opponentRound, 1, 2, 6, 10, 11);
-	System.out.println("inside playRound");
-    	System.out.println("oppTeam:");
-	System.out.println(opponentRound);
-	System.out.println("bestTeam:");
-	System.out.println(bestTeam);
+	//System.out.println("inside playRound");
+    	//System.out.println("oppTeam:");
+	//System.out.println(opponentRound);
+	//System.out.println("bestTeam:");
+	//System.out.println(bestTeam);
 	int n = rand.nextInt(availableRows.size());
 
     	List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(n)));
@@ -66,14 +66,14 @@ public class Player implements matchup.sim.Player {
 
 	bestTeam = new ArrayList<Integer>();
 	Collections.addAll(bestTeam, 0, 0, 0, 0, 0);
-	System.out.println("bestTeam before permute:");
-	System.out.println(bestTeam);
+	//System.out.println("bestTeam before permute:");
+	//System.out.println(bestTeam);
 
 	round = permuteHomeTeam(round, opponentRound);
-	System.out.println("oppTeam:");
-	System.out.println(opponentRound);
-	System.out.println("bestTeam:");
-	System.out.println(bestTeam);
+	//System.out.println("oppTeam:");
+	//System.out.println(opponentRound);
+	//System.out.println("bestTeam:");
+	//System.out.println(bestTeam);
 	return bestTeam;
 	//round = bestTeam;
 
@@ -86,24 +86,24 @@ public class Player implements matchup.sim.Player {
     }
 
     public List<Integer> permuteHomeTeam(List<Integer> homeTeam, List<Integer> awayTeam){
-       	System.out.println("homeTeam:");
-	System.out.println(homeTeam);
-       	System.out.println("awayTeam:");
-	System.out.println(awayTeam);
-	System.out.println("bestTeam:");
-	System.out.println(bestTeam);
+       	//System.out.println("homeTeam:");
+	//System.out.println(homeTeam);
+       	//System.out.println("awayTeam:");
+	//System.out.println(awayTeam);
+	//System.out.println("bestTeam:");
+	//System.out.println(bestTeam);
         if(checkLineupScore(homeTeam, awayTeam) == 5){
             return bestTeam;
         }
-       	System.out.println("homeTeam:");
-	System.out.println(homeTeam);
-       	System.out.println("awayTeam:");
-	System.out.println(awayTeam);
-	System.out.println("bestTeam:");
-	System.out.println(bestTeam);
+       	//System.out.println("homeTeam:");
+	//System.out.println(homeTeam);
+       	//System.out.println("awayTeam:");
+	//System.out.println(awayTeam);
+	//System.out.println("bestTeam:");
+	//System.out.println(bestTeam);
 	permute(homeTeam, awayTeam);
 
-        System.out.println(checkLineupScore(homeTeam, awayTeam));
+        //System.out.println(checkLineupScore(homeTeam, awayTeam));
         return bestTeam;
     }
 
