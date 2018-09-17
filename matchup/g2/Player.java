@@ -56,34 +56,108 @@ public class Player implements matchup.sim.Player {
 
 	// NINE 9s one 4 five 1s
 	public List<Integer> getSkills() {
+		
+		skills.add(4); // adding one 4
+		for (int i = 0 ; i < 9; i++){
 
-	    skills.add(4); // adding one 4
-	    for (int i = 0 ; i < 9; i++){
+			//adding nine 9s
+			skills.add(9);
 
-	        //adding nine 9s
-	        skills.add(9);
-
-	        //adding five 1s
-	        if(i%2 == 0){
-	            skills.add(1);
-	        }
-
-	        Collections.shuffle(skills);
-
-	    }
-	    return skills;
-	    
+			//adding five 1s
+			if(i%2 == 0){
+				skills.add(1);
+			}
+		}
+		return skills;
 	}
 
+	/*public List<Integer> getSkills() {
+		skills.add(2);
+		skills.add(11);
+		skills.add(11);
+		skills.add(3);
+		skills.add(3);
+		skills.add(5);
+		skills.add(9);
+		skills.add(9);
+		skills.add(9);
+		skills.add(9);
+		skills.add(11);
+		skills.add(1);
+		skills.add(2);
+		skills.add(3);
+		skills.add(2);
+		return skills;
+	}*/
+
 	public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
-		//distribution = new ArrayList<List<Integer>>();
+		
+		skills.sort(null);
+
+		System.out.println(skills); //
+
+		if (isHome) {
+			// Arrange rows to be optimal for HOME play
+
+			List<Integer> leftover = new ArrayList<Integer>();
+
+			for (int i=0; i<3; i++) {
+				List<Integer> row = new ArrayList<Integer>();
+				List<Integer> indices = new ArrayList<Integer>(Arrays.asList(i, (i+3), (i+6), (14 - (i + 3)), (14 - i)));
+				System.out.println("row " + i + ": " + indices + " (indices)"); //
+
+				for (int ix : indices) {
+					int skill = skills.get(ix);
+					if (!row.contains(skill))
+						row.add(skill);
+					else
+						leftover.add(skill);
+				}
+
+				System.out.println("row " + i + ": " + row + " (values)"); //
+				distribution.add(row);
+			}
+			leftover.sort(null);
+			System.out.println("leftover: " + leftover); //
+
+			boolean added;
+			for (int c=0; c<leftover.size(); c++) {
+				int s = leftover.get(c);
+				System.out.println(c + ", " + s);
+				added = false;
+				for (int i=0; i<3; i++) {
+					//System.out.println(distribution.get(i));
+					if ((distribution.get(i).size() < 5) && (!distribution.get(i).contains(s))) {
+						distribution.get(i).add(s);
+						added = true;
+						System.out.println("added " + s + " >> " + distribution.get(i));
+						break;
+					}
+				}
+				if (!added) {
+					for (int j=0; j<3; j++) {
+						if (distribution.get(j).size() < 5) {
+							distribution.get(j).add(s);
+							added = true;
+							System.out.println("added " + s + " to row " + j + " >> " + distribution.get(j));
+							break;
+						}
+					}
+				}
+			}
+		}
+
+
+
+
+		/*//distribution = new ArrayList<List<Integer>>();
 
 		// List<Integer> skills_L = getSkills().subList(0, 15);
 		// System.out.println("skills: " + skills_L);
 		// System.out.println("skills: " + skills_L.size());
 		//List<Integer> skills_L = new ArrayList<>(); 
 
-        //skills_L.addAll(skills); 
+        	//skills_L.addAll(skills); 
 		//skills_L.sort(null);
 		// System.out.println("Sorted skills: " + skills); //
 
@@ -153,7 +227,7 @@ public class Player implements matchup.sim.Player {
 		}
 
 		// System.out.println("distributions: " + distribution.get(0) + ", " +
-		// distribution.get(1) + ", " + distribution.get(2));
+		// distribution.get(1) + ", " + distribution.get(2));*/
 
 		return distribution;
 	}
@@ -285,15 +359,15 @@ public class Player implements matchup.sim.Player {
 
         if(j == line.size() -1){
             counter++; 
-            System.out.println(counter + java.util.Arrays.toString(line.toArray())); 
+            //System.out.println(counter + java.util.Arrays.toString(line.toArray())); 
             int temp = compareLine(line, opponentLine); 
 
             if(temp > score){ 
                 score = temp; 
-                System.out.println("I just set the score: " + score); 
+                //System.out.println("I just set the score: " + score); 
                 bestLine.clear(); 
                 bestLine.addAll(line); 
-                System.out.println("I just set best line: " + bestLine); 
+                //System.out.println("I just set best line: " + bestLine); 
             }
         }
     }
