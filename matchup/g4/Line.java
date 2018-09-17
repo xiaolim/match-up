@@ -1,4 +1,4 @@
-package matchup.g4;
+package matchup.evil_g4;
 
 import java.util.ArrayList;
 import java.util.Collections;
