@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+// To get game history.
+import matchup.sim.utils.*;
+
 public class Player implements matchup.sim.Player {
     private List<Integer> skills;
     private List<List<Integer>> distribution;
@@ -12,6 +15,9 @@ public class Player implements matchup.sim.Player {
     private List<Integer> availableRows;
 
     private Random rand;
+
+    // private int totalSkill = 90;
+    private int leftover = 90;
 
     public Player() {
         rand = new Random();
@@ -26,19 +32,93 @@ public class Player implements matchup.sim.Player {
     }
 
     public List<Integer> getSkills() {
-        // skill distribution modeled after Group 5
-        for (int i=0; i<3; ++i) {
-            skills.add(9); //three 9s
-            skills.add(8); //three 8s
-            skills.add(1); //three 1s
+        // reset skills
+        skills.clear();
+                
+        // distribution with low standard deviation
+        // for (int i = 0; i < 15; i++) {
+        //     Random generator = new Random();
+        //     double num = generator.nextGaussian();
+        //     System.out.println("gaus: "+num);
+        //     int mean = 6;
+        //     int stdDev = 3;
+        //     double x = stdDev * num + mean;
+
+        //     if (x < 1) {
+        //         x = 1;
+        //     } else if (x > 11) {
+        //         x = 9;
+        //     } else if (skills.size() == 14) {
+        //         x = leftover;
+        //     }
+
+        //     int skillpt = (int) Math.round(x);
+
+        //     leftover = leftover - skillpt;
+        //     System.out.println("leftover: "+leftover);
+
+        //     skills.add(skillpt);
+        // }
+
+        List<Game> games = History.getHistory();
+        int sz = games.size();
+
+        List<Integer> opponentPastSkills = new ArrayList<Integer>();
+        int range = Integer.MIN_VALUE;
+
+        if (sz > 1) {
+            // get opponent past skill distribution
+            System.out.print(games.get(sz - 1).playerB.name + ": ");
+            System.out.println(games.get(sz - 1).playerB.skills);
+
+            opponentPastSkills = games.get(sz - 1).playerB.skills;
+            Collections.sort(opponentPastSkills);
+            // System.out.println(opponentPastSkills);
+            opponentPastSkills.get(0);
+            range = opponentPastSkills.get(14) - opponentPastSkills.get(0);
+
+            // average range?
         }
-        for (int i=0; i<2; ++i) {
-            skills.add(7); //two 7s
-            skills.add(6); //two 6s
-            skills.add(5); //two 5s
+        
+        System.out.println("range: " + range);
+
+        // if range of opponent skill level is 4-8
+        if (range > 3 && range < 9) {
+            for (int i=0; i< 10; i++) {
+                skills.add(7);
+            }
+
+            for (int i=0; i< 5; i++) {
+                skills.add(4);
+            }
         }
 
-        Collections.shuffle(skills);
+        // if range is 0
+        else if (range == 0) {
+            for (int i = 0; i < 5; i++) {
+                skills.add(9);
+            }
+            for (int i = 0; i < 5; i++) {
+                skills.add(5);
+            }
+            for (int i = 0; i < 5; i++) {
+                skills.add(4);
+            }
+        }
+
+        else {
+            for (int i = 0; i < 5; i++) {
+                skills.add(1);
+            }
+            
+            for (int i = 0; i < 5; i++) {
+                skills.add(8);
+            }
+            
+            for (int i = 0; i < 5; i++) {
+                skills.add(9);
+            }
+        }
 
         return skills;
     }
@@ -117,6 +197,19 @@ public class Player implements matchup.sim.Player {
     public void clear() {
         availableRows.clear();
         for (int i = 0; i < 3; ++i) availableRows.add(i);
+
+        // Get history of games.
+        // List<Game> games = History.getHistory();
+        // System.out.println("game no: " + games.size());
+
+        // int sz = games.size();
+
+        // for (int i = 0; i < sz; i++) {
+        //     System.out.print(games.get(i).playerA.name + ": ");
+        //     System.out.println(games.get(i).playerA.distribution);
+        //     System.out.print(games.get(i).playerB.name + ": ");
+        //     System.out.println(games.get(i).playerB.distribution);
+        // } 
     }
 
 
