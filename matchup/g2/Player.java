@@ -10,16 +10,18 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class Player implements matchup.sim.Player {
-	private List<Integer> skills; 
+	private List<Integer> skills;
 	private List<List<Integer>> distribution;
 
 	private List<Integer> availableRows;
 
 	private Random rand;
 
-	private List<Integer> bestLine = new ArrayList<Integer>();
-	private int score; 
-	private int counter; 
+    private boolean home;
+
+    private List<Integer> bestLine = new ArrayList<Integer>();
+    private int score; 
+    private int counter; 
 
 	public Player() {
 		rand = new Random();
@@ -34,155 +36,107 @@ public class Player implements matchup.sim.Player {
 	public void init(String opponent) {
 	}
 
-	// public List<Integer> getSkills() {
-	// 	for (int i = 0; i < 7; ++i) {
-
-	// 		int stdVar = 3;
-	// 		int mean = 6;
-	// 		int x = (((int) rand.nextGaussian()) * stdVar + mean);
-
-	// 		if (x < 1) {
-	// 			x = 1;
-	// 		} else if (x > 11) {
-	// 			x = 11;
-	// 		}
-	// 		skills.add(x);
-	// 		skills.add(12 - x);
-	// 	}
-
-	// 	skills.add(6);
-	// 	Collections.shuffle(skills);
-
-	// 	return skills;
-	// }
-
-	// NINE 9s one 4 five 1s
 	public List<Integer> getSkills() {
-		
-		skills.add(4); // adding one 4
-		for (int i = 0 ; i < 9; i++){
+		for (int i = 0; i < 7; ++i) {
 
-			//adding nine 9s
-			skills.add(9);
+			int stdVar = 3;
+			int mean = 6;
+			int x = (((int) rand.nextGaussian()) * stdVar + mean);
 
-			//adding five 1s
-			if(i%2 == 0){
-				skills.add(1);
+    public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
+        
+        home = isHome; //store as class member for the playRound function
+
+        distribution = new ArrayList<List<Integer>>();
+
+        skills.sort(null);
+			if (x < 1) {
+				x = 1;
+			} else if (x > 11) {
+				x = 11;
 			}
+			skills.add(x);
+			skills.add(12 - x);
 		}
+
+		skills.add(6);
+		Collections.shuffle(skills);
+
 		return skills;
 	}
 
 	public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
-		
 		distribution = new ArrayList<List<Integer>>();
 
-		skills.sort(null);
+		// List<Integer> skills_L = getSkills().subList(0, 15);
+		// System.out.println("skills: " + skills_L);
+		// System.out.println("skills: " + skills_L.size());
+		List<Integer> skills_L = skills;
 
-		//System.out.println(skills); //
+		skills_L.sort(null);
+
+		// System.out.println("Sorted skills: " + skills); //
 
 		if (isHome) {
-			// -- Arrange rows to be optimal for HOME play --
+			// arrange rows to be optimal for HOME play
+			// System.out.println("HOME play"); //
 
-			// -- Gather information about opponent's skills --
-			// Opponent mean: 6
-
-			opponentSkills.sort(null);
-
-			// Opponent range:
-			int opp_range = opponentSkills.get(14) - opponentSkills.get(0);
-			System.out.println("opp_range: " + opp_range);
-
-			// If range is HIGH or LOW do something different <<<
-
-			// Opponent standard deviation:
-			double opp_stdev;
-			double sqr_sum = 0;
-			for (int s : opponentSkills) {
-				sqr_sum += Math.pow((s-6), 2);
-			}
-			opp_stdev = Math.sqrt(sqr_sum/14);
-			System.out.println("opp_stdev: " + opp_stdev);
-
-			// Opponent skill count:
-			Map<Integer, Integer> opp_skill_count = new HashMap<Integer, Integer>();
-			/*for (int s : opponentSkills) {
-				if (!opp_skill_count.containsKey(s))
-					opp_skill_count.put(s, 1);
-				else
-					opp_skill_count.replace(s, opp_skill_count.get(s)+1);
-			}
-			*/
-			opp_skill_count.put(4, 5);
-			opp_skill_count.put(6, 8);
-			opp_skill_count.put(8, 5);
-			System.out.println("opp_skill_count: " + opp_skill_count);
-
-			// >> Split lines differently depending on opponent skill count
-			if (opp_skill_count.values().equals(Arrays.asList(5, 5, 5))) {
-				System.out.println("! opponent has three values repeated 5 times each!");
-			} else if (Collections.max(opp_skill_count.values()) > 7) {
-				System.out.println("opponent has one value repeated over 7 times");
-			} else {
-				System.out.println("no specific opponent skill distribution");
-			}
-
-			
-			// -- Distribute skills into 3 lines --
 			List<Integer> leftover = new ArrayList<Integer>();
 
-			for (int i=0; i<3; i++) {
+			for (int i = 0; i < 3; ++i) {
 				List<Integer> row = new ArrayList<Integer>();
-				List<Integer> indices = new ArrayList<Integer>(Arrays.asList(i, (i+3), (i+6), (14 - (i + 3)), (14 - i)));
-				//System.out.println("row " + i + ": " + indices + " (indices)"); //
+				List<Integer> indices = new ArrayList<Integer>(
+						Arrays.asList(i, i + 3, i + 6, (14 - (i + 3)), (14 - i)));
+				// System.out.println("row " + i + ": " + indices + " (indices)"); //
 
 				for (int ix : indices) {
-					int skill = skills.get(ix);
-					if (!row.contains(skill))
-						row.add(skill);
+					if (!row.contains(skills_L.get(ix)))
+						row.add(skills_L.get(ix));
 					else
-						leftover.add(skill);
+						leftover.add(skills_L.get(ix));
 				}
 
-				//System.out.println("row " + i + ": " + row + " (values)"); //
+				// System.out.println("row " + i + ": " + row + " (values)");
 				distribution.add(row);
 			}
-			leftover.sort(null);
-			//System.out.println("leftover: " + leftover); //
 
-			boolean added;
-			for (int c=0; c<leftover.size(); c++) {
-				int s = leftover.get(c);
-				//System.out.println(c + ", " + s);
-				added = false;
-				for (int i=0; i<3; i++) {
-					//System.out.println(distribution.get(i));
-					if ((distribution.get(i).size() < 5) && (!distribution.get(i).contains(s))) {
+			// System.out.println("skills leftover: " + leftover);
+			// System.out.println("distributions: " + distribution.get(0) + ", " +
+			// distribution.get(1) + ", " + distribution.get(2));
+
+			for (int s : leftover) {
+				boolean added = false;
+				for (int i = 0; i < 3; ++i) {
+					if ((distribution.get(i).size() < 5) && !(distribution.get(i).contains(s))) {
 						distribution.get(i).add(s);
 						added = true;
-						//System.out.println("added " + s + " >> " + distribution.get(i));
-						break;
+					} else {
+						continue;
 					}
 				}
 				if (!added) {
-					for (int j=0; j<3; j++) {
-						if (distribution.get(j).size() < 5) {
-							distribution.get(j).add(s);
-							added = true;
-							//System.out.println("added " + s + " to row " + j + " >> " + distribution.get(j));
-							break;
-						}
+					for (int i = 0; i < 3; ++i) {
+						if (distribution.get(i).size() < 5)
+							distribution.get(i).add(s);
 					}
 				}
 			}
+
+			// System.out.println("distributions: " + distribution.get(0) + ", " +
+			// distribution.get(1) + ", " + distribution.get(2));
+
 		} else {
 			// arrange rows to be optimal for AWAY play
+			// System.out.println("AWAY play");
 
 			List<Integer> row1, row2, row3;
 
-			row1 = new ArrayList<Integer>(Arrays.asList(skills.get(14), skills.get(13), skills.get(12), skills.get(3), skills.get(11)));
-			row2 = new ArrayList<Integer>(Arrays.asList(skills.get(0), skills.get(1), skills.get(2), skills.get(4), skills.get(10)));
-			row3 = new ArrayList<Integer>(Arrays.asList(skills.get(5), skills.get(6), skills.get(7), skills.get(8), skills.get(9)));
+			row1 = new ArrayList<Integer>(Arrays.asList(skills_L.get(14), skills_L.get(13), skills_L.get(12),
+					skills_L.get(3), skills_L.get(11)));
+			row2 = new ArrayList<Integer>(Arrays.asList(skills_L.get(0), skills_L.get(1), skills_L.get(2),
+					skills_L.get(4), skills_L.get(10)));
+			row3 = new ArrayList<Integer>(
+					Arrays.asList(skills_L.get(5), skills_L.get(6), skills_L.get(7), skills_L.get(8), skills_L.get(9)));
 
 			distribution.add(row1);
 			distribution.add(row2);
@@ -190,18 +144,47 @@ public class Player implements matchup.sim.Player {
 		}
 
 		// System.out.println("distributions: " + distribution.get(0) + ", " +
-		// distribution.get(1) + ", " + distribution.get(2));*/
+		// distribution.get(1) + ", " + distribution.get(2));
 
 		return distribution;
 	}
 
 	public List<Integer> playRound(List<Integer> opponentRound) {
 
+            // Gather information about opponent's skills
+            //opp_mean = 6
+            //opp_stdv = 2.47
+
+            opponentSkills.sort(null);
+            System.out.println("sorted skills: " + opponentSkills); //
+            int opp_range = opponentSkills.get(14) - opponentSkills.get(0);
+            System.out.println("range: " + opp_range); //
+
+            // If RANGE is HIGH or LOW do something different
+
+            Map<Integer, Integer> opp_skill_count = new HashMap<Integer, Integer>();
+            for (int s : opponentSkills) {
+                if (!opp_skill_count.containsKey(s)) {
+                    opp_skill_count.put(s, 1);
+                } else {
+                    int s_inc = opp_skill_count.get(s);
+                    opp_skill_count.replace(s, ++s_inc);
+                }
+            }
+            System.out.println("skill count: " + opp_skill_count);
+
+
+            List<Integer> leftover = new ArrayList<Integer>();
+
 		Integer n = selectLine(opponentRound);
 		availableRows.remove(n);
 
 		List<Integer> round = distribution.get(n);
 
+                for (int ix : indices) {
+                    if (!row.contains(skills.get(ix))) row.add(skills.get(ix));
+                    else leftover.add(skills.get(ix));
+                }
         //TODO: make permutation work here 
 		if (opponentRound != null) {
 			round = bestPermutation(round, opponentRound);
@@ -322,20 +305,20 @@ public class Player implements matchup.sim.Player {
 
         if(j == line.size() -1){
             counter++; 
-            //System.out.println(counter + java.util.Arrays.toString(line.toArray())); 
+            System.out.println(counter + java.util.Arrays.toString(line.toArray())); 
             int temp = compareLine(line, opponentLine); 
 
             if(temp > score){ 
                 score = temp; 
-                //System.out.println("I just set the score: " + score); 
+                System.out.println("I just set the score: " + score); 
                 bestLine.clear(); 
                 bestLine.addAll(line); 
-                //System.out.println("I just set best line: " + bestLine); 
+                System.out.println("I just set best line: " + bestLine); 
             }
         }
     }
 
-   //System.out.println("This is the best line end of permute: " + bestLine); 
+    //System.out.println("This is the best line end of permute: " + bestLine); 
  
 
     //figure out which of two lines win 
