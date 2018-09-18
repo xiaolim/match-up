@@ -31,9 +31,11 @@ public class Line extends java.util.ArrayList<Integer> {
     }
 
     public double scoreWeighted(Line opponent) {
-        int sum = 0;
-        for (int elt: this) {sum += elt;}
-        return scoreAgainst(opponent) / (double)sum;
+        int mysum = 0;
+        int opsum = 0;
+        for (int elt: this) {mysum += elt;}
+        for (int elt: opponent) {opsum += elt;}
+        return scoreAgainst(opponent) / (double)(Math.abs(mysum-opsum)+1);
     }
 
     public void permuteFor(Line opponent) {
