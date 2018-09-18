@@ -47,13 +47,10 @@ public class Line extends java.util.ArrayList<Integer> {
     }
 
     private void permuteHelper(Line opponent, int idx) {
-        //System.out.print(idx);System.out.println(size());
         if (idx >= size()-1) {
-            //System.out.print(idx);
             int score = scoreAgainst(opponent);
             if (score > highScore) { 
                 record.clear();
-                //System.out.println(size());
                 for (int elt: this) {record.add(elt);}
                 highScore = score;
             }

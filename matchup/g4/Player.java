@@ -29,21 +29,24 @@ public class Player implements matchup.sim.Player {
 
     public List<Integer> getSkills() {
 		Integer s[] = {9,9,9,9,9,8,8,8,8,8,1,1,1,1,1};
-		skills = new ArrayList<Integer>(Arrays.asList(s));
+		this.skills = new Skills(Arrays.asList(s));
+
 		return skills;
     }
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
-        Integer rows[][];
+    	int GROUP_SIZE = 5;
+        
+        Skills skills = (Skills)this.skills;
 
         if (isHome) {
-            rows = new Integer[][] {{9,9,8,8,8},{9,9,8,1,1},{9,8,1,1,1}};
+        	skills.groupForHome(GROUP_SIZE);
         } else {
-            rows = new Integer[][] {{9,9,9,9,9},{8,8,8,8,8},{1,1,1,1,1}};
+        	skills.groupForAway(GROUP_SIZE);
         }
-    
-        for (int i = 0; i < 3; ++i) {
-            distribution.add(new Line(Arrays.asList(rows[i])));
+
+        for (int i = 0; i < skills.size(); i += GROUP_SIZE) {
+        	distribution.add(new Line(skills.subList(i, i+GROUP_SIZE)));
         }
 
         this.isHome = isHome;
