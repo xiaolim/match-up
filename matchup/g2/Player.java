@@ -73,62 +73,288 @@ public class Player implements matchup.sim.Player {
 		return skills;
 	}
 
+	// -- Gather information about opponent's skills --
+	private Map<String, Double> getSkillStats(List<Integer> skills) {
+
+		Map<String, Double> stats = new HashMap<String, Double>();
+
+		stats.put("mean", 6.0);
+
+		skills.sort(null);
+
+		// Min and max
+		double min, max;
+		min = skills.get(0);
+		max = skills.get(14);
+		stats.put("min", min);
+		stats.put("max", max);
+
+		// Range
+		double range = max - min;
+		stats.put("range", range);
+
+		// Opponent standard deviation
+		double stdev;
+		double sqr_sum = 0;
+		for (int s : skills) {
+			sqr_sum += Math.pow((s-6), 2);
+		}
+		stdev = Math.sqrt(sqr_sum/14);
+		stats.put("stdev", stdev);
+
+		return stats;
+	}
+
+	// -- Get a count of all skills present --
+	private Map<Integer, Integer> getSkillCount(List<Integer> skills) {
+
+		Map<Integer, Integer> skillCount = new HashMap<Integer, Integer>();
+		for (int s : skills) {
+			if (!skillCount.containsKey(s))
+				skillCount.put(s, 1);
+			else
+				skillCount.replace(s, skillCount.get(s)+1);
+		}
+
+		return skillCount;
+	}
+
+	
+	// -- Map one set of skills to another set of skills that according to win, tie, lose outcome
+	private Map<String, Map<Integer, List<Integer>>> getSkillMapping(List<Integer> baseSkills, List<Integer> oppSkills) {
+		/*
+		* Both skill parameters need to be collections of unique skills e.g. pass in opp_skill_count.keySet()
+		* baseSkills: these are the skills that will be they keys of the map
+		* oppSkills: these are the skills that will be the values mapped to keys of the map
+		*/
+
+		Map<Integer, List<Integer>> win = new HashMap<Integer, List<Integer>>();
+		Map<Integer, List<Integer>> tie = new HashMap<Integer, List<Integer>>();
+		Map<Integer, List<Integer>> lose = new HashMap<Integer, List<Integer>>();
+
+		for (int base_s : baseSkills) {
+			
+			List<Integer> val_win = new ArrayList<Integer>();
+			List<Integer> val_tie = new ArrayList<Integer>();
+			List<Integer> val_lose = new ArrayList<Integer>();
+			
+			for (int opp_s : oppSkills) {
+				if (base_s - opp_s >= 3) {
+					val_win.add(opp_s);
+				} else if (Math.abs(base_s - opp_s) <=2) {
+					val_tie.add(opp_s);
+				} else if (base_s - opp_s <= -3) {
+					val_lose.add(opp_s);
+				}
+			}
+
+			win.put(base_s, val_win);
+			tie.put(base_s, val_tie);
+			lose.put(base_s, val_lose);
+
+		}
+
+		Map<String, Map<Integer, List<Integer>>> mapping = new HashMap<String, Map<Integer, List<Integer>>>();
+		mapping.put("wins_against", win);
+		mapping.put("ties_against", tie);
+		mapping.put("loses_against", lose);
+
+		return mapping;
+
+	
+	}
+
 	public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
 		
 		distribution = new ArrayList<List<Integer>>();
 
 		skills.sort(null);
-
-		//System.out.println(skills); //
+		opponentSkills.sort(null);
+		//System.out.println("our skills: " + skills);
+		//System.out.println("opponent skills: " + opponentSkills);
 
 		if (isHome) {
 			// -- Arrange rows to be optimal for HOME play --
 
-			// -- Gather information about opponent's skills --
-			// Opponent mean: 6
+			// get stats on our skills
+			Map<String, Double> ourStats = getSkillStats(skills);
+			//System.out.println("ourStats: " + ourStats);
 
-			opponentSkills.sort(null);
+			// get our skill count
+			Map<Integer, Integer> selfSkillCount = getSkillCount(skills);
+			//System.out.println("selfSkillCount: " + selfSkillCount);
 
-			// Opponent range:
-			int opp_range = opponentSkills.get(14) - opponentSkills.get(0);
-			System.out.println("opp_range: " + opp_range);
+			// get stats on opponent's skills
+			Map<String, Double> oppStats = getSkillStats(opponentSkills);
+			//System.out.println("oppStats: " + oppStats);
 
-			// If range is HIGH or LOW do something different <<<
+			// get opponent's skill count
+			Map<Integer, Integer> oppSkillCount = getSkillCount(opponentSkills);
+			//System.out.println("oppSkillCount: " + oppSkillCount);
 
-			// Opponent standard deviation:
-			double opp_stdev;
-			double sqr_sum = 0;
-			for (int s : opponentSkills) {
-				sqr_sum += Math.pow((s-6), 2);
-			}
-			opp_stdev = Math.sqrt(sqr_sum/14);
-			System.out.println("opp_stdev: " + opp_stdev);
+			// get our skill mapping: for each of our skills find out which of the opponent's skills it will beat, tie to, lose against
+			Map<String, Map<Integer, List<Integer>>> selfSkillMapping = getSkillMapping(skills, opponentSkills);
+			//System.out.println("selfSkillMapping: " + selfSkillMapping);
 
-			// Opponent skill count:
-			Map<Integer, Integer> opp_skill_count = new HashMap<Integer, Integer>();
-			/*for (int s : opponentSkills) {
-				if (!opp_skill_count.containsKey(s))
-					opp_skill_count.put(s, 1);
-				else
-					opp_skill_count.replace(s, opp_skill_count.get(s)+1);
-			}
-			*/
-			opp_skill_count.put(4, 5);
-			opp_skill_count.put(6, 8);
-			opp_skill_count.put(8, 5);
-			System.out.println("opp_skill_count: " + opp_skill_count);
+			// get opponent's sill mapping: for each of opponent's skills find out which of our skills it will beat, tie to, lose against
+			Map<String, Map<Integer, List<Integer>>> oppSkillMapping = getSkillMapping(opponentSkills, skills);
+			//System.out.println("oppSkillMapping: " + oppSkillMapping);
 
-			// >> Split lines differently depending on opponent skill count
-			if (opp_skill_count.values().equals(Arrays.asList(5, 5, 5))) {
+
+			/*// >> Split lines differently depending on opponent skill count
+			if (oppSkillCount.values().equals(Arrays.asList(5, 5, 5))) {
 				System.out.println("! opponent has three values repeated 5 times each!");
-			} else if (Collections.max(opp_skill_count.values()) > 7) {
+			} else if (Collections.max(oppSkillCount.values()) > 6) {
 				System.out.println("opponent has one value repeated over 7 times");
 			} else {
 				System.out.println("no specific opponent skill distribution");
+			}*/
+
+			// get the skills that win against at least 1 thing (but then this can be leveraged with counts)
+			Map<Integer, List<Integer>> win_skills = new HashMap<Integer, List<Integer>>();
+			int win_skills_count = 0; // how many skills (incl repetitions) we have that win against at least 1 of opp skills
+			List<Integer> wins = new ArrayList<Integer>();
+			for (Integer self_s : selfSkillMapping.get("wins_against").keySet()) {
+				List<Integer> counts = new ArrayList<Integer>(); // count of how many we have, count of how may opp skills it wins against
+				if (selfSkillMapping.get("wins_against").get(self_s).size() > 0) {
+					counts.add(selfSkillCount.get(self_s));
+					win_skills_count += selfSkillCount.get(self_s);
+					counts.add(selfSkillMapping.get("wins_against").get(self_s).size());
+					if (!wins.contains(selfSkillMapping.get("wins_against").get(self_s).size()))
+						wins.add(selfSkillMapping.get("wins_against").get(self_s).size());
+					win_skills.put(self_s, counts);
+				}
+			}
+			wins.sort(null);
+			Collections.reverse(wins);
+			//System.out.println("win_skills: " + win_skills);
+			//System.out.println("win_skills_count: " + win_skills_count);
+			//System.out.println("wins: " + wins);
+
+			// -- Distribute win skills into 3 lines --
+			for (int c=0; c<3; c++)
+				distribution.add(new ArrayList<Integer>());
+
+			for (int win_count : wins) {
+				for (int win_skill : win_skills.keySet()) {
+					if (win_skills.get(win_skill).get(1) == win_count) {
+						int i=0;
+						while (i<win_skills.get(win_skill).get(0)) {
+							if (distribution.get(i%3).size() < 5) {
+								distribution.get(i%3).add(win_skill);
+								i++;
+							}
+						}
+					}
+				}
+			}
+			//System.out.println("distribution after distributing win_skills: " + distribution);
+
+
+			// get the skills that tie against at least 1 thing (but then this can be leveraged with counts)
+			// first we need to remove any of the win skills we've already distributed
+			for (int win_skill : win_skills.keySet())
+				selfSkillMapping.get("ties_against").remove(win_skill);
+			//System.out.println("new ties_against: " + selfSkillMapping.get("ties_against"));
+			
+			Map<Integer, List<Integer>> tie_skills = new HashMap<Integer, List<Integer>>();
+			if (!selfSkillMapping.get("ties_against").isEmpty()) {
+				int tie_skills_count = 0; // how many skills (incl repetitions) we have that tie against at least 1 of opp skills
+				List<Integer> ties = new ArrayList<Integer>();
+				for (Integer self_s : selfSkillMapping.get("ties_against").keySet()) {
+					List<Integer> counts = new ArrayList<Integer>(); // count of how many we have, count of how may opp skills it ties against
+					if (selfSkillMapping.get("ties_against").get(self_s).size() > 0) {
+						counts.add(selfSkillCount.get(self_s));
+						tie_skills_count += selfSkillCount.get(self_s);
+						counts.add(selfSkillMapping.get("ties_against").get(self_s).size());
+						if (!ties.contains(selfSkillMapping.get("ties_against").get(self_s).size()))
+							ties.add(selfSkillMapping.get("ties_against").get(self_s).size());
+						tie_skills.put(self_s, counts);
+					}
+				}
+				ties.sort(null);
+				Collections.reverse(ties);
+				//System.out.println("tie_skills: " + tie_skills);
+				//System.out.println("tie_skills_count: " + tie_skills_count);
+				//System.out.println("ties: " + ties);
+
+				// -- Distribute tie skills into 3 lines --
+				for (int tie_count : ties) {
+					//System.out.println("tie count: " + tie_count);
+					for (int tie_skill : tie_skills.keySet()) {
+						if (tie_skills.get(tie_skill).get(1) == tie_count) {
+							//System.out.println("tie skill with matching count: " + tie_skill);
+							int i=0;
+							int added=0;
+							while (added != tie_skills.get(tie_skill).get(0)) {
+								if (distribution.get(i%3).size() < 5) {
+									distribution.get(i%3).add(tie_skill);
+									i++;
+									added++;
+								} else {
+									i++;
+								}
+							}
+						}
+					}
+				}
+				//System.out.println("distribution after distributing tie_skills: " + distribution);
+			}
+
+			// get the skills that lose against at least 1 thing (but then this can be leveraged with counts)
+			// first we need to remove any of the win and tie skills we've already distributed
+			for (int win_skill : win_skills.keySet())
+				selfSkillMapping.get("loses_against").remove(win_skill);
+			for (int tie_skill : tie_skills.keySet())
+				selfSkillMapping.get("loses_against").remove(tie_skill);
+			//System.out.println("new loses_against: " + selfSkillMapping.get("loses_against"));
+			
+			Map<Integer, List<Integer>> lose_skills = new HashMap<Integer, List<Integer>>();
+			if (!selfSkillMapping.get("loses_against").isEmpty()) {
+				int lose_skills_count = 0; // how many skills (incl repetitions) we have that lose against at least 1 of opp skills
+				List<Integer> losses = new ArrayList<Integer>();
+				for (Integer self_s : selfSkillMapping.get("loses_against").keySet()) {
+					List<Integer> counts = new ArrayList<Integer>(); // count of how many we have, count of how may opp skills it loses against
+					if (selfSkillMapping.get("loses_against").get(self_s).size() > 0) {
+						counts.add(selfSkillCount.get(self_s));
+						lose_skills_count += selfSkillCount.get(self_s);
+						counts.add(selfSkillMapping.get("loses_against").get(self_s).size());
+						if (!losses.contains(selfSkillMapping.get("loses_against").get(self_s).size()))
+							losses.add(selfSkillMapping.get("loses_against").get(self_s).size());
+						lose_skills.put(self_s, counts);
+					}
+				}
+				losses.sort(null);
+				Collections.reverse(losses);
+				//System.out.println("lose_skills: " + lose_skills);
+				//System.out.println("lose_skills_count: " + lose_skills_count);
+				//System.out.println("losses: " + losses);
+
+				// -- Distribute tie skills into 3 lines --
+				for (int lose_count : losses) {
+					//System.out.println("lose count: " + lose_count);
+					for (int lose_skill : lose_skills.keySet()) {
+						if (lose_skills.get(lose_skill).get(1) == lose_count) {
+							//System.out.println("lose skill with matching count: " + lose_skill);
+							int i=0;
+							int added=0;
+							while (added != lose_skills.get(lose_skill).get(0)) {
+								if (distribution.get(i%3).size() < 5) {
+									distribution.get(i%3).add(lose_skill);
+									i++;
+									added++;
+								} else {
+									i++;
+								}
+							}
+						}
+					}
+				}
+				//System.out.println("distribution after distributing lose_skills: " + distribution);
 			}
 
 			
-			// -- Distribute skills into 3 lines --
+			/*// -- Distribute skills into 3 lines --
 			List<Integer> leftover = new ArrayList<Integer>();
 
 			for (int i=0; i<3; i++) {
@@ -174,7 +400,7 @@ public class Player implements matchup.sim.Player {
 						}
 					}
 				}
-			}
+			}*/
 		} else {
 			// arrange rows to be optimal for AWAY play
 
