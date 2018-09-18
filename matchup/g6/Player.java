@@ -287,9 +287,20 @@ public class Player implements matchup.sim.Player {
     /*** learning strategy helper ***/
 
     //return 1-11 skill frequency density from history
-    private List<Double> getFrequencyDensity(List<List<Integer>> history) {
+    private List<Double> getFrequencyDensity() {
+        List<List<Integer>> myHistory = new ArrayList<>();
+        for(Game g: History.getHistory()){
+            List<Integer> tmp = new ArrayList<>(15);
+            for(List<Integer> row: g.playerA.distribution){
+                for(int x: row){
+                    tmp.add(x);
+                }
+            }
+            myHistory.add(tmp);
+        }
+
         List<Double> result = new ArrayList<>(11);
-        for (List<Integer> l : history) {
+        for (List<Integer> l : myHistory) {
             for (int x : l) {
                 result.set(x - 1, result.get(x - 1) + 1);
             }
