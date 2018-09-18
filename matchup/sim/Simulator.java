@@ -151,7 +151,74 @@ public class Simulator {
             }
         }
 
+        printStats();
+
         System.exit(0);
+    }
+
+    public static void printStats() {
+        int playerAAwayScores = 0;
+        int playerAHomeScores = 0;
+        int playerBAwayScores = 0;
+        int playerBHomeScores = 0;
+
+        int playerAWins = 0;
+        int playerBWins = 0;
+        int ties = 0;
+
+        int totalA = 0;
+        int totalB = 0;
+
+        int counter = 1;
+
+        for (Game g : games) {
+            if (g.playerA.isHome) {
+                playerAHomeScores += g.playerA.score;
+                playerBAwayScores += g.playerB.score;
+
+                totalA += g.playerA.score;
+                totalB += g.playerB.score;
+            }
+            else {
+                playerAAwayScores += g.playerA.score;
+                playerBHomeScores += g.playerB.score;
+
+                totalA += g.playerA.score;
+                totalB += g.playerB.score;
+            }
+
+            if (counter % 2 == 0) {
+                if (totalA > totalB) {
+                    playerAWins += 1;
+                }
+                else if (totalA == totalB){
+                    ties += 1;
+                }
+                else {
+                    playerBWins += 1;
+                }
+
+                totalA = 0;
+                totalB = 0;
+            }
+
+            counter += 1;
+        }
+
+        System.out.println("\n******** Results ********");
+        System.out.println("\nTotal wins: ");
+        System.out.println(playerAName + ": " + playerAWins);
+        System.out.println(playerBName + ": " + playerBWins);
+        System.out.println("\nTies: " + ties);
+        System.out.println("\nTotal scores: ");
+        System.out.println(playerAName + ": " + (playerAHomeScores + playerBAwayScores));
+        System.out.println(playerBName + ": " + (playerBHomeScores + playerBAwayScores));
+        System.out.println("\nAvg scores as Home: ");
+        System.out.println(playerAName + ": " + ((double)playerAHomeScores*2/games.size()));
+        System.out.println(playerBName + ": " + ((double)playerBHomeScores*2/games.size()));
+        System.out.println("\nAvg scores as Away: ");
+        System.out.println(playerAName + ": " + ((double)playerAAwayScores*2/games.size()));
+        System.out.println(playerBName + ": " + ((double)playerBAwayScores*2/games.size()));
     }
 
     public static List<Game> getGames() {
