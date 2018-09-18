@@ -84,4 +84,56 @@ public class Player implements matchup.sim.Player {
         // List<Game> games = History.getHistory();
         // System.out.println(games.size());
     }
+    public List<Integer> permuteHomeTeam(List<Integer> homeTeam, List<Integer> awayTeam){
+       	//System.out.println("homeTeam:");
+	//System.out.println(homeTeam);
+       	//System.out.println("awayTeam:");
+	//System.out.println(awayTeam);
+	//System.out.println("bestTeam:");
+	//System.out.println(bestTeam);
+        if(checkLineupScore(homeTeam, awayTeam) == 5){
+            return bestTeam;
+        }
+       	//System.out.println("homeTeam:");
+	//System.out.println(homeTeam);
+       	//System.out.println("awayTeam:");
+	//System.out.println(awayTeam);
+	//System.out.println("bestTeam:");
+	//System.out.println(bestTeam);
+	permute(homeTeam, awayTeam);
+
+        //System.out.println(checkLineupScore(homeTeam, awayTeam));
+        return bestTeam;
+    }
+
+    public void permute(List<Integer> arr, List<Integer> away){
+        permuteHelper(arr, 0, away);
+    }
+
+    public void permuteHelper(List<Integer> arr, int index, List<Integer> away){
+	//get rid of temp?
+        if(index >= arr.size() - 1){
+            int temp = 5;
+        }
+
+        for(int i = index; i < arr.size(); i++){
+            if(checkLineupScore(arr, away) > checkLineupScore(bestTeam, away)){
+                for(int j=0; j < arr.size();j++){
+                    bestTeam.set(j, arr.get(j));
+                }
+            }
+            Collections.swap(arr, index, i);
+            permuteHelper(arr, index+1, away);
+            Collections.swap(arr, index, i);
+        }
+    }
+
+    public static int checkLineupScore(List<Integer> homeTeam, List<Integer> awayTeam){
+	// optimize later
+        int score = 0;
+        for(int i = 0; i < homeTeam.size(); i++){
+            if(homeTeam.get(i) > awayTeam.get(i) + 2){
+                score++;
+            }
+        }
 }
