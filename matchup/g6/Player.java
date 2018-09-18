@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import matchup.sim.utils.*;
 
 // To get game history.
 import matchup.sim.utils.*;
@@ -147,22 +148,36 @@ public class Player implements matchup.sim.Player {
 
     public int chooseLine(List<Integer> opponentRound) {
         List<Double> ratio = new ArrayList<Double>();
-        for (int i = 0; i < availableRows.size(); i++) {
+        List<Double> score  = new ArrayList<Double>();
+        List<Double> skills = new ArrayList<Double>();
+
+        for (int i =0; i < availableRows.size(); i++){
             List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(i)));
             round = optimizedRound(opponentRound, round);
             double tempScore = 0;
-            double tempSkills = 90;
-            for (int j = 0; j < 5; j++) {
-                if (round.get(j) - opponentRound.get(j) > 2) {
-                    tempScore += 1;
-                } else if (opponentRound.get(j) - round.get(j) > 2) {
-                    tempScore -= 1;
+            double tempSkills = 0;
+            for (int j=0; j<5;j++){
+                if (round.get(j)-opponentRound.get(j)>2){
+                    tempScore+=1;
+                }
+                else if (opponentRound.get(j)-round.get(j)>2){
+                    tempScore-=1;
                 }
                 tempSkills += round.get(j);
                 tempSkills -= opponentRound.get(j);
             }
             //System.out.println(tempScore/tempSkills);
-            ratio.add(tempScore / tempSkills);
+         	score.add(tempScore);
+         	skills.add(tempSkills);   
+        }
+        double minSkill = Collections.min(skills);
+        double maxSkill = Collections.max(skills);
+        double minScore = Collections.min(score);
+        double maxScore = Collections.max(score);
+        for (int i = 0; i < availableRows.size();i++){
+            double scaledScore = (1+score.get(i)-minScore)/(availableRows.size()+maxScore-minScore);
+            double scaledSkill = (1+skills.get(i)-minSkill)/(availableRows.size()+maxSkill-minSkill);
+        	ratio.add(scaledScore/scaledSkill);
         }
         double max = Collections.max(ratio);
         int index = ratio.indexOf(max);
@@ -195,6 +210,9 @@ public class Player implements matchup.sim.Player {
     public void clear() {
         availableRows.clear();
         for (int i = 0; i < 3; ++i) availableRows.add(i);
+        distribution.clear();
+
+    	List<Game> previousGames = History.getHistory();
 
         // Get history of games.
         // List<Game> games = History.getHistory();
