@@ -17,11 +17,11 @@ public class Player implements matchup.sim.Player {
 
 	private Random rand;
 
-    private boolean home;
+	private boolean home;
 
-    private List<Integer> bestLine = new ArrayList<Integer>();
-    private int score; 
-    private int counter; 
+	private List<Integer> bestLine = new ArrayList<Integer>();
+	private int score; 
+	private int counter; 
 
 	public Player() {
 		rand = new Random();
@@ -36,32 +36,20 @@ public class Player implements matchup.sim.Player {
 	public void init(String opponent) {
 	}
 
+	// NINE 9s one 4 five 1s
 	public List<Integer> getSkills() {
-		for (int i = 0; i < 7; ++i) {
+		
+		skills.add(4); // adding one 4
+		for (int i = 0 ; i < 9; i++){
 
-			int stdVar = 3;
-			int mean = 6;
-			int x = (((int) rand.nextGaussian()) * stdVar + mean);
+			//adding nine 9s
+			skills.add(9);
 
-    public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
-        
-        home = isHome; //store as class member for the playRound function
-
-        distribution = new ArrayList<List<Integer>>();
-
-        skills.sort(null);
-			if (x < 1) {
-				x = 1;
-			} else if (x > 11) {
-				x = 11;
+			//adding five 1s
+			if(i%2 == 0){
+				skills.add(1);
 			}
-			skills.add(x);
-			skills.add(12 - x);
 		}
-
-		skills.add(6);
-		Collections.shuffle(skills);
-
 		return skills;
 	}
 
@@ -401,12 +389,9 @@ public class Player implements matchup.sim.Player {
 
 			List<Integer> row1, row2, row3;
 
-			row1 = new ArrayList<Integer>(Arrays.asList(skills_L.get(14), skills_L.get(13), skills_L.get(12),
-					skills_L.get(3), skills_L.get(11)));
-			row2 = new ArrayList<Integer>(Arrays.asList(skills_L.get(0), skills_L.get(1), skills_L.get(2),
-					skills_L.get(4), skills_L.get(10)));
-			row3 = new ArrayList<Integer>(
-					Arrays.asList(skills_L.get(5), skills_L.get(6), skills_L.get(7), skills_L.get(8), skills_L.get(9)));
+			row1 = new ArrayList<Integer>(Arrays.asList(skills.get(14), skills.get(13), skills.get(12), skills.get(3), skills.get(11)));
+			row2 = new ArrayList<Integer>(Arrays.asList(skills.get(0), skills.get(1), skills.get(2), skills.get(4), skills.get(10)));
+			row3 = new ArrayList<Integer>(Arrays.asList(skills.get(5), skills.get(6), skills.get(7), skills.get(8), skills.get(9)));
 
 			distribution.add(row1);
 			distribution.add(row2);
@@ -421,40 +406,11 @@ public class Player implements matchup.sim.Player {
 
 	public List<Integer> playRound(List<Integer> opponentRound) {
 
-            // Gather information about opponent's skills
-            //opp_mean = 6
-            //opp_stdv = 2.47
-
-            opponentSkills.sort(null);
-            System.out.println("sorted skills: " + opponentSkills); //
-            int opp_range = opponentSkills.get(14) - opponentSkills.get(0);
-            System.out.println("range: " + opp_range); //
-
-            // If RANGE is HIGH or LOW do something different
-
-            Map<Integer, Integer> opp_skill_count = new HashMap<Integer, Integer>();
-            for (int s : opponentSkills) {
-                if (!opp_skill_count.containsKey(s)) {
-                    opp_skill_count.put(s, 1);
-                } else {
-                    int s_inc = opp_skill_count.get(s);
-                    opp_skill_count.replace(s, ++s_inc);
-                }
-            }
-            System.out.println("skill count: " + opp_skill_count);
-
-
-            List<Integer> leftover = new ArrayList<Integer>();
-
 		Integer n = selectLine(opponentRound);
 		availableRows.remove(n);
 
 		List<Integer> round = distribution.get(n);
 
-                for (int ix : indices) {
-                    if (!row.contains(skills.get(ix))) row.add(skills.get(ix));
-                    else leftover.add(skills.get(ix));
-                }
         //TODO: make permutation work here 
 		if (opponentRound != null) {
 			round = bestPermutation(round, opponentRound);
@@ -557,66 +513,66 @@ public class Player implements matchup.sim.Player {
 
 	public Integer totalLineWins(List<Integer> line, List<Integer> opponentLine) {
 		line = bestPermutation(line,  opponentLine);
-       	int rowWins = 0;
-       	
-       	for(int j=0; j<5; j++){
-       		if (line.get(j)-opponentLine.get(j) > 2) rowWins++;
-       		if (line.get(j)-opponentLine.get(j) < -2) rowWins--;
-       	}
-       	return rowWins;
-    }
+	       	int rowWins = 0;
+	       	
+	       	for(int j=0; j<5; j++){
+	       		if (line.get(j)-opponentLine.get(j) > 2) rowWins++;
+	       		if (line.get(j)-opponentLine.get(j) < -2) rowWins--;
+	       	}
+	       	return rowWins;
+    	}
 
-    public void permute(List<Integer> line, int j, List<Integer> opponentLine){ 
-        for(int i = j; i < line.size(); i++){
-            java.util.Collections.swap(line, i, j);
-            permute(line, j+1, opponentLine); 
-            java.util.Collections.swap(line, j, i);
-        }
+    	public void permute(List<Integer> line, int j, List<Integer> opponentLine){ 
+	        for(int i = j; i < line.size(); i++){
+	            java.util.Collections.swap(line, i, j);
+	            permute(line, j+1, opponentLine); 
+	            java.util.Collections.swap(line, j, i);
+	        }
 
-        if(j == line.size() -1){
-            counter++; 
-            System.out.println(counter + java.util.Arrays.toString(line.toArray())); 
-            int temp = compareLine(line, opponentLine); 
+	        if(j == line.size() -1){
+	            counter++; 
+	            //System.out.println(counter + java.util.Arrays.toString(line.toArray())); 
+	            int temp = compareLine(line, opponentLine); 
 
-            if(temp > score){ 
-                score = temp; 
-                System.out.println("I just set the score: " + score); 
-                bestLine.clear(); 
-                bestLine.addAll(line); 
-                System.out.println("I just set best line: " + bestLine); 
-            }
-        }
-    }
+	            if(temp > score){ 
+	                score = temp; 
+	                //System.out.println("I just set the score: " + score); 
+	                bestLine.clear(); 
+	                bestLine.addAll(line); 
+	                //System.out.println("I just set best line: " + bestLine); 
+	            }
+	        }
+	}
 
-    //System.out.println("This is the best line end of permute: " + bestLine); 
- 
+	//System.out.println("This is the best line end of permute: " + bestLine); 
+	 
 
-    //figure out which of two lines win 
-    public int compareLine(List<Integer> home, List<Integer> away){ 
-        int homeScore = 0; 
+	//figure out which of two lines win 
+    	public int compareLine(List<Integer> home, List<Integer> away){
+		int homeScore = 0; 
 
-        //System.out.println("I'm in compare line!"); 
-        for(int i=0; i<5; i++){ 
-            if(home.get(i) - away.get(i) >= 3){
-                homeScore ++; 
-            }
-            if(away.get(i) - home.get(i) >= 3){ 
-                homeScore --; 
-            }
-        }
-        return homeScore; 
-    }
+	        //System.out.println("I'm in compare line!"); 
+	        for(int i=0; i<5; i++){ 
+	            if(home.get(i) - away.get(i) >= 3){
+	                homeScore ++; 
+	            }
+	            if(away.get(i) - home.get(i) >= 3){ 
+	                homeScore --; 
+	            }
+	        }
+	        return homeScore; 
+    	}
 
-    
+	    
 
-    private List<Integer> bestPermutation(List<Integer> home, List<Integer> away){ 
-        bestLine.clear(); 
-        score = -100; 
-        counter = 0; 
+    	private List<Integer> bestPermutation(List<Integer> home, List<Integer> away){ 
+	        bestLine.clear(); 
+	        score = -100; 
+	        counter = 0; 
 
-        permute(home, 0, away); 
+	        permute(home, 0, away); 
 
-        return bestLine; 
+	        return bestLine; 
 
-    }
+    	}
 }
