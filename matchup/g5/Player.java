@@ -43,20 +43,22 @@ public class Player implements matchup.sim.Player {
 
     /* called once per game repeat (pair of home/away) */
 	public List<Integer> getSkills() {
+        List<Integer> newSkills = new ArrayList<Integer>();
 
 		for (int i=0; i<3; ++i) {
-			skills.add(9); //three 9s
-			skills.add(8); //three 8s
-			skills.add(1); //three 1s
+			newSkills.add(9); //three 9s
+			newSkills.add(8); //three 8s
+			newSkills.add(1); //three 1s
 		}
 		for (int i=0; i<2; ++i) {
-			skills.add(7); //two 7s
-			skills.add(6); //two 6s
-			skills.add(5); //two 5s
+			newSkills.add(7); //two 7s
+			newSkills.add(6); //two 6s
+			newSkills.add(5); //two 5s
 		}
 
-		Collections.shuffle(skills);
-		return skills;
+		Collections.shuffle(newSkills);
+        this.skills = newSkills;
+		return newSkills;
 	}
 	
 	// This algorithm will select 'num' random integers from the range [min, max] that add up to the desired 'sum'.
@@ -97,10 +99,15 @@ public class Player implements matchup.sim.Player {
 
     /* called every home/away switch */
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
+    	distribution = new ArrayList<List<Integer>>();
+        // If we're the home team, create variance in our line
+        if (isHome) {
+
+
+        }
     	List<Integer> index = new ArrayList<Integer>();
     	for (int i=0; i<15; ++i) index.add(i);
 
-    	distribution = new ArrayList<List<Integer>>();
 
 		Collections.shuffle(index);
 		int n = 0;
@@ -121,6 +128,7 @@ public class Player implements matchup.sim.Player {
 
     	return distribution;
     }
+
 
     /* called every round of play
      * when away, opponentRound is historical data
