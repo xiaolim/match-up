@@ -11,6 +11,7 @@ public class Player implements matchup.sim.Player {
     private List<Integer> bestTeam;
     private List<Integer> opponentTeam;
     private List<List<Integer>> distribution;
+    private boolean globalIsHome;
 
     private List<Integer> availableRows;
 
@@ -148,6 +149,7 @@ public class Player implements matchup.sim.Player {
     }
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
+    	globalIsHome = isHome;
     	List<Integer> index = new ArrayList<Integer>();
     	for (int i=0; i<15; ++i) index.add(i);
 
@@ -168,8 +170,11 @@ public class Player implements matchup.sim.Player {
     	return distribution;
     }
     
+    
     public List<Integer> playRound(List<Integer> opponentRound) {
-	if (opponentRound == null) {
+
+		if (!globalIsHome) {
+		System.out.println("Hey");
             int n = rand.nextInt(availableRows.size());
             List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(n)));
             availableRows.remove(n);
