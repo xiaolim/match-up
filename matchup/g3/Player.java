@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Comparator;
+import matchup.sim.utils.*;
+import matchup.sim.Simulator;
 
 public class Player implements matchup.sim.Player {
 	private List<Integer> skills;
@@ -41,8 +43,41 @@ public class Player implements matchup.sim.Player {
 //		skills.add(6);
 //		Collections.shuffle(skills);
 //		
-//		return skills;
+//		return skills;	
+    System.out.println("getskills called");
+	List<Game> games = History.getHistory();
+	ArrayList<Integer> fixed = new ArrayList<Integer>();
+	for (int i = 0; i < 5; i++) {
+		fixed.add(1);
+	}
+	
+	for (int i = 0; i < 5; i++) {
+		fixed.add(8);
+	}
+	
+	for (int i = 0; i < 5; i++) {
+		fixed.add(9);
+	}
+	if(games.size()!=0){
+	Game g = games.get(games.size()-1);
+	PlayerData pd = (g.playerA.name.equals("g3"))?g.playerB:g.playerA;
+	List<Integer> saved = pd.skills;
+	Collections.sort(saved);
+
+	if(saved.equals(fixed)){
+		for (int i = 0; i < 5; i++) {
+			fixed.add(1);
+		}
 		
+		for (int i = 0; i < 5; i++) {
+			fixed.add(6);
+		}
+		
+		for (int i = 0; i < 5; i++) {
+			fixed.add(11);
+		}
+	} 
+	else{
 		for (int i = 0; i < 5; i++) {
 			skills.add(1);
 		}
@@ -54,7 +89,13 @@ public class Player implements matchup.sim.Player {
 		for (int i = 0; i < 5; i++) {
 			skills.add(9);
 		}
-
+	}
+}
+	else{
+		skills =  fixed;
+	}
+		
+//System.out.println("skills:"+skills);
 		return skills;
 	}
 
