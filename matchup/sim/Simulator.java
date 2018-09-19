@@ -16,170 +16,155 @@ import javax.tools.JavaCompiler;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
-class Game {
-    public String player_a;
-    public String player_b;
-
-    public List<List<Integer>> player_aRounds;
-    public List<List<Integer>> player_bRounds;
-
-    public int player_aScore;
-    public int player_bScore;
-
-    public Game(String player_a, String player_b) {
-        this.player_a = player_a;
-        this.player_b = player_b;
-
-        player_aRounds = new ArrayList<List<Integer>>();
-        player_bRounds = new ArrayList<List<Integer>>();
-    }
-}
+import matchup.sim.utils.*;
 
 public class Simulator {
     private static final String root = "matchup";
     private static final String statics_root = "statics";
 
-    private static final int turnLimit = 100000;
-
     private static boolean gui = false;
-    private static boolean tournament = false;
 
     private static double fps = 1;
     private static int n_games = 1;
-    private static String player_a_name;
-    private static String player_b_name;
+    private static String playerAName;
+    private static String playerBName;
 
-    private static PlayerWrapper player_a;
-    private static PlayerWrapper player_b;
+    private static PlayerWrapper playerA;
+    private static PlayerWrapper playerB;
 
     private static boolean isHome = true;
 
     private static List<Game> games = new ArrayList<Game>();
 
-    // Tournament variables.
-    private static PlayerWrapper[] players;
-    private static String[] player_names;
-
     public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
         parseArgs(args);
 
-        if (!tournament) {
+        try {
+            playerA = loadPlayerWrapper(playerAName);
+            playerB = loadPlayerWrapper(playerBName);
+        } catch (Exception ex) {
+            System.out.println("Unable to load players. " + ex.getMessage());
+            System.exit(0);
+        }
+
+        HTTPServer server = null;
+        if (gui) {
+            server = new HTTPServer();
+            Log.record("Hosting HTTP Server on " + server.addr());
+            if (!Desktop.isDesktopSupported())
+                Log.record("Desktop operations not supported");
+            else if (!Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
+                Log.record("Desktop browse operation not supported");
+            else {
+                try {
+                    Desktop.getDesktop().browse(new URI("http://localhost:" + server.port()));
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        isHome = true;
+
+        for (int j=0; j < n_games; ++j) {
+
+            List<List<Integer>> skills = new ArrayList<List<Integer>>();
+            List<List<List<Integer>>> distribution = new ArrayList<List<List<Integer>>>();
+
+            System.out.println("\nStarting game with players " + playerA.getName() + ", " + playerB.getName());
+
             try {
-                player_a = loadPlayerWrapper(player_a_name);
-                player_b = loadPlayerWrapper(player_b_name);
+                playerA.init(playerBName);
+                playerB.init(playerAName);
+
+                List<Integer> skillsA = playerA.getSkills();
+                List<Integer> skillsB = playerB.getSkills();
+
+                for (int i = 0; i < 2; ++i)
+                {
+                    Game game = new Game(playerAName, playerBName, isHome);
+                    games.add(game);
+
+                    System.out.println("\nHome: " +
+                        (isHome ? playerA.getName() : playerB.getName()) +
+                        ", Away: " + (!isHome ? playerA.getName() : playerB.getName()));
+
+                    game.playerA.skills = skillsA;
+                    game.playerB.skills = skillsB;
+
+                    game.playerA.distribution = playerA.getDistribution(skillsB, isHome);
+                    game.playerB.distribution = playerB.getDistribution(skillsA, !isHome);
+
+                    List<Integer> roundA = null;
+                    List<Integer> roundB = null;
+
+                    for (int turn = 0; turn < 3; ++turn) {
+                        System.out.println("\nRound " + (turn + 1));
+
+                        if (isHome) {
+                            roundB = playerB.playRound(roundA);
+                            roundA = playerA.playRound(roundB);
+                        }
+                        else {
+                            roundA = playerA.playRound(roundB);
+                            roundB = playerB.playRound(roundA);
+                        }
+
+                        game.playerA.rounds.add(roundA);
+                        game.playerB.rounds.add(roundB);
+
+                        int[] scores = getScores(roundA, roundB);
+                        game.playerA.score += scores[0];
+                        game.playerB.score += scores[1];
+
+                        System.out.println("Score: " + playerA.getName() + " " + scores[0] +
+                            ", " + playerB.getName() + " " + scores[1]);
+
+                        if (gui) {
+                            gui(server, state(i == 1 && turn == 2 ? -1 : fps, games));
+                        }
+                    }
+
+                    int[] totalScores = getTotalScores(games);
+
+                    System.out.println("\nTotal score: " + playerA.getName() +
+                        " " + totalScores[0] + " " + playerB.getName() +
+                        " " + totalScores[1]);
+
+                    swapPlayers();
+                }
             } catch (Exception ex) {
-                System.out.println("Unable to load players. " + ex.getMessage());
+                System.out.println("Exception! " + ex.getMessage());
                 System.exit(0);
             }
 
-            HTTPServer server = null;
-            if (gui) {
-                server = new HTTPServer();
-                Log.record("Hosting HTTP Server on " + server.addr());
-                if (!Desktop.isDesktopSupported())
-                    Log.record("Desktop operations not supported");
-                else if (!Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
-                    Log.record("Desktop browse operation not supported");
-                else {
-                    try {
-                        Desktop.getDesktop().browse(new URI("http://localhost:" + server.port()));
-                    } catch (URISyntaxException e) {
-                        e.printStackTrace();
-                    }
-                }
+            int[] totalScores = getTotalScores(games);
+
+            if (totalScores[0] != totalScores[1]) {
+                System.out.println("\nWinner: " +
+                    (totalScores[0] > totalScores[1] ?
+                        playerA.getName() + " " + totalScores[0] :
+                        playerB.getName() + " " + totalScores[1]));
             }
-
-            isHome = true;
-
-            for (int j=0; j < n_games; ++j) {
-
-                List<List<Integer>> skills = new ArrayList<List<Integer>>();
-                List<List<List<Integer>>> distribution = new ArrayList<List<List<Integer>>>();
-
-                Game game = new Game(player_a_name, player_b_name);
-                System.out.println("\nStarting game with players " + player_a.getName() + ", " + player_b.getName());
-
-                try {
-                    player_a.init(player_b_name);
-                    player_b.init(player_a_name);
-
-                    skills.add(player_a.getSkills());
-                    skills.add(player_b.getSkills());
-
-                    for (int i = 0; i < 2; ++i)
-                    {
-                        System.out.println("\nHome: " +
-                            (isHome ? player_a.getName() : player_b.getName()) +
-                            ", Away: " + (!isHome ? player_a.getName() : player_b.getName()));
-
-                        distribution.add(player_a.getDistribution(skills.get(1), isHome));
-                        distribution.add(player_b.getDistribution(skills.get(0), !isHome));
-
-                        List<Integer> round_a = null;
-                        List<Integer> round_b = null;
-
-                        for (int turn = 0; turn < 3; ++turn) {
-                        	System.out.println("\nRound " + (turn + 1));
-
-                            if (isHome) {
-                                round_b = player_b.playRound(round_a);
-                                round_a = player_a.playRound(round_b);
-                            }
-                            else {
-                                round_a = player_a.playRound(round_b);
-                                round_b = player_b.playRound(round_a);
-                            }
-
-                            game.player_bRounds.add(round_b);
-                            game.player_aRounds.add(round_a);
-
-                            int[] scores = getScores(round_a, round_b);
-                            game.player_aScore += scores[0];
-                            game.player_bScore += scores[1];
-
-                            System.out.println("Score: " + player_a.getName() + " " + scores[0] +
-                                ", " + player_b.getName() + " " + scores[1]);
-
-                        	if (gui) {
-                                gui(server, state(i == 1 && turn == 2 ? -1 : fps, skills, distribution, game));
-                            }
-                        }
-
-                        System.out.println("\nTotal score: " + player_a.getName() +
-                            " " + game.player_aScore + " " + player_b.getName() +
-                            " " + game.player_bScore);
-
-                        swapPlayers();
-                    }
-                } catch (Exception ex) {
-                    System.out.println("Exception! " + ex.getMessage());
-                    System.exit(0);
-                }
-
-                if (game.player_aScore != game.player_bScore) {
-                    System.out.println("\nWinner: " +
-                        (game.player_aScore > game.player_bScore ?
-                            player_a.getName() + " " + game.player_aScore :
-                            player_b.getName() + " " + game.player_bScore));
-                }
-                else {
-                    System.out.println("\nTie! Score: " + game.player_aScore);
-                }
-
-                games.add(game);
+            else {
+                System.out.println("\nTie! Score: " + totalScores[0]);
             }
         }
 
         System.exit(0);
     }
 
-    public static int[] getScores(List<Integer> round_a, List<Integer> round_b) {
+    public static List<Game> getGames() {
+        return games;
+    }
+
+    private static int[] getScores(List<Integer> roundA, List<Integer> roundB) {
         int[] scores = new int[2];
         for (int i=0; i<5; ++i) {
-            if (round_a.get(i) - round_b.get(i) > 2) {
+            if (roundA.get(i) - roundB.get(i) > 2) {
                 ++scores[0];
             }
-            else if (round_b.get(i) - round_a.get(i) > 2) {
+            else if (roundB.get(i) - roundA.get(i) > 2) {
                 ++scores[1];
             }
         }
@@ -187,11 +172,23 @@ public class Simulator {
         return scores;
     }
 
-    public static void swapPlayers() {
-        player_a.clear();
-        player_b.clear();
+    private static int[] getTotalScores(List<Game> games) {
+        if (games.size() % 2 != 0) {
+            return new int[] { 
+                games.get(games.size() - 1).playerA.score, 
+                games.get(games.size() - 1).playerB.score };
+        }
 
-        isHome = false;
+        return new int[] {
+            games.get(games.size() - 1).playerA.score + games.get(games.size() - 2).playerA.score, 
+            games.get(games.size() - 1).playerB.score + games.get(games.size() - 2).playerB.score};
+    }
+
+    private static void swapPlayers() {
+        playerA.clear();
+        playerB.clear();
+
+        isHome = !isHome;
     }
 
     private static PlayerWrapper loadPlayerWrapper(String name) throws Exception {
@@ -206,30 +203,49 @@ public class Simulator {
     }
 
     // The state that is sent to the GUI. (JSON)
-    private static String state(double fps, List<List<Integer>> skills, List<List<List<Integer>>> distribution, Game game) {
+    private static String state(double fps, List<Game> games) {
+        Game game1 = null;
+        Game game2 = null;
+
+        List<Integer> roundA;
+        List<Integer> roundB;
+
+        if (games.size() % 2 == 0) {
+            game1 = games.get(games.size() - 2);
+            game2 = games.get(games.size() - 1);
+
+            roundA = game2.playerA.rounds.get(game2.playerA.rounds.size() - 1);
+            roundB = game2.playerB.rounds.get(game2.playerB.rounds.size() - 1);
+        }
+        else {
+            game1 = games.get(games.size() - 1);
+            roundA = game1.playerA.rounds.get(game1.playerA.rounds.size() - 1);
+            roundB = game1.playerB.rounds.get(game1.playerB.rounds.size() - 1);
+        }
 
         List<String> distrib_a1 = new ArrayList<String>();
         List<String> distrib_b1 = new ArrayList<String>();
         List<String> distrib_a2 = new ArrayList<String>();
         List<String> distrib_b2 = new ArrayList<String>();
+        
         for (int i=0; i<3; ++i) {
-            distrib_a1.add(join(", ", distribution.get(0).get(i)));
-            distrib_b1.add(join(", ", distribution.get(1).get(i)));
+            distrib_a1.add(join(", ", game1.playerA.distribution.get(i)));
+            distrib_b1.add(join(", ", game1.playerB.distribution.get(i)));
 
-            if (distribution.size() > 2) {
-                distrib_a2.add(join(", ", distribution.get(2).get(i)));
-                distrib_b2.add(join(", ", distribution.get(3).get(i)));
+            if (game2 != null) {
+                distrib_a2.add(join(", ", game2.playerA.distribution.get(i)));
+                distrib_b2.add(join(", ", game2.playerB.distribution.get(i)));
             }
         }
 
         // Aaaaaaaaaaaaa!!!!
         String json = "{\"refresh\":" + (1000.0/fps) + ",\"is_home\":\"" + isHome +
-            "\",\"grp_a\":\"" + player_a.getName() +
-            "\",\"grp_b\":\"" + player_b.getName() +
-            "\",\"grp_a_skills\":\"" + join(", ", skills.get(0)) +
-            "\",\"grp_b_skills\":\"" + join(", ", skills.get(1)) +
-            "\",\"grp_a_round\":\"" + join(",", game.player_aRounds.get(game.player_aRounds.size()-1)) +
-            "\",\"grp_b_round\":\"" + join(",", game.player_bRounds.get(game.player_bRounds.size()-1)) +
+            "\",\"grp_a\":\"" + game1.playerA.name +
+            "\",\"grp_b\":\"" + game1.playerB.name +
+            "\",\"grp_a_skills\":\"" + join(", ", game1.playerA.skills) +
+            "\",\"grp_b_skills\":\"" + join(", ", game1.playerB.skills) +
+            "\",\"grp_a_round\":\"" + join(",", roundA) +
+            "\",\"grp_b_round\":\"" + join(",", roundB) +
             "\",\"grp_a_dist1\":\"" + String.join(";", distrib_a1) +
             "\",\"grp_b_dist1\":\"" + String.join(";", distrib_b1);
 
@@ -238,8 +254,10 @@ public class Simulator {
             "\",\"grp_b_dist2\":\"" + String.join(";", distrib_b2);
         }
 
-        json += "\",\"grp_a_score\":\"" + game.player_aScore +
-            "\",\"grp_b_score\":\"" + game.player_bScore + "\"}";
+        int[] scores = getTotalScores(games);
+
+        json += "\",\"grp_a_score\":\"" + scores[0] +
+            "\",\"grp_b_score\":\"" + scores[1] + "\"}";
 
         //System.out.println(json);
 
@@ -251,42 +269,42 @@ public class Simulator {
     }
 
     private static void gui(HTTPServer server, String content) {
-    	if (server == null) return;
-    	String path = null;
-    	for (;;) {
-    		for (;;) {
-    			try {
-    				path = server.request();
-    				break;
-    			} catch (IOException e) {
-    				Log.record("HTTP request error " + e.getMessage());
-    			}
-    		}
-    		if (path.equals("data.txt")) {
-    			try {
-    				server.reply(content);
-    			} catch (IOException e) {
-    				Log.record("HTTP dynamic reply error " + e.getMessage());
-    			}
-				return;
-    		}
-    		if (path.equals("")) path = "webpage.html";
-    		else if (!Character.isLetter(path.charAt(0))) {
-    			Log.record("Potentially malicious HTTP request \"" + path + "\"");
-    			break;
-    		}
+        if (server == null) return;
+        String path = null;
+        for (;;) {
+            for (;;) {
+                try {
+                    path = server.request();
+                    break;
+                } catch (IOException e) {
+                    Log.record("HTTP request error " + e.getMessage());
+                }
+            }
+            if (path.equals("data.txt")) {
+                try {
+                    server.reply(content);
+                } catch (IOException e) {
+                    Log.record("HTTP dynamic reply error " + e.getMessage());
+                }
+                return;
+            }
+            if (path.equals("")) path = "webpage.html";
+            else if (!Character.isLetter(path.charAt(0))) {
+                Log.record("Potentially malicious HTTP request \"" + path + "\"");
+                break;
+            }
 
-    		File file = new File(statics_root + File.separator + path);
-    		if (file == null) {
-    			Log.record("Unknown HTTP request \"" + path + "\"");
-    		} else {
-    			try {
-    				server.reply(file);
-    			} catch (IOException e) {
-    				Log.record("HTTP static reply error " + e.getMessage());
-    			}
-    		}
-    	}
+            File file = new File(statics_root + File.separator + path);
+            if (file == null) {
+                Log.record("Unknown HTTP request \"" + path + "\"");
+            } else {
+                try {
+                    server.reply(file);
+                } catch (IOException e) {
+                    Log.record("HTTP static reply error " + e.getMessage());
+                }
+            }
+        }
     }
 
     private static void parseArgs(String[] args) {
@@ -305,12 +323,10 @@ public class Simulator {
                             throw new IllegalArgumentException("Invalid number of players, you need 2 players to start a game.");
                         }
 
-                        player_a_name = playerNames.get(0);
-                        player_b_name = playerNames.get(1);
+                        playerAName = playerNames.get(0);
+                        playerBName = playerNames.get(1);
                     } else if (args[i].equals("-g") || args[i].equals("--gui")) {
                         gui = true;
-                    } else if (args[i].equals("-t") || args[i].equals("--tournament")) {
-                        tournament = true;
                     } else if (args[i].equals("-l") || args[i].equals("--logfile")) {
                         if (++i == args.length) {
                             throw new IllegalArgumentException("Missing logfile name");
@@ -327,7 +343,7 @@ public class Simulator {
                         }
                         n_games = Integer.parseInt(args[i]);
                     } else if (args[i].equals("-v") || args[i].equals("--verbose")) {
-                    	Log.activate();
+                        Log.activate();
                     } else {
                         throw new IllegalArgumentException("Unknown argument '" + args[i] + "'");
                     }
@@ -339,7 +355,6 @@ public class Simulator {
 
         Log.record("Players: " + playerNames.toString());
         Log.record("GUI " + (gui ? "enabled" : "disabled"));
-        Log.record("Tournament " + (tournament ? "enabled" : "disabled"));
 
         if (gui)
             Log.record("FPS: " + fps);
