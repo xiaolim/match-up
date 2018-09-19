@@ -30,6 +30,8 @@ public class Player implements matchup.sim.Player {
     public void init(String opponent) {
     }
     public List<Integer> getSkills() {
+
+        //skills.clear();
         skills = new ArrayList<Integer>();
         for (int i=0; i<7; ++i) {
             int x = rand.nextInt(11) + 1;
