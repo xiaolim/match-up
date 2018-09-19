@@ -26,19 +26,25 @@ public class Player implements matchup.sim.Player {
     }
 
     public List<Integer> getSkills() {
-        for (int i = 0; i < 7; ++i) {
-            int x = rand.nextInt(11) + 1;
-            skills.add(x);
-            skills.add(12 - x);
+        // skill distribution modeled after Group 5
+        for (int i=0; i<3; ++i) {
+            skills.add(9); //three 9s
+            skills.add(8); //three 8s
+            skills.add(1); //three 1s
+        }
+        for (int i=0; i<2; ++i) {
+            skills.add(7); //two 7s
+            skills.add(6); //two 6s
+            skills.add(5); //two 5s
         }
 
-        skills.add(6);
         Collections.shuffle(skills);
 
         return skills;
     }
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
+
         List<Integer> index = new ArrayList<Integer>();
         for (int i = 0; i < 15; ++i) index.add(i);
 
@@ -59,8 +65,40 @@ public class Player implements matchup.sim.Player {
         return distribution;
     }
 
+    public int chooseLine(List<Integer> opponentRound){
+        List<Double> ratio = new ArrayList<Double>();
+        for (int i =0; i < availableRows.size(); i++){
+            List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(i)));
+            round = optimizedRound(opponentRound,round);
+            double tempScore = 0;
+            double tempSkills = 90;
+            for (int j=0; j<5;j++){
+                if (round.get(j)-opponentRound.get(j)>2){
+                    tempScore+=1;
+                }
+                else if (opponentRound.get(j)-round.get(j)>2){
+                    tempScore-=1;
+                }
+                tempSkills+=round.get(j);
+                tempSkills-=opponentRound.get(j);
+            }
+            //System.out.println(tempScore/tempSkills);
+            ratio.add(tempScore/tempSkills);
+        }
+        double max = Collections.max(ratio);
+        int index = ratio.indexOf(max);
+        //System.out.println(index);
+        return index;
+    }
+
     public List<Integer> playRound(List<Integer> opponentRound) {
-        int n = rand.nextInt(availableRows.size());
+        int n = 0;
+        if (opponentRound!=null){
+            n = chooseLine(opponentRound);
+        }
+        else{
+            n = rand.nextInt(availableRows.size());
+        }
 
         List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(n)));
         availableRows.remove(n);
