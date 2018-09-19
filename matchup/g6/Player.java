@@ -1,9 +1,8 @@
 package matchup.g6;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+
+import javafx.util.Pair;
 import matchup.sim.utils.*;
 
 // To get game history.
@@ -35,7 +34,7 @@ public class Player implements matchup.sim.Player {
     public List<Integer> getSkills() {
         // reset skills
         skills.clear();
-                
+
         // distribution with low standard deviation
         // for (int i = 0; i < 15; i++) {
         //     Random generator = new Random();
@@ -80,16 +79,16 @@ public class Player implements matchup.sim.Player {
 
             // average range?
         }
-        
+
         System.out.println("range: " + range);
 
         // if range of opponent skill level is 4-8
         if (range > 3 && range < 9) {
-            for (int i=0; i< 10; i++) {
+            for (int i = 0; i < 10; i++) {
                 skills.add(7);
             }
 
-            for (int i=0; i< 5; i++) {
+            for (int i = 0; i < 5; i++) {
                 skills.add(4);
             }
         }
@@ -105,21 +104,60 @@ public class Player implements matchup.sim.Player {
             for (int i = 0; i < 5; i++) {
                 skills.add(4);
             }
-        }
-
-        else {
+        } else {
             for (int i = 0; i < 5; i++) {
                 skills.add(1);
             }
-            
+
             for (int i = 0; i < 5; i++) {
                 skills.add(8);
             }
-            
+
             for (int i = 0; i < 5; i++) {
                 skills.add(9);
             }
         }
+
+
+        /*** James new learning version skills generator ***/
+//        if (History.getHistory()!=null && History.getHistory().size() > 3 && History.getHistory().get(History.getHistory().size()-1).playerA.skills.size()>0 ) {
+//            skills.clear();
+//            List<Integer> counterStrats = Arrays.asList(4, 5, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+//            List<Double> density = getFrequencyDensity();
+//            skills = new ArrayList<>(Collections.nCopies(15, 1));
+//            int remainingSkill = 75;
+//            List<Pair<Integer, Integer>> myFreqEst = new ArrayList<>();
+//            int i = 1;
+//            for (double x : density) {
+//                myFreqEst.add(new Pair<>(i++, Math.round((float) x * 15)));
+//            }
+//
+//            Collections.sort(myFreqEst, new Comparator<Pair<Integer, Integer>>() {
+//                @Override
+//                public int compare(Pair<Integer, Integer> o1, Pair<Integer, Integer> o2) {
+//                    return o1.getValue() - o2.getValue();
+//                }
+//            });
+//            int skillIndex = 0;
+//            int densityIndex = 0;
+//            while (remainingSkill > 0 && skillIndex < 9) {
+//                Pair<Integer, Integer> p = myFreqEst.get(densityIndex);
+//                for (int j = 0; j < p.getValue(); j++) {
+//                    if (counterStrats.get(p.getKey()-1) > skills.get(skillIndex)) {
+//                        remainingSkill -= counterStrats.get(p.getKey()-1) - skills.get(skillIndex);
+//                        skills.set(skillIndex++, counterStrats.get(p.getKey()-1));
+//                    }
+//                }
+//                densityIndex++;
+//            }
+//            skillIndex=14;
+//            while(remainingSkill > 0){
+//                remainingSkill--;
+//                skills.set(skillIndex--, skills.get(skillIndex+1)+1);
+//                if(skillIndex<0)skillIndex=14;
+//            }
+//
+//        }
 
         return skills;
     }
@@ -127,8 +165,8 @@ public class Player implements matchup.sim.Player {
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
 
         //get density list
-        System.out.println("Density dist");
-        printListDouble(getFrequencyDensity());
+        //System.out.println("Density dist");
+        //printListDouble(getFrequencyDensity());
 
         List<Integer> index = new ArrayList<Integer>();
         for (int i = 0; i < 15; ++i) index.add(i);
@@ -157,22 +195,21 @@ public class Player implements matchup.sim.Player {
         sum.add(0);
         sum.add(0);
         sum.add(0);
-        if (!isHome){
-            for(int i = 0; i < skill_copy.size();i++){
+        if (!isHome) {
+            for (int i = 0; i < skill_copy.size(); i++) {
                 int skill = skill_copy.get(i);
                 int min = Collections.min(sum);
                 int indexM = sum.indexOf(min);
                 distribution.get(indexM).add(skill);
-                sum.set(indexM,min+skill);
-                if (distribution.get(indexM).size()>=5){
-                    sum.set(indexM,90);
+                sum.set(indexM, min + skill);
+                if (distribution.get(indexM).size() >= 5) {
+                    sum.set(indexM, 90);
                 }
             }
-        }
-        else{
+        } else {
             int count = 0;
-            for (int j = 0; j < 3; j++){
-                for (int k = 0; k < 5; k++){
+            for (int j = 0; j < 3; j++) {
+                for (int k = 0; k < 5; k++) {
                     int skill = skill_copy.get(count);
                     distribution.get(j).add(skill);
                     count++;
@@ -186,36 +223,35 @@ public class Player implements matchup.sim.Player {
 
     public int chooseLine(List<Integer> opponentRound) {
         List<Double> ratio = new ArrayList<Double>();
-        List<Double> score  = new ArrayList<Double>();
+        List<Double> score = new ArrayList<Double>();
         List<Double> skills = new ArrayList<Double>();
 
-        for (int i =0; i < availableRows.size(); i++){
+        for (int i = 0; i < availableRows.size(); i++) {
             List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(i)));
             round = optimizedRound(opponentRound, round);
             double tempScore = 0;
             double tempSkills = 0;
-            for (int j=0; j<5;j++){
-                if (round.get(j)-opponentRound.get(j)>2){
-                    tempScore+=1;
-                }
-                else if (opponentRound.get(j)-round.get(j)>2){
-                    tempScore-=1;
+            for (int j = 0; j < 5; j++) {
+                if (round.get(j) - opponentRound.get(j) > 2) {
+                    tempScore += 1;
+                } else if (opponentRound.get(j) - round.get(j) > 2) {
+                    tempScore -= 1;
                 }
                 tempSkills += round.get(j);
                 tempSkills -= opponentRound.get(j);
             }
             //System.out.println(tempScore/tempSkills);
-         	score.add(tempScore);
-         	skills.add(tempSkills);   
+            score.add(tempScore);
+            skills.add(tempSkills);
         }
         double minSkill = Collections.min(skills);
         double maxSkill = Collections.max(skills);
         double minScore = Collections.min(score);
         double maxScore = Collections.max(score);
-        for (int i = 0; i < availableRows.size();i++){
-            double scaledScore = (1+score.get(i)-minScore)/(availableRows.size()+maxScore-minScore);
-            double scaledSkill = (1+skills.get(i)-minSkill)/(availableRows.size()+maxSkill-minSkill);
-        	ratio.add(scaledScore/scaledSkill);
+        for (int i = 0; i < availableRows.size(); i++) {
+            double scaledScore = (1 + score.get(i) - minScore) / (availableRows.size() + maxScore - minScore);
+            double scaledSkill = (1 + skills.get(i) - minSkill) / (availableRows.size() + maxSkill - minSkill);
+            ratio.add(scaledScore / scaledSkill);
         }
         double max = Collections.max(ratio);
         int index = ratio.indexOf(max);
@@ -250,7 +286,7 @@ public class Player implements matchup.sim.Player {
         for (int i = 0; i < 3; ++i) availableRows.add(i);
         distribution.clear();
 
-    	List<Game> previousGames = History.getHistory();
+        List<Game> previousGames = History.getHistory();
 
         // Get history of games.
         // List<Game> games = History.getHistory();
@@ -354,9 +390,9 @@ public class Player implements matchup.sim.Player {
     //return 1-11 skill frequency density from history
     private List<Double> getFrequencyDensity() {
         List<List<Integer>> myHistory = new ArrayList<>();
-        for(Game g: History.getHistory()){
+        for (Game g : History.getHistory()) {
             List<Integer> tmp = new ArrayList<>();
-            for(int x: g.playerA.skills){
+            for (int x : g.playerA.skills) {
                 tmp.add(x);
             }
             myHistory.add(tmp);
