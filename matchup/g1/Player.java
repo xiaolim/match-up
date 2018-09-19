@@ -175,9 +175,6 @@ public class Player implements matchup.sim.Player {
         int bestLineup = 0;
         int secondBest = 0;
         int bestScore = -6;
-        List<Integer> scores = new ArrayList<Integer>();
-        Collections.addAll(scores, 0, 0, 0);
-        System.out.println(scores);
         
         if (lineupCount == 3) {
             bestScore = 6;
