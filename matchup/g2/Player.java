@@ -77,21 +77,37 @@ public class Player implements matchup.sim.Player {
 	        	double percent = (historyCount.get(s)/(numGamePairs*15))*100.0;
 	        	historyPercents.put(s, Math.round(percent));
 	        }
-	        System.out.println("historyPercents: " + historyPercents);
+	        // System.out.println("historyPercents: " + historyPercents);
 
 
 		skills = new ArrayList<Integer>();
 		
-		skills.add(4); // adding one 4
-		for (int i = 0 ; i < 9; i++){
 
-			//adding nine 9s
-			skills.add(9);
+		pickRandLine = rand.nextInt(2);
 
-			//adding five 1s
-			if(i%2 == 0){
-				skills.add(1);
+		if (pickRandLine){
+			skills.add(4); // adding one 4
+			for (int i = 0 ; i < 9; i++){
+
+				//adding nine 9s
+				skills.add(9);
+
+				//adding five 1s
+				if(i%2 == 0){
+					skills.add(1);
+				}
 			}
+		}
+		else {
+			for (int i = 0 ; i < 10;i++){
+
+	            //adding nine 7s
+	            skills.add(7);
+
+	            //adding five 4s
+	            if(i%2 == 0)
+	                skills.add(4);
+        	}
 		}
 		return skills;
 	}
