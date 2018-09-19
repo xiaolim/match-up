@@ -38,80 +38,6 @@ public class Player implements matchup.sim.Player {
 	public void init(String opponent) {
 	}
 
-	// NINE 9s one 4 five 1s
-	public List<Integer> getSkills() {
-
-		// Get history of games.
-	        List<Game> games = History.getHistory();
-	        int numGamePairs = games.size()/2;
-	        //System.out.println(games.size());
-
-
-	        List<Integer> oppSkills;
-	        Map<String, Double> oppSkillStats;
-	        Map<Integer, Integer> oppSkillCount;
-	        Map<Integer, Double> historyCount = new HashMap<Integer, Double>();
-	        for (int i=1; i<12; i++) {
-	        	historyCount.put(i, 0.0);
-	        }
-
-	        for (Game g : games) {
-
-	        	if (!g.playerA.name.equals("g2")) {
-	        		//playerA is the opponent and they are playing home--gather information
-        			oppSkills = g.playerA.skills;
-        			oppSkillStats = getSkillStats(oppSkills);
-        			oppSkillCount = getSkillCount(oppSkills);
-
-	        		for (int s : oppSkillCount.keySet()) {
-	        			double count_current = historyCount.get(s);
-	        			count_current += oppSkillStats.get(s);
-	        			historyCount.replace(s, count_current);
-	        		}
-	        	}
-	        }
-
-	        // get percentages
-	        Map<Integer, Long> historyPercents = new HashMap<Integer, Long>();
-	        for (int s : historyCount.keySet()) {
-	        	double percent = (historyCount.get(s)/(numGamePairs*15))*100.0;
-	        	historyPercents.put(s, Math.round(percent));
-	        }
-	        // System.out.println("historyPercents: " + historyPercents);
-
-
-		skills = new ArrayList<Integer>();
-		
-
-		int pickRandLine = rand.nextInt(2);
-
-		if (pickRandLine == 1){
-			skills.add(4); // adding one 4
-			for (int i = 0 ; i < 9; i++){
-
-				//adding nine 9s
-				skills.add(9);
-
-				//adding five 1s
-				if(i%2 == 0){
-					skills.add(1);
-				}
-			}
-		}
-		else {
-			for (int i = 0 ; i < 10;i++){
-
-	            //adding nine 7s
-	            skills.add(7);
-
-	            //adding five 4s
-	            if(i%2 == 0)
-	                skills.add(4);
-        	}
-		}
-		return skills;
-	}
-
 	// -- Gather information about opponent's skills --
 	private Map<String, Double> getSkillStats(List<Integer> skills) {
 
@@ -201,6 +127,114 @@ public class Player implements matchup.sim.Player {
 		return mapping;
 
 	
+	}
+
+	// NINE 9s one 4 five 1s
+	public List<Integer> getSkills() {
+
+		// Get history of games.
+	        List<Game> games = History.getHistory();
+	        double numGamePairs = games.size();
+	        //System.out.println(games.size());
+
+
+	        PlayerData opponent;
+	        List<Integer> oppSkills;
+	        Map<String, Double> oppSkillStats;
+	        Map<Integer, Integer> oppSkillCount;
+	        Map<Integer, Double> historyCount = new HashMap<Integer, Double>();
+	        for (int i=1; i<12; i++) {
+	        	historyCount.put(i, 0.0);
+	        }
+
+	        boolean notNull = false;
+	        for (Game g : games) {
+	        	notNull = false;
+
+	        	if (g.playerA.name.equals("g2")) oppSkills = g.playerB.skills; 
+	        	else oppSkills = g.playerA.skills;
+
+	        	if (!oppSkills.isEmpty()) {
+	        		notNull = true;
+	        		//playerA is the opponent and they are playing home--gather information
+				//System.out.println("OPPONENT!");
+				//oppSkills = g.playerA.skills;
+				//System.out.println("oppSkills: " + oppSkills);
+				oppSkillStats = getSkillStats(oppSkills);
+				oppSkillCount = getSkillCount(oppSkills);
+				//System.out.println("oppSkillCount: " + oppSkillCount);
+
+	        		for (int s : oppSkillCount.keySet()) {
+	        			//System.out.println(s);
+	        			double count_current = historyCount.get(s);
+	        			//System.out.println(count_current);
+	        			count_current += oppSkillCount.get(s);
+	        			historyCount.replace(s, count_current);
+	        		}
+        		}
+	        }
+	        Long maxSkillUsed = 0L;
+	        int maxSkill = 0;
+	        if (notNull) {
+		        //System.out.println("historyCount: " + historyCount);
+
+		        // get percentages
+		        Map<Integer, Long> historyPercents = new HashMap<Integer, Long>();
+		        for (int s : historyCount.keySet()) {
+		        	//System.out.println(historyCount.get(s));
+		        	double percent = (historyCount.get(s)/(numGamePairs*15.0))*100.0;
+		        	historyPercents.put(s, Math.round(percent));
+		        }
+		        //System.out.println("historyPercents: " + historyPercents);
+		        for (int s : historyPercents.keySet()) {
+		        	if (historyPercents.get(s) > maxSkillUsed) {
+		        		maxSkillUsed = historyPercents.get(s);
+		        		maxSkill = s;
+		        	}
+		        }
+		        //System.out.println("MAX: " + maxSkillUsed);
+		}
+
+		int pickRandLine;
+
+		if (maxSkill == 7) {
+			pickRandLine = 0;
+		} else if (maxSkill == 9) {
+			pickRandLine = 1;
+		} else {
+			pickRandLine = rand.nextInt(2);
+		}
+
+
+
+		skills = new ArrayList<Integer>();
+
+
+		if (pickRandLine == 1){
+			skills.add(4); // adding one 4
+			for (int i = 0 ; i < 9; i++){
+
+				//adding nine 9s
+				skills.add(9);
+
+				//adding five 1s
+				if(i%2 == 0){
+					skills.add(1);
+				}
+			}
+		}
+		else {
+			for (int i = 0 ; i < 10;i++){
+
+	            //adding nine 7s
+	            skills.add(7);
+
+	            //adding five 4s
+	            if(i%2 == 0)
+	                skills.add(4);
+        	}
+		}
+		return skills;
 	}
 
 	public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
