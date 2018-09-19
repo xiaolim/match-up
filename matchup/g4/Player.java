@@ -102,7 +102,7 @@ public class Player implements matchup.sim.Player {
         distribution.clear();
 
         List<Game> games = History.getHistory();
-        System.out.println(games.size());
+        //System.out.println(games.size());
         if(games.size() == 6) {
             for (int i=0;i<games.size();i++) {
 
@@ -115,7 +115,7 @@ public class Player implements matchup.sim.Player {
                     skillVar += Math.pow(n-skillMean,2);
                 }
                 skillVar /= 4;
-                System.out.println("Skills Var: " + skillVar);
+                //System.out.println("Skills Var: " + skillVar);
 
                 if (games.get(i).playerB.isHome) {
                     List<Double> homeMeans = new ArrayList<Double>();
@@ -135,8 +135,8 @@ public class Player implements matchup.sim.Player {
                         var /= 4;
                         homeVars.add(var);
                     }
-                    System.out.println("Home Dist Means:" + homeMeans);
-                    System.out.println("Home Dist Vars:" + homeVars);
+                    //System.out.println("Home Dist Means:" + homeMeans);
+                    //System.out.println("Home Dist Vars:" + homeVars);
 
                 } else {
                     List<Double> awayMeans = new ArrayList<Double>();
@@ -156,8 +156,8 @@ public class Player implements matchup.sim.Player {
                         var /= 4;
                         awayVars.add(var);
                     }
-                    System.out.println("Away Dist Means:" + awayMeans);
-                    System.out.println("Away Dist Vars:" + awayVars);
+                    //System.out.println("Away Dist Means:" + awayMeans);
+                    //System.out.println("Away Dist Vars:" + awayVars);
                 }
                 //System.out.println(games.get(i).playerA.name);
                 //System.out.println(games.get(i).playerA.skills);
