@@ -1,6 +1,9 @@
 # Compiled class file
 *.class
 
+out.txt
+calculateWins.py
+
 # Log file
 *.log
 

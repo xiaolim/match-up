@@ -5,58 +5,193 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import matchup.sim.Simulator;
+import matchup.sim.utils.*;
+
 public class Player implements matchup.sim.Player {
 	private List<Integer> skills;
+	private List<Integer> PrevSkills;
 	private List<List<Integer>> distribution;
 
 	private List<Integer> availableRows;
-
+	private PlayerData Opponent, Self;
 	private Random rand;
-	
+	private boolean playHome, WonLast, first_game;
+	private Integer lossStreak;
 	public Player() {
 		rand = new Random();
 		skills = new ArrayList<Integer>();
+		PrevSkills = new ArrayList<Integer>();
 		distribution = new ArrayList<List<Integer>>();
 		availableRows = new ArrayList<Integer>();
-
+		WonLast=true;
+		first_game = true;
+		lossStreak = 0;
 		for (int i=0; i<3; ++i) availableRows.add(i);
 	}
 	
     public void init(String opponent) {
     }
 
-	public List<Integer> getSkills() {
-		// for (int i=0; i<7; ++i) {
-		// 	int x = rand.nextInt(11) + 1;
-		// 	skills.add(x);
-		// 	skills.add(12 - x);
-		// }
 
-		// skills.add(6);
-		// Collections.shuffle(skills);
+
+	private List<Integer> playSevens()
+	{
+		List<Integer> skillset = new ArrayList<Integer>();
+		for(int i=0;i<10;i++) skillset.add(7);
+		for(int i=0;i<3;i++) skillset.add(5);
+		skillset.add(3);
+		skillset.add(2);
+		return skillset;		
+	}
+
+	private List<Integer> playAntiSevens()
+	{
+		List<Integer> skillset = new ArrayList<Integer>();
+		for(int i=0;i<8;i++) skillset.add(5);
+		for(int i=0;i<3;i++) skillset.add(10);
+		skillset.add(7);
+		skillset.add(7);
+		skillset.add(5);
+		skillset.add(1);
+		return skillset;		
+	}
+
+	private List<Integer> playBalanced()
+	{
+		List<Integer> skillset = new ArrayList<Integer>();
+		for(int i=0;i<4;i++) skillset.add(9);
+		for(int i=0;i<3;i++) skillset.add(7);
+		for(int i=0;i<3;i++) skillset.add(5);
+		for(int i=0;i<4;i++) skillset.add(4);
+		skillset.add(2);
+		return skillset;		
+	}
+
+
+	private void Analyze()
+	{
+
+		List<Game> hist  = Simulator.getGames();
+		if(hist.size()>=2 && hist.get(hist.size()-1).playerA.name == "g8")
+		{
+			Opponent = hist.get(hist.size()-1).playerB;
+			Opponent.score = hist.get(hist.size()-1).playerB.score + hist.get(hist.size()-2).playerB.score;
+			Self = hist.get(hist.size()-1).playerA;
+			Self.score = hist.get(hist.size()-1).playerA.score + hist.get(hist.size()-2).playerA.score;
+		}
+		else if(hist.size()>=2)
+			{
+				Opponent = hist.get(hist.size()-1).playerA;
+				Opponent.score = hist.get(hist.size()-1).playerA.score + hist.get(hist.size()-2).playerA.score;
+				Self = hist.get(hist.size()-1).playerB;
+				Self.score = hist.get(hist.size()-1).playerB.score + hist.get(hist.size()-2).playerB.score;
+			}
+
+		if(Opponent!=null) 
+		{
+			if(Opponent.score> Self.score)
+				{
+					WonLast  = false;
+					lossStreak++;
+				}
+
+			else if(Opponent.score == Self.score)
+			{
+				System.out.println("last game was a tie thus keeping previous team");
+				if(lossStreak>0) WonLast = false;
+				else WonLast = true; 
+			}
+			else
+				{
+					WonLast = true;
+					lossStreak = 0;
+				}
+		}
+	}
+
+	public List<Integer> getNew()
+	{
+		List<Integer> oppSkills = Opponent.skills;
+		Collections.sort(oppSkills);
+		Integer Count[] = new Integer[11];
+		for(int i=0;i<11;i++) Count[i] =0;
 		
-		List<Integer> skills = new ArrayList<>();
+		for(int i=0;i<oppSkills.size();i++)
+		{
+			Count[oppSkills.get(i)-1]++;
+		}
+		if(Count[9] + Count[10] <= 4 && Count[4] + Count[6] + Count[7] <= 10) /// Mostly 9's are highest 
+			oppSkills = playSevens();
+		else if(Count[6]>=8) 					///opponent using the sevens strategy
+			oppSkills = playAntiSevens();
+		else if(Count[8] + Count[7] <= 6)			/// If somewhat balanced
+			oppSkills = playBalanced();
+		else 							/// improve upon opponent's distribution
+		for(int i=0;i<15;i++)
+		{
+			if(i<6)
+				oppSkills.set(i,oppSkills.get(i)+3);
+			else
+				oppSkills.set(i,oppSkills.get(i)-2);
+		}
 
-		for (int i = 0; i < 4; i++) {
+		
+		return oppSkills;
+	}
+
+	private void improveSkills()
+	{
+			Collections.sort(skills);
+
+			for(int i=0;i<15;i++)
+			{
+			if(i<6)
+				skills.set(i,skills.get(i)+3);
+			else
+				skills.set(i,skills.get(i)-2);
+			}
+			   
+	}
+
+	public List<Integer> getSkills() {	
+             
+		skills.clear();
+
+		if(!first_game)
+		for(int i=0;i<15;i++) skills.add(PrevSkills.get(i));
+		Analyze();
+
+		
+		if(!WonLast && lossStreak<4)
+		  skills = getNew();
+
+		else if(lossStreak>=4)
+		  improveSkills();
+		
+		if(first_game)
+		{
 			skills.add(9);
-		}
-
-		for (int i = 0; i < 3; i++) {
+			skills.add(9);
+			skills.add(9);
+			skills.add(9);
 			skills.add(7);
-		}
-
-		for (int i = 0; i < 3; i++) {
+			skills.add(7);
+			skills.add(7);
 			skills.add(5);
-		}
-
-		for (int i = 0; i < 4; i++) {
+			skills.add(5);
+			skills.add(5);
 			skills.add(4);
-		}
-
-		for (int i = 0; i < 1; i++) {
+			skills.add(4);
+			skills.add(4);
+			skills.add(4);
 			skills.add(2);
+			first_game = false;
 		}
 
+		PrevSkills.clear();
+		for(int i=0;i<skills.size();i++) PrevSkills.add(skills.get(i));
+		
 		return skills;
 	}
 
@@ -64,50 +199,52 @@ public class Player implements matchup.sim.Player {
     	List<Integer> row1 = new ArrayList<Integer>();
 	List<Integer> row2 = new ArrayList<Integer>();
 	List<Integer> row3 = new ArrayList<Integer>();
+	playHome = isHome;
+	Collections.sort(skills);
 	if(isHome)
     	{
-	row1.add(9);
-    	row1.add(9);
-    	row1.add(5);
-    	row1.add(5);
-    	row1.add(4);
+	row1.add(skills.get(14));
+    	row1.add(skills.get(13));
+    	row1.add(skills.get(10));
+    	row1.add(skills.get(9));
+    	row1.add(skills.get(0));
 
     	
-    	row2.add(9);
-    	row2.add(7);
-    	row2.add(7);
-    	row2.add(4);
-    	row2.add(2);
+    	row2.add(skills.get(12));
+    	row2.add(skills.get(8));
+    	row2.add(skills.get(6));
+    	row2.add(skills.get(4));
+    	row2.add(skills.get(1));
 
     	
-    	row3.add(9);
-    	row3.add(7);
-    	row3.add(5);
-    	row3.add(4);
-    	row3.add(4);
+    	row3.add(skills.get(11));
+    	row3.add(skills.get(7));
+    	row3.add(skills.get(5));
+    	row3.add(skills.get(3));
+    	row3.add(skills.get(2));
 	}
 
 	else
 	{
-	row1.add(9);
-    	row1.add(9);
-    	row1.add(9);
-    	row1.add(9);
-    	row1.add(2);
+	row1.add(skills.get(14));
+    	row1.add(skills.get(13));
+    	row1.add(skills.get(12));
+    	row1.add(skills.get(11));
+    	row1.add(skills.get(10));
 
     	
-    	row2.add(7);
-    	row2.add(7);
-    	row2.add(7);
-    	row2.add(5);
-    	row2.add(5);
+    	row2.add(skills.get(9));
+    	row2.add(skills.get(8));
+    	row2.add(skills.get(7));
+    	row2.add(skills.get(6));
+    	row2.add(skills.get(5));
 
     	
-    	row3.add(5);
-    	row3.add(4);
-    	row3.add(4);
-    	row3.add(4);
-    	row3.add(4);
+    	row3.add(skills.get(4));
+    	row3.add(skills.get(3));
+    	row3.add(skills.get(2));
+    	row3.add(skills.get(1));
+    	row3.add(skills.get(0));
 		
 	}
 
@@ -140,41 +277,14 @@ public class Player implements matchup.sim.Player {
 
     public List<Integer> playRound(List<Integer> opponentRound) {
  
+
+	
+
 	List<Integer> round = null;
-	if (opponentRound == null) {
-    	int max_sum = 0;
-    	int max_row = -1;
-
-	int mid_sum = 60;
-        int mid_row = -1;
-
-    	for (int i = 0; i < availableRows.size(); i++){
-    		int sum = 0;
-    		for(int j: distribution.get(i)) {
-    			sum += j;
-			}
-
-/*			if (sum < min_sum){
-				mid_sum = min_sum;
-				mid_row = min_row;
-				min_sum = sum;
-				min_row = i;
-			}
-			else if (sum < mid_sum)
-			{
-				mid_sum = sum;
-				mid_row = i;
-			}
-*/
-			if (sum > max_sum){				
-				max_sum = sum;
-				max_row = i;
-			}
-    	}
-
+	if (opponentRound==null) {
 //	System.out.println("mid row is" + Integer.toString(mid_row));
-    	round = distribution.get(max_row);
-    	availableRows.remove(max_row);
+    	round = distribution.get(0);
+    	availableRows.remove(0);
     	return round;
 
 	}
@@ -182,13 +292,14 @@ public class Player implements matchup.sim.Player {
 //	System.out.println("rational playing home strategy");
 	int n = availableRows.size();
         int[] score = new int[n];
+	int[] sum = new int[n];
         ArrayList<List<Integer>> Candidates = new ArrayList<List<Integer>>();
 	for(int i=0;i<n;i++)
 	{
 		round = new ArrayList<Integer>(distribution.get(availableRows.get(i)));
 		
 		Collections.sort(round);
-		
+		sum[i] =0;
 		for(int j=0;j<opponentRound.size();j++)
 		{
 			
@@ -196,7 +307,7 @@ public class Player implements matchup.sim.Player {
 			int idx_win = canWin(opponentRound.get(j),round,j);
 			if(idx_win>0)
 			{
-				
+				sum[i] += round.get(idx_win);
 				Collections.swap(round,j,idx_win);
 				if(j<opponentRound.size()-1)
 				Collections.sort(round.subList(j+1,round.size()));
@@ -208,7 +319,7 @@ public class Player implements matchup.sim.Player {
 			int idx_tie = canTie(opponentRound.get(j),round,j);
 			if(idx_tie>0)
 			{
-				
+				sum[i] += round.get(idx_tie);
 				Collections.swap(round,j,idx_tie);
 				if(j<opponentRound.size()-1)
 				Collections.sort(round.subList(j+1,round.size()));
@@ -217,6 +328,7 @@ public class Player implements matchup.sim.Player {
 
 /// try to lose with least
 			score[i]--;
+			sum[i] += round.get(i);
 			
 		}
 		
@@ -237,9 +349,9 @@ public class Player implements matchup.sim.Player {
 
 	for(int i=0;i<n;i++)
 	{
-		if(score[i]<min_win && score[i]>0)
+		if(sum[i]<min_win && score[i]>0)
 		{
-			min_win = score[i];
+			min_win = sum[i];
 			win_choice = i;
 		}
 

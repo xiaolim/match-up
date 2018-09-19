@@ -211,7 +211,7 @@ public class Simulator {
         System.out.println(playerBName + ": " + playerBWins);
         System.out.println("\nTies: " + ties);
         System.out.println("\nTotal scores: ");
-        System.out.println(playerAName + ": " + (playerAHomeScores + playerBAwayScores));
+        System.out.println(playerAName + ": " + (playerAHomeScores + playerAAwayScores));
         System.out.println(playerBName + ": " + (playerBHomeScores + playerBAwayScores));
         System.out.println("\nAvg scores as Home: ");
         System.out.println(playerAName + ": " + ((double)playerAHomeScores*2/games.size()));
