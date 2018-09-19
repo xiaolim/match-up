@@ -170,11 +170,44 @@ public class Player implements matchup.sim.Player {
     	return distribution;
     }
     
-    
+    public int chooseOptimalLineup(List<Integer> opponentRound){
+        int lineupCount = availableRows.size();
+        int bestLineup = 0;
+        int secondBest = 0;
+        int bestScore = -6;
+        List<Integer> scores = new ArrayList<Integer>();
+        Collections.addAll(scores, 0, 0, 0);
+        System.out.println(scores);
+        
+        if (lineupCount == 3) {
+            bestScore = 6;
+            for (int i = 0; i < lineupCount; i++) {
+                List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(i))); 
+                int score = checkLineupScore(round, opponentRound);
+                if (score < bestScore) {
+                    secondBest = bestLineup;
+                    bestLineup = i;
+                    bestScore = score;
+                }
+            }
+            return secondBest;
+        } else {
+            for (int i = 0; i < lineupCount; i++) {
+                List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(i))); 
+                int score = checkLineupScore(round, opponentRound);
+                if (score > bestScore) {
+                    bestLineup = i;
+                    bestScore = score;
+                }
+            }
+            return bestLineup;
+        }
+      
+    }
+ 
     public List<Integer> playRound(List<Integer> opponentRound) {
 
 		if (!globalIsHome) {
-		System.out.println("Hey");
             int n = rand.nextInt(availableRows.size());
             List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(n)));
             availableRows.remove(n);
@@ -186,7 +219,7 @@ public class Player implements matchup.sim.Player {
 	//System.out.println(opponentRound);
 	//System.out.println("bestTeam:");
 	//System.out.println(bestTeam);
-	int n = rand.nextInt(availableRows.size());
+	int n = chooseOptimalLineup(opponentRound);
 
     	List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(n)));
     	availableRows.remove(n);
