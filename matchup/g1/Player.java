@@ -170,8 +170,11 @@ public class Player implements matchup.sim.Player {
     
     public List<Integer> playRound(List<Integer> opponentRound) {
 	if (opponentRound == null) {
-	    opponentRound = new ArrayList<Integer>();
-	    Collections.addAll(opponentRound, 1, 2, 6, 10, 11);
+            int n = rand.nextInt(availableRows.size());
+            List<Integer> round = new ArrayList<Integer>(distribution.get(availableRows.get(n)));
+            availableRows.remove(n);
+           
+	    return round;
 	}
 	//System.out.println("inside playRound");
     	//System.out.println("oppTeam:");
