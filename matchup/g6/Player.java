@@ -126,6 +126,10 @@ public class Player implements matchup.sim.Player {
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
 
+        //get density list
+        System.out.println("Density dist");
+        printListDouble(getFrequencyDensity());
+
         List<Integer> index = new ArrayList<Integer>();
         for (int i = 0; i < 15; ++i) index.add(i);
 
@@ -239,6 +243,15 @@ public class Player implements matchup.sim.Player {
         System.out.println("]");
     }
 
+    private void printListDouble(List<Double> myList) {
+        System.out.print("[");
+        for (int i = 0; i < myList.size() - 1; i++) {
+            System.out.print(myList.get(i) + ", ");
+        }
+        System.out.print(myList.get(myList.size() - 1));
+        System.out.println("]");
+    }
+
     private void print2DList(List<List<Integer>> my2DList) {
         System.out.print("[\n");
         for (int i = 0; i < my2DList.size() - 1; i++) {
@@ -308,16 +321,14 @@ public class Player implements matchup.sim.Player {
     private List<Double> getFrequencyDensity() {
         List<List<Integer>> myHistory = new ArrayList<>();
         for(Game g: History.getHistory()){
-            List<Integer> tmp = new ArrayList<>(15);
-            for(List<Integer> row: g.playerA.distribution){
-                for(int x: row){
-                    tmp.add(x);
-                }
+            List<Integer> tmp = new ArrayList<>();
+            for(int x: g.playerA.skills){
+                tmp.add(x);
             }
             myHistory.add(tmp);
         }
 
-        List<Double> result = new ArrayList<>(11);
+        List<Double> result = new ArrayList<>(Collections.nCopies(11, 0.0));
         for (List<Integer> l : myHistory) {
             for (int x : l) {
                 result.set(x - 1, result.get(x - 1) + 1);
