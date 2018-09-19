@@ -34,6 +34,7 @@ public class Player implements matchup.sim.Player {
     }
 
 	public List<Integer> getSkills() {
+	skills.clear();
 //		for (int i=0; i<7; ++i) {
 //			int x = rand.nextInt(11) + 1;
 //			skills.add(x);
