@@ -118,46 +118,64 @@ public class Player implements matchup.sim.Player {
             }
         }
 
-
+        int veryfySum = 0;
         /*** James new learning version skills generator ***/
-//        if (History.getHistory()!=null && History.getHistory().size() > 3 && History.getHistory().get(History.getHistory().size()-1).playerA.skills.size()>0 ) {
-//            skills.clear();
-//            List<Integer> counterStrats = Arrays.asList(4, 5, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-//            List<Double> density = getFrequencyDensity();
-//            skills = new ArrayList<>(Collections.nCopies(15, 1));
-//            int remainingSkill = 75;
-//            List<Pair<Integer, Integer>> myFreqEst = new ArrayList<>();
-//            int i = 1;
-//            for (double x : density) {
-//                myFreqEst.add(new Pair<>(i++, Math.round((float) x * 15)));
-//            }
-//
-//            Collections.sort(myFreqEst, new Comparator<Pair<Integer, Integer>>() {
-//                @Override
-//                public int compare(Pair<Integer, Integer> o1, Pair<Integer, Integer> o2) {
-//                    return o1.getValue() - o2.getValue();
-//                }
-//            });
-//            int skillIndex = 0;
-//            int densityIndex = 0;
-//            while (remainingSkill > 0 && skillIndex < 9) {
-//                Pair<Integer, Integer> p = myFreqEst.get(densityIndex);
-//                for (int j = 0; j < p.getValue(); j++) {
-//                    if (counterStrats.get(p.getKey()-1) > skills.get(skillIndex)) {
-//                        remainingSkill -= counterStrats.get(p.getKey()-1) - skills.get(skillIndex);
-//                        skills.set(skillIndex++, counterStrats.get(p.getKey()-1));
-//                    }
-//                }
-//                densityIndex++;
-//            }
-//            skillIndex=14;
-//            while(remainingSkill > 0){
-//                remainingSkill--;
-//                skills.set(skillIndex--, skills.get(skillIndex+1)+1);
-//                if(skillIndex<0)skillIndex=14;
-//            }
-//
-//        }
+        //getFrequencyDensity();
+        if (History.getHistory()!=null && History.getHistory().size() > 3 ) {
+            skills.clear();
+            List<Integer> counterStrats = Arrays.asList(4, 5, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            List<Double> density = getFrequencyDensity();
+            skills = new ArrayList<>(Collections.nCopies(15, 1));
+            int remainingSkill = 75;
+            List<Pair<Integer, Integer>> myFreqEst = new ArrayList<>();
+            int i = 1;
+            for (double x : density) {
+                myFreqEst.add(new Pair<>(i++, Math.round((float) x * 15)));
+            }
+
+            Collections.sort(myFreqEst, new Comparator<Pair<Integer, Integer>>() {
+                @Override
+                public int compare(Pair<Integer, Integer> o1, Pair<Integer, Integer> o2) {
+                    return o1.getValue() - o2.getValue();
+                }
+            });
+            int skillIndex = 0;
+            int densityIndex = 0;
+            while (remainingSkill > 0 && skillIndex < 11) {
+                Pair<Integer, Integer> p = myFreqEst.get(densityIndex);
+                for (int j = 0; j < p.getValue(); j++) {
+                    if (counterStrats.get(p.getKey()-1) > skills.get(skillIndex)) {
+                        remainingSkill -= counterStrats.get(p.getKey()-1) - skills.get(skillIndex);
+                        skills.set(skillIndex++, counterStrats.get(p.getKey()-1));
+                    }
+                }
+                densityIndex++;
+            }
+            skillIndex=14;
+            while(remainingSkill > 0){
+                if(skills.get(skillIndex)+1<12) {
+                    remainingSkill--;
+                    skills.set(skillIndex--, skills.get(skillIndex + 1) + 1);
+                }
+                else skillIndex--;
+                if(skillIndex<8)skillIndex=14;
+            }
+            skillIndex=14;
+            while(remainingSkill > 0){
+                if(skills.get(skillIndex)+1<12) {
+                    remainingSkill--;
+                    skills.set(skillIndex--, skills.get(skillIndex + 1) + 1);
+                }
+                else skillIndex--;
+                if(skillIndex<0)skillIndex=14;
+            }
+
+
+            for(int x: skills){
+                veryfySum+=x;
+            }
+
+        }
 
         return skills;
     }
@@ -392,7 +410,7 @@ public class Player implements matchup.sim.Player {
         List<List<Integer>> myHistory = new ArrayList<>();
         for (Game g : History.getHistory()) {
             List<Integer> tmp = new ArrayList<>();
-            for (int x : g.playerA.skills) {
+            for (int x : g.playerB.skills) {
                 tmp.add(x);
             }
             myHistory.add(tmp);
