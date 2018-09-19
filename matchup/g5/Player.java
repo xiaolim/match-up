@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Random;
 import java.lang.*;
 
+import matchup.sim.utils.*;
+
 public class Player implements matchup.sim.Player {
 	private List<Integer> skills;
 	private List<List<Integer>> distribution;
@@ -21,6 +23,9 @@ public class Player implements matchup.sim.Player {
     private List<Integer> permute_result;
     private int best_permuted_score_cur_line;
 
+    /* history variable */
+    private List<Game> games;
+
     private boolean isHome;
 	
     /* created once for repeated games */
@@ -31,6 +36,7 @@ public class Player implements matchup.sim.Player {
 		availableRows = new ArrayList<Integer>();
         opponentSkills = new ArrayList<Integer>();
         opponentDistribution = new ArrayList<List<Integer>>();
+        games = new ArrayList<Game>();
         isHome = true; // default
         permute_result = new ArrayList<Integer>();
         best_permuted_score_cur_line = -6;
@@ -43,6 +49,46 @@ public class Player implements matchup.sim.Player {
 
     /* called once per game repeat (pair of home/away) */
 	public List<Integer> getSkills() {
+
+        /* obtain and analyze game history */
+        games = History.getHistory();
+        //System.out.println("\nHISTORY GAME SIZE: " + games.size() + "\n");
+        /* test 
+        for(int i = 0; i < games.size(); i++) {
+            System.out.println("Game number: " + (i + 1));
+            System.out.println(games.get(i).playerA.score);
+            System.out.println(games.get(i).playerB.score);
+        }
+        */
+
+        Boolean getNewSkills = false;
+        int prev_game_score_g5 = 0;
+        int prev_game_score_oppo = 0;
+
+        for (int i = games.size() - 2; i < games.size(); i++) {
+            if(i < 0) continue;
+            if(games.get(i).playerA.name.equals("g5")) {
+                prev_game_score_g5 = prev_game_score_g5 + games.get(i).playerA.score;
+            } else {
+                prev_game_score_oppo = prev_game_score_oppo + games.get(i).playerA.score;
+            }
+            if(games.get(i).playerB.name.equals("g5")) {
+                prev_game_score_g5 = prev_game_score_g5 + games.get(i).playerB.score;
+            } else {
+                prev_game_score_oppo = prev_game_score_oppo + games.get(i).playerB.score;
+            }
+        }
+
+        if(prev_game_score_g5 <= prev_game_score_oppo) {
+            getNewSkills = true;
+        } else {
+            getNewSkills = false;
+        }
+
+        System.out.println("getNewSkills = " + getNewSkills);
+
+        /* End of analysis */
+
         List<Integer> newSkills = new ArrayList<Integer>();
 
 		for (int i=0; i<3; ++i) {
@@ -150,9 +196,9 @@ public class Player implements matchup.sim.Player {
             for (int i = 0; i < availableRows.size(); i++) {
                 
                 /* TEST */
-                System.out.println("--------------------------------------------------------------------");
-                System.out.println("Line permuting currently: " + distribution.get(availableRows.get(i)));
-                System.out.println("--------------------------------------------------------------------");
+                //System.out.println("--------------------------------------------------------------------");
+                //System.out.println("Line permuting currently: " + distribution.get(availableRows.get(i)));
+                //System.out.println("--------------------------------------------------------------------");
                 /* TEST END */
                 /* clear the return variables */
                 best_permuted_score_cur_line = -6; // resets best_permuted_score_cur_line for each line permutation
@@ -185,14 +231,14 @@ public class Player implements matchup.sim.Player {
                 } else {}
 
                 /* test */
-                System.out.println("test: Best permutation of the line: " + permute_result);
-                System.out.println("test: Resulting net Score of best permutation: " + best_permuted_score_cur_line);
+                //System.out.println("test: Best permutation of the line: " + permute_result);
+                //System.out.println("test: Resulting net Score of best permutation: " + best_permuted_score_cur_line);
             
             }
             availableRows.remove(selected_line_index);
 
-            System.out.println("Selected Line: " + round);
-            System.out.println("Resulting net Score: " + selected_line_score);
+            //System.out.println("Selected Line: " + round);
+            //System.out.println("Resulting net Score: " + selected_line_score);
 
         } else {
 
