@@ -232,7 +232,7 @@ public class Player implements matchup.sim.Player {
 	            //adding five 4s
 	            if(i%2 == 0)
 	                skills.add(4);
-        	}
+        		}
 		}
 		return skills;
 	}
@@ -242,13 +242,13 @@ public class Player implements matchup.sim.Player {
 		distribution = new ArrayList<List<Integer>>();
 
 		skills.sort(null);
-		opponentSkills.sort(null);
 		//System.out.println("our skills: " + skills);
 		//System.out.println("opponent skills: " + opponentSkills);
 
 		if (isHome) {
 			// -- Arrange rows to be optimal for HOME play --
-
+		
+			opponentSkills.sort(null);
 			// get stats on our skills
 			Map<String, Double> ourStats = getSkillStats(skills);
 			//System.out.println("ourStats: " + ourStats);
@@ -312,9 +312,13 @@ public class Player implements matchup.sim.Player {
 				for (int win_skill : win_skills.keySet()) {
 					if (win_skills.get(win_skill).get(1) == win_count) {
 						int i=0;
-						while (i<win_skills.get(win_skill).get(0)) {
+						int added=0;
+						while (added != win_skills.get(win_skill).get(0)) {
 							if (distribution.get(i%3).size() < 5) {
 								distribution.get(i%3).add(win_skill);
+								i++;
+								added++;
+							} else {
 								i++;
 							}
 						}
