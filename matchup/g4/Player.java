@@ -20,6 +20,15 @@ public class Player implements matchup.sim.Player {
     private List<Integer> opponentSkills = new ArrayList<Integer>();
     private List<Integer> opponentSkillsLeft = new ArrayList<Integer>();
     
+    public List<Integer> counter(List<Integer> opponentSkills) {
+        Collections.sort(opponentSkills);
+        for(int i=0; i<opponentSkills.size();i++ ){
+            if(i>=6) opponentSkills.set(i, Integer.valueof(opponentSkills.get(i)-2));
+            else if(i<6) opponentSkills.set(i, Integer.valueof(opponentSkills.get(i)+3));
+            return opponentSkills;
+         }
+    }
+
     public Player() {
         skills = new ArrayList<Integer>();
         distribution = new ArrayList<List<Integer>>();
