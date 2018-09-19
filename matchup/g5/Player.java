@@ -164,9 +164,9 @@ public class Player implements matchup.sim.Player {
             for (int i = 0; i < availableRows.size(); i++) {
 
                 /* TEST */
-                System.out.println("--------------------------------------------------------------------");
-                System.out.println("Line permuting currently: " + distribution.get(availableRows.get(i)));
-                System.out.println("--------------------------------------------------------------------");
+                //System.out.println("--------------------------------------------------------------------");
+                //System.out.println("Line permuting currently: " + distribution.get(availableRows.get(i)));
+                //System.out.println("--------------------------------------------------------------------");
                 /* TEST END */
                 /* clear the return variables */
                 best_permuted_score_cur_line = -6; // resets best_permuted_score_cur_line for each line permutation
@@ -199,14 +199,14 @@ public class Player implements matchup.sim.Player {
                 } else {}
 
                 /* test */
-                System.out.println("test: Best permutation of the line: " + permute_result);
-                System.out.println("test: Resulting net Score of best permutation: " + best_permuted_score_cur_line);
+                //System.out.println("test: Best permutation of the line: " + permute_result);
+                //System.out.println("test: Resulting net Score of best permutation: " + best_permuted_score_cur_line);
 
             }
             availableRows.remove(selected_line_index);
 
-            System.out.println("Selected Line: " + round);
-            System.out.println("Resulting net Score: " + selected_line_score);
+            //System.out.println("Selected Line: " + round);
+            //System.out.println("Resulting net Score: " + selected_line_score);
 
         } else {
 
