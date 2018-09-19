@@ -83,9 +83,9 @@ public class Player implements matchup.sim.Player {
 		skills = new ArrayList<Integer>();
 		
 
-		pickRandLine = rand.nextInt(2);
+		int pickRandLine = rand.nextInt(2);
 
-		if (pickRandLine){
+		if (pickRandLine == 1){
 			skills.add(4); // adding one 4
 			for (int i = 0 ; i < 9; i++){
 
