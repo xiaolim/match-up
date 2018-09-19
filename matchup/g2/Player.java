@@ -41,6 +41,45 @@ public class Player implements matchup.sim.Player {
 	// NINE 9s one 4 five 1s
 	public List<Integer> getSkills() {
 
+		// Get history of games.
+	        List<Game> games = History.getHistory();
+	        int numGamePairs = games.size()/2;
+	        //System.out.println(games.size());
+
+
+	        List<Integer> oppSkills;
+	        Map<String, Double> oppSkillStats;
+	        Map<Integer, Integer> oppSkillCount;
+	        Map<Integer, Double> historyCount = new HashMap<Integer, Double>();
+	        for (int i=1; i<12; i++) {
+	        	historyCount.put(i, 0.0);
+	        }
+
+	        for (Game g : games) {
+
+	        	if (!g.playerA.name.equals("g2")) {
+	        		//playerA is the opponent and they are playing home--gather information
+        			oppSkills = g.playerA.skills;
+        			oppSkillStats = getSkillStats(oppSkills);
+        			oppSkillCount = getSkillCount(oppSkills);
+
+	        		for (int s : oppSkillCount.keySet()) {
+	        			double count_current = historyCount.get(s);
+	        			count_current += oppSkillStats.get(s);
+	        			historyCount.replace(s, count_current);
+	        		}
+	        	}
+	        }
+
+	        // get percentages
+	        Map<Integer, Long> historyPercents = new HashMap<Integer, Long>();
+	        for (int s : historyCount.keySet()) {
+	        	double percent = (historyCount.get(s)/(numGamePairs*15))*100.0;
+	        	historyPercents.put(s, Math.round(percent));
+	        }
+	        System.out.println("historyPercents: " + historyPercents);
+
+
 		skills = new ArrayList<Integer>();
 		
 		skills.add(4); // adding one 4
@@ -149,14 +188,6 @@ public class Player implements matchup.sim.Player {
 	}
 
 	public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
-		
-		// Get history of games.
-	        List<Game> games = History.getHistory();
-	        System.out.println(games.size());
-
-	        /*for (Game g : games) {
-	        	System.out.println("playerA = " + g.playerA.name);
-	        }*/
 
 		distribution = new ArrayList<List<Integer>>();
 
