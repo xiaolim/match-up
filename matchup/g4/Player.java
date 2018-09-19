@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.Arrays;
 
+// To get game history.
+import matchup.sim.utils.*;
+
 public class Player implements matchup.sim.Player {
     private List<Integer> skills;
     private List<List<Integer>> distribution;
@@ -96,6 +99,20 @@ public class Player implements matchup.sim.Player {
         for (int i=0; i<3; ++i) availableRows.add(i);
 
         distribution.clear();
+
+        List<Game> games = History.getHistory();
+        System.out.println(games.size());
+        for (int i=0;i<games.size();i++) {
+            //System.out.println(games.get(i).playerA.name);
+            //System.out.println(games.get(i).playerA.skills);
+            System.out.println(games.get(i).playerB.name);
+            System.out.println(games.get(i).playerB.skills);
+            System.out.println(games.get(i).playerB.rounds);
+            System.out.println(games.get(i).playerB.distribution);
+            System.out.println(games.get(i).playerB.isHome);
+            System.out.println(games.get(i).playerB.score);
+
+        }
     }
 
     private int lineToUse(Line opponent) {
