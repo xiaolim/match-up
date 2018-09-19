@@ -103,14 +103,38 @@ public class Player implements matchup.sim.Player {
         List<Game> games = History.getHistory();
         System.out.println(games.size());
         for (int i=0;i<games.size();i++) {
+            if (games.get(i).playerB.isHome) {
+                List<Double> homeMeans = new ArrayList<Double>();
+                for(List<Integer> d: games.get(i).playerB.distribution) {
+                    Double mean = 0.0;
+                    for (Integer n: d) {
+                        mean += n;
+                    }
+                    homeMeans.add(mean/5);
+                }
+                //System.out.println("HOME");
+                //System.out.println(homeMeans);
+            } else {
+                List<Double> awayMeans = new ArrayList<Double>();
+                for(List<Integer> d: games.get(i).playerB.distribution) {
+                    Double mean = 0.0;
+                    for (Integer n: d) {
+                        mean += n;
+                    }
+                    awayMeans.add(mean/5);
+                }
+                //System.out.println("AWAY");
+                //System.out.println(awayMeans);
+            }
             //System.out.println(games.get(i).playerA.name);
             //System.out.println(games.get(i).playerA.skills);
-            System.out.println(games.get(i).playerB.name);
-            System.out.println(games.get(i).playerB.skills);
-            System.out.println(games.get(i).playerB.rounds);
-            System.out.println(games.get(i).playerB.distribution);
-            System.out.println(games.get(i).playerB.isHome);
-            System.out.println(games.get(i).playerB.score);
+            
+            //System.out.println(games.get(i).playerB.name);
+            //System.out.println(games.get(i).playerB.skills);
+            //System.out.println(games.get(i).playerB.rounds);
+            //System.out.println(games.get(i).playerB.distribution);
+            //System.out.println(games.get(i).playerB.isHome);
+            //System.out.println(games.get(i).playerB.score);
 
         }
     }
