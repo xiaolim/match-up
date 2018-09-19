@@ -27,6 +27,7 @@ public class Player implements matchup.sim.Player {
     private List<Game> games;
 
     private boolean isHome;
+    private boolean getNewSkills;
 
     /* created once for repeated games */
 	public Player() {
@@ -40,6 +41,7 @@ public class Player implements matchup.sim.Player {
         isHome = true; // default
         permute_result = new ArrayList<Integer>();
         best_permuted_score_cur_line = -6;
+        getNewSkills = false;
 
 		for (int i=0; i<3; ++i) availableRows.add(i);
 	}
@@ -61,7 +63,6 @@ public class Player implements matchup.sim.Player {
         }
         */
 
-        Boolean getNewSkills = false;
         int prev_game_score_g5 = 0;
         int prev_game_score_oppo = 0;
 
@@ -89,11 +90,13 @@ public class Player implements matchup.sim.Player {
 
         /* End of analysis */
 
-        List<Integer> newSkills = trueRandom(4,9,90,15);
-
-		this.skills = newSkills;
-
-		return newSkills;
+        if (getNewSkills){
+            List<Integer> newSkills = trueRandom(4,9,90,15);
+            
+		    this.skills = newSkills;
+            return newSkills;
+        }
+		return skills;
 	}
 
 	// This algorithm will select 'num' random integers from the range [min, max] that add up to the desired 'sum'.
@@ -138,15 +141,17 @@ public class Player implements matchup.sim.Player {
         current_sum += player_skill;
         remaining = desired_sum - current_sum;
       }
-      // System.out.println("Selected player with skill level: " + player_skill);
-      // System.out.println("The remainder is: " + remaining);
-      // System.out.println("Number of players left: " + num_players);
     }
     return randSkills;
   }
 
     /* called every home/away switch */
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
+        System.out.println("last distribution: ");
+        System.out.println(distribution);
+        if (!getNewSkills) {
+            return distribution;
+        }
     	distribution = new ArrayList<List<Integer>>();
         // If we're the home team, create variance in our line
         if (isHome) {
