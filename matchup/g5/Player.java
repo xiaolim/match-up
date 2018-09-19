@@ -22,7 +22,7 @@ public class Player implements matchup.sim.Player {
     private int best_permuted_score_cur_line;
 
     private boolean isHome;
-	
+
     /* created once for repeated games */
 	public Player() {
 		rand = new Random();
@@ -43,9 +43,8 @@ public class Player implements matchup.sim.Player {
 
     /* called once per game repeat (pair of home/away) */
 	public List<Integer> getSkills() {
-        List<Integer> newSkills = new ArrayList<Integer>();
-
-		for (int i=0; i<3; ++i) {
+    List<Integer> newSkills = trueRandom(4,9,90,15);
+		/*for (int i=0; i<3; ++i) {
 			newSkills.add(9); //three 9s
 			newSkills.add(8); //three 8s
 			newSkills.add(1); //three 1s
@@ -57,14 +56,17 @@ public class Player implements matchup.sim.Player {
 		}
 
 		Collections.shuffle(newSkills);
-        this.skills = newSkills;
+		*/
+		this.skills = newSkills;
+
 		return newSkills;
 	}
-	
+
 	// This algorithm will select 'num' random integers from the range [min, max] that add up to the desired 'sum'.
 	// It isn't hard coded to select 15 random numbers adding up to 90, and can be used to adaptively select a team
 	// by changing the range or manually selecting a few players and having the algorithm fill out the rest
-	public List<Integer> trueRandom(int min, int max, int sum, int num){
+	public static List<Integer> trueRandom(int min, int max, int sum, int num){
+    Random r = new Random();
 		int desired_sum = sum;
 		int current_sum = 0;
 		int remaining = desired_sum - current_sum;
@@ -72,30 +74,42 @@ public class Player implements matchup.sim.Player {
 		int current_max = max;
 		int num_players = num;
 		int player_skill = 0;
+    List<Integer> randSkills = new ArrayList<Integer>();
 
-		for(int i=0; i<num; i++){
-			num_players--;
-		  if(num_players != 0){
-				while (((remaining - current_max)/num_players) < current_min){
-					current_max -= 1;
-				}
-				while (((remaining - current_min)/num_players) > current_max){
-					current_min += 1;
-				}
-			player_skill = current_min + rand.nextInt(current_max - current_min + 1);
-			skills.add(player_skill);
-			current_sum += player_skill;
-			remaining = desired_sum - current_sum;
-			}
-		  else{
-				player_skill = remaining;
-				skills.add(player_skill);
-				current_sum += player_skill;
-				remaining = desired_sum - current_sum;
-			}
-		}
-		return skills;
-	}
+    for(int i=0; i<num; i++){
+      num_players--;
+      if(num_players != 0){
+        while (((remaining - current_max)/num_players) <= min){
+          current_max -= 1;
+        }
+        while (((remaining - current_min)/num_players) >= max){
+          current_min += 1;
+        }
+
+        int range = current_max - current_min;
+        //System.out.println("The range is: (" + current_min + ", " + current_max + ")");
+        if(range <= 0){
+          player_skill = current_max;
+        }
+        else{
+          player_skill = current_min + r.nextInt(range);
+        }
+        randSkills.add(player_skill);
+        current_sum += player_skill;
+        remaining = desired_sum - current_sum;
+      }
+      else{
+        player_skill = remaining;
+        randSkills.add(player_skill);
+        current_sum += player_skill;
+        remaining = desired_sum - current_sum;
+      }
+      // System.out.println("Selected player with skill level: " + player_skill);
+      // System.out.println("The remainder is: " + remaining);
+      // System.out.println("Number of players left: " + num_players);
+    }
+    return randSkills;
+  }
 
     /* called every home/away switch */
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
@@ -148,7 +162,7 @@ public class Player implements matchup.sim.Player {
             int selected_line_score = -6;
             int selected_line_index = 0; // default first line, will be overwritten
             for (int i = 0; i < availableRows.size(); i++) {
-                
+
                 /* TEST */
                 System.out.println("--------------------------------------------------------------------");
                 System.out.println("Line permuting currently: " + distribution.get(availableRows.get(i)));
@@ -187,7 +201,7 @@ public class Player implements matchup.sim.Player {
                 /* test */
                 System.out.println("test: Best permutation of the line: " + permute_result);
                 System.out.println("test: Resulting net Score of best permutation: " + best_permuted_score_cur_line);
-            
+
             }
             availableRows.remove(selected_line_index);
 
@@ -206,13 +220,13 @@ public class Player implements matchup.sim.Player {
     	return round;
     }
 
-    /* permutation function 
+    /* permutation function
      * returns ourPoint - opponentPoint under our best permutation
      * permutation algorithm is based on:
      * https://www.geeksforgeeks.org/write-a-c-program-to-print-all-permutations-of-a-given-string/
      */
     private int line_permute(List<Integer> ourTeam, List<Integer> opponent) {
-        /* 
+        /*
          * l = starting index of the string
          * r = ending index of the string
          */
@@ -252,7 +266,7 @@ public class Player implements matchup.sim.Player {
                 ourTeam.remove(l + 1);
                 ourTeam.add(i, temp);
                 ourTeam.remove(i + 1);
-                
+
 
                 permute(ourTeam, l + 1, r, opponent);
 
