@@ -153,8 +153,8 @@ public class Player implements matchup.sim.Player {
             }
             skillIndex=14;
             while(remainingSkill > 0){
-                remainingSkill--;
                 if(skills.get(skillIndex)+1<12) {
+                    remainingSkill--;
                     skills.set(skillIndex--, skills.get(skillIndex + 1) + 1);
                 }
                 else skillIndex--;
@@ -162,8 +162,8 @@ public class Player implements matchup.sim.Player {
             }
             skillIndex=14;
             while(remainingSkill > 0){
-                remainingSkill--;
                 if(skills.get(skillIndex)+1<12) {
+                    remainingSkill--;
                     skills.set(skillIndex--, skills.get(skillIndex + 1) + 1);
                 }
                 else skillIndex--;
