@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Arrays;
+import java.lang.Math;
 
 // To get game history.
 import matchup.sim.utils.*;
@@ -103,28 +104,59 @@ public class Player implements matchup.sim.Player {
         List<Game> games = History.getHistory();
         System.out.println(games.size());
         for (int i=0;i<games.size();i++) {
+
+            Double skillVar = 0.0;
+            Double skillMean = 0.0;
+            for (Integer n: games.get(i).playerB.skills) {
+                skillMean += n;
+            }
+            for (Integer n: games.get(i).playerB.skills) {
+                skillVar += Math.pow(n-skillMean,2);
+            }
+            skillVar /= 4;
+            System.out.println("Skills Var: " + skillVar);
+
             if (games.get(i).playerB.isHome) {
                 List<Double> homeMeans = new ArrayList<Double>();
+                List<Double> homeVars = new ArrayList<Double>();
                 for(List<Integer> d: games.get(i).playerB.distribution) {
                     Double mean = 0.0;
                     for (Integer n: d) {
                         mean += n;
                     }
-                    homeMeans.add(mean/5);
+                    mean /= 5;
+                    homeMeans.add(mean);
+                    
+                    Double var = 0.0;
+                    for (Integer n: d) {
+                        var += Math.pow(n-mean,2);
+                    }
+                    var /= 4;
+                    homeVars.add(var);
                 }
-                //System.out.println("HOME");
-                //System.out.println(homeMeans);
+                System.out.println("Home Dist Means:" + homeMeans);
+                System.out.println("Home Dist Vars:" + homeVars);
+
             } else {
                 List<Double> awayMeans = new ArrayList<Double>();
+                List<Double> awayVars = new ArrayList<Double>();
                 for(List<Integer> d: games.get(i).playerB.distribution) {
                     Double mean = 0.0;
                     for (Integer n: d) {
                         mean += n;
                     }
-                    awayMeans.add(mean/5);
+                    mean /= 5;
+                    awayMeans.add(mean);
+
+                    Double var = 0.0;
+                    for (Integer n: d) {
+                        var += Math.pow(n-mean,2);
+                    }
+                    var /= 4;
+                    awayVars.add(var);
                 }
-                //System.out.println("AWAY");
-                //System.out.println(awayMeans);
+                System.out.println("Away Dist Means:" + awayMeans);
+                System.out.println("Away Dist Vars:" + awayVars);
             }
             //System.out.println(games.get(i).playerA.name);
             //System.out.println(games.get(i).playerA.skills);
