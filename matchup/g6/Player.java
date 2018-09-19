@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import matchup.sim.utils.*;
 
 // To get game history.
 import matchup.sim.utils.*;
