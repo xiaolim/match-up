@@ -47,6 +47,101 @@ public class Player implements matchup.sim.Player {
 	    Collections.addAll(skills, 10, 2, 9, 3, 6);
 	    Collections.addAll(skills, 10, 2, 9, 3, 6);
 	    
+		
+		List<Game> games = History.getHistory();
+		//System.out.println("Number of games played: ");
+		//System.out.println(games.size());
+		
+		
+		List<Integer> friendlyNewSkills = new ArrayList<Integer>();
+		Collections.addAll(friendlyNewSkills, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+		
+		if(games.size() > 1){
+			Game game;
+			PlayerData opponent;
+			PlayerData friendly;
+			
+			List<Integer> opponentAvgPastSkills = new ArrayList<Integer>();
+			Collections.addAll(opponentAvgPastSkills, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+			//System.out.println("Opponent Skills in previous games: ");
+			for(int i=0; i<games.size(); i+=2)
+			{
+				game = games.get(i);
+			
+				if (game.playerA.name == "g1") {
+						friendly = game.playerA;
+						opponent = game.playerB;
+						//count_playerA_friendly += 1;
+				} else {
+					friendly = game.playerB;
+					opponent = game.playerA;
+				}
+				
+				//System.out.println(opponent.distribution);
+				//System.out.println(opponent.skills);
+				Collections.sort(opponent.skills);
+				
+				for (int j=0; j<15; j++){
+					opponentAvgPastSkills.set(j, opponentAvgPastSkills.get(j) + opponent.skills.get(j));
+				}
+				
+				//System.out.println(opponent.skills);
+				
+			}
+			
+			for (int j=0; j<15; j++){
+				opponentAvgPastSkills.set(j, (opponentAvgPastSkills.get(j)/(games.size()/2)));
+			}
+			
+			//System.out.println("Games Played: ");
+			//int gamesPlayed = (games.size()/2);
+			//System.out.println(gamesPlayed);
+			//System.out.println("Opponent Average Past Skills: ");
+			//System.out.println(opponentAvgPastSkills);
+			
+			for (int j=0; j<15; j++){
+			
+				if (opponentAvgPastSkills.get(j) <= 6)
+					friendlyNewSkills.set(j, opponentAvgPastSkills.get(j) + 3);
+				else
+					friendlyNewSkills.set(j, opponentAvgPastSkills.get(j) - 2);
+			}
+			
+			int sumOfSkills = 0;
+			for(int j=0; j<15; j++)
+				sumOfSkills += friendlyNewSkills.get(j);
+			System.out.println(sumOfSkills);
+			int diff = 90 - sumOfSkills;
+			
+			//keep adding randomly till total 90 when sum of skills < 90
+			while(diff > 0)
+			{
+				int x = rand.nextInt(15);
+				if (friendlyNewSkills.get(x) < 11)
+				{
+					friendlyNewSkills.set(x, friendlyNewSkills.get(x) + 1);
+					diff--;
+				}
+			}
+			
+			
+			//keep subtracting randomly till total 90 when sum of skills > 90
+			while(diff < 0)
+			{
+				int x = rand.nextInt(15);
+				if (friendlyNewSkills.get(x) > 1)
+				{
+					friendlyNewSkills.set(x, friendlyNewSkills.get(x) - 1);
+					diff++;
+				}
+			}
+			//System.out.println(opponentAvgPastSkills);
+			//System.out.println(friendlyNewSkills);
+			
+			skills = friendlyNewSkills;
+			return skills;
+		}
+
 	    //Old
 	    //Collections.addAll(skills, 11, 11, 1, 1, 6, 8, 8, 4, 4, 6, 10, 2, 9, 3, 6);
 	    return skills;
@@ -170,6 +265,8 @@ public class Player implements matchup.sim.Player {
 		    opponent_away_score += opponent.score;
 		}
 	    }
+	    
+	    
 	    System.out.println("end result:");
 
 	    System.out.println("home:");
