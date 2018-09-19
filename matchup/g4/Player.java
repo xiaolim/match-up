@@ -5,6 +5,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Arrays;
+import java.lang.Math;
+
+// To get game history.
+import matchup.sim.utils.*;
 
 public class Player implements matchup.sim.Player {
     private List<Integer> skills;
@@ -96,6 +100,77 @@ public class Player implements matchup.sim.Player {
         for (int i=0; i<3; ++i) availableRows.add(i);
 
         distribution.clear();
+
+        List<Game> games = History.getHistory();
+        //System.out.println(games.size());
+        if(games.size() == 6) {
+            for (int i=0;i<games.size();i++) {
+
+                Double skillVar = 0.0;
+                Double skillMean = 0.0;
+                for (Integer n: games.get(i).playerB.skills) {
+                    skillMean += n;
+                }
+                for (Integer n: games.get(i).playerB.skills) {
+                    skillVar += Math.pow(n-skillMean,2);
+                }
+                skillVar /= 4;
+                //System.out.println("Skills Var: " + skillVar);
+
+                if (games.get(i).playerB.isHome) {
+                    List<Double> homeMeans = new ArrayList<Double>();
+                    List<Double> homeVars = new ArrayList<Double>();
+                    for(List<Integer> d: games.get(i).playerB.distribution) {
+                        Double mean = 0.0;
+                        for (Integer n: d) {
+                            mean += n;
+                        }
+                        mean /= 5;
+                        homeMeans.add(mean);
+                        
+                        Double var = 0.0;
+                        for (Integer n: d) {
+                            var += Math.pow(n-mean,2);
+                        }
+                        var /= 4;
+                        homeVars.add(var);
+                    }
+                    //System.out.println("Home Dist Means:" + homeMeans);
+                    //System.out.println("Home Dist Vars:" + homeVars);
+
+                } else {
+                    List<Double> awayMeans = new ArrayList<Double>();
+                    List<Double> awayVars = new ArrayList<Double>();
+                    for(List<Integer> d: games.get(i).playerB.distribution) {
+                        Double mean = 0.0;
+                        for (Integer n: d) {
+                            mean += n;
+                        }
+                        mean /= 5;
+                        awayMeans.add(mean);
+
+                        Double var = 0.0;
+                        for (Integer n: d) {
+                            var += Math.pow(n-mean,2);
+                        }
+                        var /= 4;
+                        awayVars.add(var);
+                    }
+                    //System.out.println("Away Dist Means:" + awayMeans);
+                    //System.out.println("Away Dist Vars:" + awayVars);
+                }
+                //System.out.println(games.get(i).playerA.name);
+                //System.out.println(games.get(i).playerA.skills);
+                
+                //System.out.println(games.get(i).playerB.name);
+                //System.out.println(games.get(i).playerB.skills);
+                //System.out.println(games.get(i).playerB.rounds);
+                //System.out.println(games.get(i).playerB.distribution);
+                //System.out.println(games.get(i).playerB.isHome);
+                //System.out.println(games.get(i).playerB.score);
+
+            }
+        }
     }
 
     private int lineToUse(Line opponent) {
