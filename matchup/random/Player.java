@@ -29,7 +29,6 @@ public class Player implements matchup.sim.Player {
     
     public void init(String opponent) {
     }
-
     public List<Integer> getSkills() {
         skills.clear();
         for (int i=0; i<7; ++i) {

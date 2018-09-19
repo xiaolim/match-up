@@ -28,22 +28,25 @@ public class Player implements matchup.sim.Player {
     }
 
     public List<Integer> getSkills() {
-        Integer s[] = {9,9,9,9,9,8,8,8,8,8,1,1,1,1,1};
-        skills = new ArrayList<Integer>(Arrays.asList(s));
-        return skills;
+		Integer s[] = {9,9,9,9,9,8,8,8,8,8,1,1,1,1,1};
+		this.skills = new Skills(Arrays.asList(s));
+
+		return skills;
     }
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
-        Integer rows[][];
+    	int GROUP_SIZE = 5;
+        
+        Skills skills = (Skills)this.skills;
 
         if (isHome) {
-            rows = new Integer[][] {{9,9,8,8,8},{9,9,8,1,1},{9,8,1,1,1}};
+        	skills.groupForHome(GROUP_SIZE);
         } else {
-            rows = new Integer[][] {{9,9,9,9,9},{8,8,8,8,8},{1,1,1,1,1}};
+        	skills.groupForAway(GROUP_SIZE);
         }
-    
-        for (int i = 0; i < 3; ++i) {
-            distribution.add(new Line(Arrays.asList(rows[i])));
+
+        for (int i = 0; i < skills.size(); i += GROUP_SIZE) {
+        	distribution.add(new Line(skills.subList(i, i+GROUP_SIZE)));
         }
 
         this.isHome = isHome;
@@ -67,7 +70,6 @@ public class Player implements matchup.sim.Player {
                 toUse = distribution.get(availableRows.get(idx));
                 availableRows.remove(idx);
             }
-
             
             else if (availableRows.size() == 2) {
                 int idx = lineToUse2(new Line(opponentRound), new Line(opponentSkillsLeft));
@@ -94,7 +96,6 @@ public class Player implements matchup.sim.Player {
         for (int i=0; i<3; ++i) availableRows.add(i);
 
         distribution.clear();
-
     }
 
     private int lineToUse(Line opponent) {
@@ -116,16 +117,19 @@ public class Player implements matchup.sim.Player {
     }
 
     private int lineToUse2(Line opponent1, Line opponent2) {
-        Line temp1 = new Line(distribution.get(availableRows.get(0)));
-        Line temp2 = new Line(distribution.get(availableRows.get(1)));
+    	Line temp1 = (Line)distribution.get(availableRows.get(0));
+    	Line temp2 = (Line)distribution.get(availableRows.get(1));
 
         temp1.permuteFor(opponent1);
-        temp2.permuteFor(opponent2);
-        int score1 = temp1.scoreAgainst(opponent1) + temp2.scoreAgainst(opponent2);
+    	Line temp3 = new Line(temp1);
+    	temp2.permuteFor(opponent2);
+    	int score1 = temp1.scoreAgainst(opponent1) + temp2.scoreAgainst(opponent2);
 
         temp1.permuteFor(opponent2);
         temp2.permuteFor(opponent1);
         int score2 = temp1.scoreAgainst(opponent2) + temp2.scoreAgainst(opponent1);
+
+    	temp1 = temp3;
 
         return (score2 > score1) ? 1 : 0;
     }
