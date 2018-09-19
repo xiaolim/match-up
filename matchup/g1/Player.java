@@ -167,7 +167,7 @@ public class Player implements matchup.sim.Player {
 
     	return distribution;
     }
-
+    
     public List<Integer> playRound(List<Integer> opponentRound) {
 	if (opponentRound == null) {
 	    opponentRound = new ArrayList<Integer>();
@@ -194,9 +194,9 @@ public class Player implements matchup.sim.Player {
 	round = permuteHomeTeam(round, opponentRound);
 	//System.out.println("oppTeam:");
 	//System.out.println(opponentRound);
-	System.out.println("bestTeam:");
+	System.out.println("g1 bestTeam:");
 	System.out.println(bestTeam);
-	System.out.println("round:");
+	System.out.println("g1 round:");
 	System.out.println(round);
 	return bestTeam;
 	//round = bestTeam;
