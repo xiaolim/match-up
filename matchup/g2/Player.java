@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.lang.Math;
 import java.util.Map;
 import java.util.HashMap;
+// To get game history.
+import matchup.sim.utils.*;
 
 public class Player implements matchup.sim.Player {
 	private List<Integer> skills;
@@ -38,6 +40,8 @@ public class Player implements matchup.sim.Player {
 
 	// NINE 9s one 4 five 1s
 	public List<Integer> getSkills() {
+
+		skills = new ArrayList<Integer>();
 		
 		skills.add(4); // adding one 4
 		for (int i = 0 ; i < 9; i++){
@@ -145,6 +149,15 @@ public class Player implements matchup.sim.Player {
 	}
 
 	public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
+		
+		// Get history of games.
+	        List<Game> games = History.getHistory();
+	        System.out.println(games.size());
+
+	        /*for (Game g : games) {
+	        	System.out.println("playerA = " + g.playerA.name);
+	        }*/
+
 		distribution = new ArrayList<List<Integer>>();
 
 		skills.sort(null);
