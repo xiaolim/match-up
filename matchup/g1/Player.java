@@ -29,6 +29,9 @@ public class Player implements matchup.sim.Player {
 
     public List<Integer> getSkills() {
 	    skills = new ArrayList<Integer>();
+	    //Uniform
+	    //Collections.addAll(skills, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 2, 2, 10, 10);
+
             //Risky
 	    //Collections.addAll(skills, 11, 11, 1, 1, 6);
 	    //Collections.addAll(skills, 11, 11, 1, 1, 6);
@@ -40,12 +43,12 @@ public class Player implements matchup.sim.Player {
 	    //Collections.addAll(skills, 8, 8, 4, 4, 6);
 	    
 	    //Middle
-	    //Collections.addAll(skills, 10, 2, 9, 3, 6);
-	    //Collections.addAll(skills, 10, 2, 9, 3, 6);
-	    //Collections.addAll(skills, 10, 2, 9, 3, 6);
+	    Collections.addAll(skills, 10, 2, 9, 3, 6);
+	    Collections.addAll(skills, 10, 2, 9, 3, 6);
+	    Collections.addAll(skills, 10, 2, 9, 3, 6);
 	    
 	    //Old
-	    Collections.addAll(skills, 11, 11, 1, 1, 6, 8, 8, 4, 4, 6, 10, 2, 9, 3, 6);
+	    //Collections.addAll(skills, 11, 11, 1, 1, 6, 8, 8, 4, 4, 6, 10, 2, 9, 3, 6);
 	    return skills;
     }
 
@@ -55,6 +58,7 @@ public class Player implements matchup.sim.Player {
 
     	distribution = new ArrayList<List<Integer>>();
 
+        //Collections.shuffle(index, rand);
 		int n = 0;
     	for (int i=0; i<3; ++i) {
     		List<Integer> row = new ArrayList<Integer>();
@@ -95,8 +99,10 @@ public class Player implements matchup.sim.Player {
 	round = permuteHomeTeam(round, opponentRound);
 	//System.out.println("oppTeam:");
 	//System.out.println(opponentRound);
-	//System.out.println("bestTeam:");
-	//System.out.println(bestTeam);
+	System.out.println("bestTeam:");
+	System.out.println(bestTeam);
+	System.out.println("round:");
+	System.out.println(round);
 	return bestTeam;
 	//round = bestTeam;
 
@@ -109,11 +115,19 @@ public class Player implements matchup.sim.Player {
 
         // Get history of games.
         List<Game> games = History.getHistory();
+	int friendly_away_score = 0;
+	int opponent_away_score = 0;
+	int friendly_away_wins = 0;
+	int opponent_away_wins = 0;
+	int friendly_home_score = 0;
+	int opponent_home_score = 0;
+	int friendly_home_wins = 0;
+	int opponent_home_wins = 0;
 	int friendly_total_score = 0;
 	int opponent_total_score = 0;
 	int friendly_total_wins = 0;
 	int opponent_total_wins = 0;
-	int numGames = 2000;
+	int numGames = 20000;
 	//int count_playerA_friendly = 0;
 	if (games.size() >= numGames) {
 	    System.out.println(games.size());
@@ -137,8 +151,49 @@ public class Player implements matchup.sim.Player {
 		}
 		friendly_total_score += friendly.score;
 		opponent_total_score += opponent.score;
+		if (friendly.isHome) {
+		    if (friendly.score > opponent.score) {
+			friendly_home_wins += 1;
+		    } else if (friendly.score < opponent.score) {
+			opponent_home_wins += 1;
+		    }
+		    friendly_home_score += friendly.score;
+		    opponent_home_score += opponent.score;
+		}
+		if (!friendly.isHome) {
+		    if (friendly.score > opponent.score) {
+			friendly_away_wins += 1;
+		    } else if (friendly.score < opponent.score) {
+			opponent_away_wins += 1;
+		    }
+		    friendly_away_score += friendly.score;
+		    opponent_away_score += opponent.score;
+		}
 	    }
 	    System.out.println("end result:");
+
+	    System.out.println("home:");
+	    System.out.println("friendly result:");
+	    System.out.println("score:");
+	    System.out.println(friendly_home_score);
+	    System.out.println("wins:");
+	    System.out.println(friendly_home_wins);
+	    System.out.println("opponent result:");
+	    System.out.println("score:");
+	    System.out.println(opponent_home_score);
+	    System.out.println("wins:");
+	    System.out.println(opponent_home_wins);
+	    System.out.println("away:");
+	    System.out.println("friendly result:");
+	    System.out.println("score:");
+	    System.out.println(friendly_away_score);
+	    System.out.println("wins:");
+	    System.out.println(friendly_away_wins);
+	    System.out.println("opponent result:");
+	    System.out.println("score:");
+	    System.out.println(opponent_away_score);
+	    System.out.println("wins:");
+	    System.out.println(opponent_away_wins);
 	    System.out.println("friendly result:");
 	    //System.out.println("count_playerA_friendly:");
 	    //System.out.println(count_playerA_friendly);
