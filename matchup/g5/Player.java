@@ -89,10 +89,8 @@ public class Player implements matchup.sim.Player {
 
         /* End of analysis */
 
-        List<Integer> newSkills = new ArrayList<Integer>();
+        List<Integer> newSkills = trueRandom(4,9,90,15);
 
-		for (int i=0; i<3; ++i) {
-    List<Integer> newSkills = trueRandom(4,9,90,15);
 		this.skills = newSkills;
 
 		return newSkills;
@@ -237,11 +235,6 @@ public class Player implements matchup.sim.Player {
                 /* test */
                 //System.out.println("test: Best permutation of the line: " + permute_result);
                 //System.out.println("test: Resulting net Score of best permutation: " + best_permuted_score_cur_line);
-<<<<<<< HEAD
-            
-=======
-
->>>>>>> 25bb7b8b1fc7ebe922a671fed590bb39e459f68f
             }
             availableRows.remove(selected_line_index);
 
