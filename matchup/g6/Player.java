@@ -126,21 +126,53 @@ public class Player implements matchup.sim.Player {
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
 
-        List<Integer> index = new ArrayList<Integer>();
-        for (int i = 0; i < 15; ++i) index.add(i);
+        List<Integer> skill_copy = new ArrayList<Integer>(skills);
+        Collections.sort(skill_copy, Collections.reverseOrder());
 
         distribution = new ArrayList<List<Integer>>();
 
-        Collections.shuffle(index);
-        int n = 0;
-        for (int i = 0; i < 3; ++i) {
-            List<Integer> row = new ArrayList<Integer>();
-            for (int j = 0; j < 5; ++j) {
-                row.add(skills.get(index.get(n)));
-                ++n;
+        // int n = 0;
+        // for (int i = 0; i < 3; ++i) {
+        //     List<Integer> row = new ArrayList<Integer>();
+        //     for (int j = 0; j < 5; ++j) {
+        //         row.add(skills.get(index.get(n)));
+        //         ++n;
+        //     }
+
+        //     distribution.add(row);
+        // }
+        List<Integer> line1 = new ArrayList<Integer>();
+        List<Integer> line2 = new ArrayList<Integer>();
+        List<Integer> line3 = new ArrayList<Integer>();
+        distribution.add(line1);
+        distribution.add(line2);
+        distribution.add(line3);
+        List<Integer> sum = new ArrayList<Integer>();
+        sum.add(0);
+        sum.add(0);
+        sum.add(0);
+        if (!isHome){
+            for(int i = 0; i < skill_copy.size();i++){
+                int skill = skill_copy.get(i);
+                int min = Collections.min(sum);
+                int indexM = sum.indexOf(min);
+                distribution.get(indexM).add(skill);
+                sum.set(indexM,min+skill);
+                if (distribution.get(indexM).size()>=5){
+                    sum.set(indexM,90);
+                }
+            }
+        }
+        else{
+            int count = 0;
+            for (int j = 0; j < 3; j++){
+                for (int k = 0; k < 5; k++){
+                    int skill = skill_copy.get(count);
+                    distribution.get(j).add(skill);
+                    count++;
+                }
             }
 
-            distribution.add(row);
         }
 
         return distribution;
