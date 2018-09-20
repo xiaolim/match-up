@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Random;
 
 import javafx.util.Pair;
 
@@ -20,6 +21,11 @@ public class Player implements matchup.sim.Player {
 	private List<Integer> opponentRemainSkills;
 	// keep track of history distribution
 	private Map<Integer, Integer> dic;
+	// keep track of their home line up
+	private List<List<Integer>> home_line;
+
+	// keep track of their away line up
+	private List<List<Integer>> away_line;
 
 	private boolean state; // Whether the player is playing as the home team
 	
@@ -39,6 +45,8 @@ public class Player implements matchup.sim.Player {
 	@Override
 	public void init(String opponent) {
 		skills = stat();
+		home_line = new ArrayList<List<Integer>>();
+		away_line = new ArrayList<List<Integer>>();
 	}
 
 
@@ -55,17 +63,10 @@ public class Player implements matchup.sim.Player {
 		this.opponentRemainSkills = new ArrayList<Integer>(opponentSkills);
 
 		if (isHome) {
-			List<Integer> temp = new ArrayList<Integer>();
-			
-
-			distribution.add(new ArrayList<Integer>(Arrays.asList(skills.get(1), skills.get(4), skills.get(7), skills.get(10), skills.get(13))));
-			distribution.add(new ArrayList<Integer>(Arrays.asList(skills.get(2), skills.get(5), skills.get(8), skills.get(11), skills.get(14))));
-			distribution.add(new ArrayList<Integer>(Arrays.asList(skills.get(3), skills.get(6), skills.get(9), skills.get(12), skills.get(0))));
+			distribution = counter_lineup(away_line);
 		}
 		else {
-			distribution.add(new ArrayList<Integer>(Arrays.asList(skills.get(1), skills.get(2), skills.get(3), skills.get(4), skills.get(5))));
-			distribution.add(new ArrayList<Integer>(Arrays.asList(skills.get(6), skills.get(7), skills.get(8), skills.get(9), skills.get(10))));
-			distribution.add(new ArrayList<Integer>(Arrays.asList(skills.get(11), skills.get(12), skills.get(13), skills.get(14), skills.get(0))));
+			distribution = counter_lineup(home_line);		
 		}
 
 		for (int i=0; i<distribution.size(); i++){
@@ -90,10 +91,111 @@ public class Player implements matchup.sim.Player {
 
 
 	/**
+	 * Compute the optimal counter lineup to counter against the opponent based on history
+	 * @param line a ArrayList contains their past line up history
+	 * @return a line up that counters their lineup directly
+	 */
+	public List<List<Integer>> counter_lineup(List<List<Integer>> line){
+		List<List<Integer>> result = new ArrayList<List<Integer>>();
+		List<Integer> team = new ArrayList<Integer>(skills);
+
+		if (line.size() == 0){
+			Random rand = new Random();
+			for (int i=0 ; i< 3; i++){
+				List<Integer> temp = new ArrayList<Integer>();
+				for (int j=0; j< 5; j++){
+					int n = rand.nextInt(team.size());
+					temp.add(team.get(n));
+					team.remove(n);
+				}
+				result.add(temp);
+			}
+		}
+
+		for (int i=0; i<line.size(); i++){
+			List<Integer> temp = new ArrayList<Integer>();
+			for (int j=0; j<line.get(i).size(); j++){
+				int opponent_score = line.get(i).get(j);
+				temp.add(best_counter(opponent_score, team));
+				team.remove(best_counter(opponent_score,team));
+			}
+			result.add(temp);
+		}
+		return result;
+	}
+
+
+	private int best_counter(int skill, List<Integer> team){
+		// best strategy: win by 3
+		if (team.contains(skill+3)){
+			return skill+3;
+		}
+		// second best strategy: tie by -1 or -2
+		else if (min_tie_score(skill, team) != 0){
+			return min_tie_score(skill, team);
+		}
+
+		// third best strategy: win by just good enough
+		else if (min_winning_score(skill, team)!= 0){
+			if (min_winning_score(skill, team) - skill < skill - Collections.min(team)){
+				return min_winning_score(skill, team);
+			}
+		}
+		// strategy: lose by a lot
+		else{
+			return Collections.min(team);
+		}
+		return team.get(0);
+	}
+
+	/**
+	 * compute the minimum score that wins against opponent skill
+	 * @param skill an opponent skill to be countered
+	 * @param team our skill distribution
+	 * @return a minimum score that wins against opponent skill
+	*/
+	private int min_winning_score(int skill, List<Integer> team){
+		int min = 0;
+		
+		if (Collections.max(team) - skill >= 3){
+			min = Collections.max(team);
+		}
+		else{
+			return 0;
+		}
+		for (int i=0; i<team.size(); i++){
+			if (team.get(i) - skill >= 3){
+				if (team.get(i) < min){
+					min = team.get(i);
+				}
+			}
+		}
+		return min;
+	}
+
+
+	/**
+	 * compute the minimum score that ties against opponent skill
+	 * @param skill an opponent skill to be countered
+	 * @param team our skill distribution
+	 * @return a minimum score that ties against opponent skill
+	*/
+	private int min_tie_score(int skill, List<Integer> team){
+		int min = 0;
+		for (int i=0; i<team.size(); i++){
+			if (team.get(i) <= skill && skill - team.get(i) < 3){
+				if (team.get(i) < min){
+					min = team.get(i);
+				}
+			}
+		}
+		return min;
+	}
+
+
+	/**
 	 * Compute the optimal distribution to counter against the opponent based on dic
-	 * @param row The index of our line used
-	 * @param opponentRound The list of player skills in the opponent line
-	 * @return a pair containing score difference and the optimal permutation
+	 * @return a list containing optimal distribution
 	 */
 	private List<Integer> stat(){
 		Map<Integer, Double> best_dist = new HashMap<Integer,Double>();
@@ -283,11 +385,16 @@ public class Player implements matchup.sim.Player {
     		Pair<Integer, List<Integer>> temp = new PlayRow().useRows(opponentRound);
     		round = temp.getValue();
     		availableRows.remove(temp.getKey());
+    		away_line.add(opponentRound);
     	}
     	else{
 	    	round =	distribution.get(availableRows.get(0));
     		availableRows.remove(0);
+    		home_line.add(opponentRound);
     	}
+
+
+
 		return round;
 	}
 
