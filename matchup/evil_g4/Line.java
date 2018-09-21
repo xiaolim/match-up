@@ -56,15 +56,9 @@ public class Line extends java.util.ArrayList<Integer> {
             }
         } else {
             for (int i = idx; i < size(); ++i) {
-                int tmp = get(i);
-                set(i, get(idx));
-                set(idx, tmp);
-
+                Collections.swap(this, i, idx);
                 permuteHelper(opponent, idx+1);
-
-                tmp = get(idx);
-                set(idx, get(i));
-                set(i, tmp);
+                Collections.swap(this, i, idx);
             }
         }
     }

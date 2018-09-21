@@ -20,8 +20,8 @@ public class Player implements matchup.sim.Player {
     private List<Integer> opponentSkills = new ArrayList<Integer>();
     private List<Integer> opponentSkillsLeft = new ArrayList<Integer>();
 
-    // Random seed of 42.
-    private int seed = 42;
+    // Random seed of 3.
+    private int seed = 3;
     private Random rand;
 
     public Player() {
@@ -85,33 +85,29 @@ public class Player implements matchup.sim.Player {
 
     public List<Integer> playRound(List<Integer> opponentRound) {  
         List<Integer> toUse;
+        int idx = 0;
+
         if (isHome) {
             for (Integer i: opponentRound) {
-                    opponentSkillsLeft.remove(i);
+                opponentSkillsLeft.remove(i);
             }
 
             if (availableRows.size() == 3) {
-                int idx = lineToUse(new Line(opponentRound));
-                toUse = distribution.get(availableRows.get(idx));
-                availableRows.remove(idx);
-            }
-            
-            else if (availableRows.size() == 2) {
-                int idx = lineToUse2(new Line(opponentRound), new Line(opponentSkillsLeft));
-                toUse = distribution.get(availableRows.get(idx));
-                availableRows.remove(idx);
+                idx = lineToUse(new Line(opponentRound));
+
+            } else if (availableRows.size() == 2) {
+                idx = lineToUse2(new Line(opponentRound), new Line(opponentSkillsLeft));   
                 
             } else { // size is 1
-                Line last = new Line(distribution.get(availableRows.get(0)));
+                Line last = (Line)distribution.get(availableRows.get(0));
                 last.permuteFor(new Line(opponentRound));
-                availableRows.remove(0);
-                toUse = (List<Integer>) last;
-            } 
-
-        }   else { // away
-            toUse = distribution.get(availableRows.get(0));
-            availableRows.remove(0);
+            }
+        } else { // away
+            idx = rand.nextInt(availableRows.size());
         }
+
+        toUse = distribution.get(availableRows.get(idx));
+        availableRows.remove(idx);
 
         return toUse;
     }
