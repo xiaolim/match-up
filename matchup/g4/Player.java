@@ -60,9 +60,9 @@ public class Player implements matchup.sim.Player {
         Skills skills = (Skills)this.skills;
 
         if (isHome) {
-        	skills.groupForHome(GROUP_SIZE);
+        	skills.groupForHome();
         } else {
-        	skills.groupForAway(GROUP_SIZE);
+        	skills.groupForAway();
         }
 
         for (int i = 0; i < skills.size(); i += GROUP_SIZE) {

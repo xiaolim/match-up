@@ -5,9 +5,6 @@ import java.util.Collection;
 
 public class Skills extends java.util.ArrayList<Integer> {
 
-	private int highScore;
-    private Skills record;
-
     public Skills() {
         super(15);
     }
@@ -16,26 +13,29 @@ public class Skills extends java.util.ArrayList<Integer> {
         super(c);
     }
 
-    public void groupForHome(int groupSize) {
-    	int numGroups = size()/groupSize;
-    	int size = size();
-        record = new Skills(this);
-        highScore = Integer.MIN_VALUE;
-        clear();
-        Collections.sort(record);
+    private void groupHelper(int balance) {
+        Collections.sort(this);
 
-        for (int i = 0; i < numGroups; ++i) {
-        	for (int j = 0; j < size; j += numGroups) {
-        		add(record.get(i+j));
-        	}
+        if (balance > 2) {
+            Collections.swap(this, 1, 9);
+            Collections.swap(this, 5, 13);
+        }
+
+        if (balance > 1) {
+            Collections.swap(this, 2, 12);
+        }
+
+        if (balance > 0) {
+            Collections.swap(this, 4, 6);
+            Collections.swap(this, 8, 10);
         }
     }
 
-    public void groupForAway(int groupSize) {
-        record = new Skills(this);
-        highScore = Integer.MIN_VALUE;
-        clear();
-        Collections.sort(record);
-        for (int elt: record) {add(elt);}
+    public void groupForHome() {
+    	groupHelper(3);
+    }
+
+    public void groupForAway() {
+        groupHelper(0);
     }
 }
