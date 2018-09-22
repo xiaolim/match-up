@@ -5,104 +5,198 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Arrays;
+import java.lang.Math;
+
+// To get game history.
+import matchup.sim.utils.*;
 
 public class Player implements matchup.sim.Player {
-	private List<Integer> skills;
-	private List<List<Integer>> distribution;
-	private List<Integer> availableRows;
+    private List<Integer> skills;
+    private List<List<Integer>> distribution;
+    private List<Integer> availableRows;
 
-	private boolean isHome;
+    private boolean isHome;
 
-	private List<Integer> opponentSkills = new ArrayList<Integer>();
-	private List<Integer> opponentSkillsLeft = new ArrayList<Integer>();
-	
-	public Player() {
-		skills = new ArrayList<Integer>();
-		distribution = new ArrayList<List<Integer>>();
-		availableRows = new ArrayList<Integer>();
+    private List<Integer> opponentSkills = new ArrayList<Integer>();
+    private List<Integer> opponentSkillsLeft = new ArrayList<Integer>();
 
-		for (int i=0; i<3; ++i) availableRows.add(i);
-	}
-	
+    // Random seed of 3.
+    private int seed = 3;
+    private Random rand;
+
+    public Player() {
+        rand = new Random(seed);
+        skills = new Skills();
+        distribution = new ArrayList<List<Integer>>();
+        availableRows = new ArrayList<Integer>();
+
+        for (int i=0; i<3; ++i) availableRows.add(i);
+    }
+    
     public void init(String opponent) {
     }
 
     public List<Integer> getSkills() {
-		Integer s[] = {7,7,7,7,7,7,7,7,7,7,4,4,4,4,4};
-		skills = new ArrayList<Integer>(Arrays.asList(s));
-		return skills;
+		skills.clear();
+        for (int i=0; i<7; ++i) {
+            int x = rand.nextInt(11) + 1;
+            skills.add(x);
+            skills.add(12 - x);
+        }
+
+        skills.add(6);
+        Collections.shuffle(skills, rand);
+
+        return skills;
     }
 
+    // private List<Integer> counter(List<Integer> opponentSkills) {
+    //     Collections.sort(opponentSkills);
+    //     for(int i=0; i<opponentSkills.size();i++ ){
+    //         if(i>=6) opponentSkills.set(i, Integer.valueof(opponentSkills.get(i)-2));
+    //         else if(i<6) opponentSkills.set(i, Integer.valueof(opponentSkills.get(i)+3));
+    //         return opponentSkills;
+    //      }
+    // }
+
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
-	    Integer rows[][];
+    	int GROUP_SIZE = 5;
+        
+        Skills skills = (Skills)this.skills;
 
         if (isHome) {
-		    rows = new Integer[][] {{7,7,7,7,4},{7,7,7,4,4},{7,7,7,4,4}};
-	    } else {
-		    rows = new Integer[][] {{7,7,7,7,7},{7,7,7,7,7},{4,4,4,4,4}};
-	    }
-	
-		for (int i = 0; i < 3; ++i) {
-			distribution.add(new Line(Arrays.asList(rows[i])));
-		}
+        	skills.groupForHome();
+        } else {
+        	skills.groupForAway();
+        }
 
-		this.isHome = isHome;
+        for (int i = 0; i < skills.size(); i += GROUP_SIZE) {
+        	distribution.add(new Line(skills.subList(i, i+GROUP_SIZE)));
+        }
 
-		for (Integer i: opponentSkills) {
-			this.opponentSkills.add(i);
-			this.opponentSkillsLeft.add(i);
-		}
-	    return distribution;
-	}
+        this.isHome = isHome;
+
+        for (Integer i: opponentSkills) {
+            this.opponentSkills.add(i);
+            this.opponentSkillsLeft.add(i);
+        }
+        return distribution;
+    }
 
     public List<Integer> playRound(List<Integer> opponentRound) {  
-    	List<Integer> toUse;
-    	if (isHome) {
-    		for (Integer i: opponentRound) {
-    				opponentSkillsLeft.remove(i);
-    		}
+        List<Integer> toUse;
+        int idx = 0;
+
+        if (isHome) {
+            for (Integer i: opponentRound) {
+                opponentSkillsLeft.remove(i);
+            }
 
             if (availableRows.size() == 3) {
-            	int idx = lineToUse(new Line(opponentRound));
-            	toUse = distribution.get(availableRows.get(idx));
-            	availableRows.remove(idx);
+                idx = lineToUse(new Line(opponentRound));
+
+            } else if (availableRows.size() == 2) {
+                idx = lineToUse2(new Line(opponentRound), new Line(opponentSkillsLeft));   
+                
+            } else { // size is 1
+                Line last = (Line)distribution.get(availableRows.get(0));
+                last.permuteFor(new Line(opponentRound));
             }
-    		
-    		else if (availableRows.size() == 2) {
-                int idx = lineToUse2(new Line(opponentRound), new Line(opponentSkillsLeft));
-                toUse = distribution.get(availableRows.get(idx));
-                availableRows.remove(idx);
-    			
-    		} else { // size is 1
-    			Line last = new Line(distribution.get(availableRows.get(0)));
-    			last.permuteFor(new Line(opponentRound));
-    			availableRows.remove(0);
-    			toUse = (List<Integer>) last;
-    		} 
+        } else { // away
+            idx = rand.nextInt(availableRows.size());
+        }
 
-    	}	else { // away
-    		toUse = distribution.get(availableRows.get(0));
-    		availableRows.remove(0);
-    	}
+        toUse = distribution.get(availableRows.get(idx));
+        availableRows.remove(idx);
 
-		return toUse;
+        return toUse;
     }
 
     public void clear() {
-    	availableRows.clear();
-    	for (int i=0; i<3; ++i) availableRows.add(i);
+        availableRows.clear();
+        for (int i=0; i<3; ++i) availableRows.add(i);
 
-	    distribution.clear();
+        distribution.clear();
 
+        List<Game> games = History.getHistory();
+        //System.out.println(games.size());
+        if(games.size() == 6) {
+            for (int i=0;i<games.size();i++) {
+
+                Double skillVar = 0.0;
+                Double skillMean = 0.0;
+                for (Integer n: games.get(i).playerB.skills) {
+                    skillMean += n;
+                }
+                for (Integer n: games.get(i).playerB.skills) {
+                    skillVar += Math.pow(n-skillMean,2);
+                }
+                skillVar /= 4;
+                //System.out.println("Skills Var: " + skillVar);
+
+                if (games.get(i).playerB.isHome) {
+                    List<Double> homeMeans = new ArrayList<Double>();
+                    List<Double> homeVars = new ArrayList<Double>();
+                    for(List<Integer> d: games.get(i).playerB.distribution) {
+                        Double mean = 0.0;
+                        for (Integer n: d) {
+                            mean += n;
+                        }
+                        mean /= 5;
+                        homeMeans.add(mean);
+                        
+                        Double var = 0.0;
+                        for (Integer n: d) {
+                            var += Math.pow(n-mean,2);
+                        }
+                        var /= 4;
+                        homeVars.add(var);
+                    }
+                    //System.out.println("Home Dist Means:" + homeMeans);
+                    //System.out.println("Home Dist Vars:" + homeVars);
+
+                } else {
+                    List<Double> awayMeans = new ArrayList<Double>();
+                    List<Double> awayVars = new ArrayList<Double>();
+                    for(List<Integer> d: games.get(i).playerB.distribution) {
+                        Double mean = 0.0;
+                        for (Integer n: d) {
+                            mean += n;
+                        }
+                        mean /= 5;
+                        awayMeans.add(mean);
+
+                        Double var = 0.0;
+                        for (Integer n: d) {
+                            var += Math.pow(n-mean,2);
+                        }
+                        var /= 4;
+                        awayVars.add(var);
+                    }
+                    //System.out.println("Away Dist Means:" + awayMeans);
+                    //System.out.println("Away Dist Vars:" + awayVars);
+                }
+                //System.out.println(games.get(i).playerA.name);
+                //System.out.println(games.get(i).playerA.skills);
+                
+                //System.out.println(games.get(i).playerB.name);
+                //System.out.println(games.get(i).playerB.skills);
+                //System.out.println(games.get(i).playerB.rounds);
+                //System.out.println(games.get(i).playerB.distribution);
+                //System.out.println(games.get(i).playerB.isHome);
+                //System.out.println(games.get(i).playerB.score);
+
+            }
+        }
     }
 
     private int lineToUse(Line opponent) {
-    	int record = 0;
-    	double highScore = Double.MIN_VALUE;
+        int record = 0;
+        double highScore = Double.MIN_VALUE;
 
         for (int i = 0; i < availableRows.size(); ++i) {
-        	Line curLine = (Line)distribution.get(availableRows.get(i));
-        	curLine.permuteFor(opponent);
+            Line curLine = (Line)distribution.get(availableRows.get(i));
+            curLine.permuteFor(opponent);
             double score = curLine.scoreWeighted(opponent);
 
             if (score > highScore) {
@@ -123,9 +217,9 @@ public class Player implements matchup.sim.Player {
     	temp2.permuteFor(opponent2);
     	int score1 = temp1.scoreAgainst(opponent1) + temp2.scoreAgainst(opponent2);
 
-    	temp1.permuteFor(opponent2);
-    	temp2.permuteFor(opponent1);
-    	int score2 = temp1.scoreAgainst(opponent2) + temp2.scoreAgainst(opponent1);
+        temp1.permuteFor(opponent2);
+        temp2.permuteFor(opponent1);
+        int score2 = temp1.scoreAgainst(opponent2) + temp2.scoreAgainst(opponent1);
 
     	temp1 = temp3;
 
