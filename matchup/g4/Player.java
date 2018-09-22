@@ -20,6 +20,8 @@ public class Player implements matchup.sim.Player {
     private List<Integer> opponentSkills = new ArrayList<Integer>();
     private List<Integer> opponentSkillsLeft = new ArrayList<Integer>();
 
+    private int lossStreak = 0;
+
     public Player() {
         skills = new ArrayList<Integer>();
         distribution = new ArrayList<List<Integer>>();
@@ -38,14 +40,19 @@ public class Player implements matchup.sim.Player {
 		return skills;
     }
 
-    // private List<Integer> counter(List<Integer> opponentSkills) {
-    //     Collections.sort(opponentSkills);
-    //     for(int i=0; i<opponentSkills.size();i++ ){
-    //         if(i>=6) opponentSkills.set(i, Integer.valueof(opponentSkills.get(i)-2));
-    //         else if(i<6) opponentSkills.set(i, Integer.valueof(opponentSkills.get(i)+3));
-    //         return opponentSkills;
-    //      }
-    // }
+    private List<Integer> counter(List<Integer> opponentSkills) {
+        Collections.sort(opponentSkills);
+        for(int i=0; i<opponentSkills.size();i++ ){
+            if (i>=6) {
+                opponentSkills.set(i, opponentSkills.get(i)-2);
+            }
+            else if (i<6) {
+                opponentSkills.set(i, opponentSkills.get(i)+3);
+            }
+
+        }
+        return opponentSkills;
+     }
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
     	int GROUP_SIZE = 5;
@@ -104,6 +111,31 @@ public class Player implements matchup.sim.Player {
         return toUse;
     }
 
+    private int maxmode(List<Integer> arr) {
+        int maxCount = 0;
+        int maxKey = 0;
+        Collections.sort(arr);
+        int curCount = 0;
+        int curKey = arr.get(0);
+        for (int i=0; i<arr.size();i++) {
+            if (arr.get(i) == curKey) { curCount ++;}
+            else {
+                if (curCount >= maxCount) {
+                    maxCount = curCount;
+                    maxKey = curKey;
+                }
+                curCount = 1;
+                curKey = arr.get(i);
+            }
+        }
+        if (curCount >= maxCount) {
+            maxCount = curCount;
+            maxKey = curKey;
+        }
+
+        return maxKey;
+    }
+
     public void clear() {
         availableRows.clear();
         for (int i=0; i<3; ++i) availableRows.add(i);
@@ -111,8 +143,53 @@ public class Player implements matchup.sim.Player {
         distribution.clear();
 
         List<Game> games = History.getHistory();
+        if (games.size() > 1) {
+            int lastScoreA = games.get(games.size()-1).playerA.score + games.get(games.size()-2).playerA.score;
+            int lastScoreB = games.get(games.size()-1).playerB.score + games.get(games.size()-2).playerB.score;
+            int lastScore = lastScoreA - lastScoreB;
+
+            if (lastScore < 0) { //lost last game
+                lossStreak ++;
+            } else {
+                lossStreak = 0; //reset
+            }
+
+            if (lossStreak == 3) {
+                lossStreak = 0; // reset, give new strategy a chance to win
+                List<Integer> opskills1 = games.get(games.size()-5).playerB.skills;
+                List<Integer> opskills2 = games.get(games.size()-3).playerB.skills;
+                List<Integer> opskills3 = games.get(games.size()-1).playerB.skills;
+
+
+                Collections.sort(opskills1);
+                Collections.sort(opskills2);
+                Collections.sort(opskills3);
+
+                List<Integer> predOppSkills = new ArrayList<Integer>();
+
+                for (int i=0;i<15;i++) {
+                    List<Integer> temp = new ArrayList<Integer>();
+                    temp.add(opskills1.get(i));
+                    temp.add(opskills2.get(i));
+                    temp.add(opskills3.get(i));
+
+                    predOppSkills.add(maxmode(temp));
+                }
+
+                System.out.println(opskills1);
+                System.out.println(opskills2);
+                System.out.println(opskills3);
+                System.out.println("predicted:");
+                System.out.println(predOppSkills);
+
+                counter(predOppSkills);
+
+            }
+        }
+
+
         //System.out.println(games.size());
-        if(games.size() == 6) {
+        if(games.size() == 1000) {
             for (int i=0;i<games.size();i++) {
 
                 Double skillVar = 0.0;
