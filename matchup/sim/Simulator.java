@@ -239,6 +239,10 @@ public class Simulator {
         return cloneGames;
     }
 
+    public static Game getLastGame() {
+        return deepClone(games.get(games.size() - 1));
+    }
+
     private static Game deepClone(Object object) {
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
