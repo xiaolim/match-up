@@ -205,7 +205,7 @@ public class Player implements matchup.sim.Player {
                 System.out.println(predOppSkills);
 
         
-               // skills = new Skills(counter(predOppSkills));
+               skills = new Skills(counter(predOppSkills));
             }
         } else {
 
@@ -248,7 +248,7 @@ public class Player implements matchup.sim.Player {
                 System.out.println(predOppSkills);
 
         
-                //skills = new Skills(counter(predOppSkills));
+                skills = new Skills(counter(predOppSkills));
             }
         }
 
