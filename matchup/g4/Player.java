@@ -16,9 +16,11 @@ public class Player implements matchup.sim.Player {
     private List<Integer> availableRows;
 
     private boolean isHome;
+    private boolean isPlayerA = true;
 
     private List<Integer> opponentSkills = new ArrayList<Integer>();
     private List<Integer> opponentSkillsLeft = new ArrayList<Integer>();
+
 
     private int lossStreak = 0;
 
@@ -28,6 +30,10 @@ public class Player implements matchup.sim.Player {
 
     public Player() {
     	rand = new Random(seed);
+        Integer s[] = {9,9,9,9,9,8,8,8,8,8,1,1,1,1,1};
+        skills = new Skills(Arrays.asList(s));
+
+
         distribution = new ArrayList<List<Integer>>();
         availableRows = new ArrayList<Integer>();
 
@@ -38,8 +44,8 @@ public class Player implements matchup.sim.Player {
     }
 
     public List<Integer> getSkills() {
-		Integer s[] = {9,9,9,9,9,8,8,8,8,8,1,1,1,1,1};
-		this.skills = new Skills(Arrays.asList(s));
+		//Integer s[] = {9,9,9,9,9,8,8,8,8,8,1,1,1,1,1};
+		//this.skills = new Skills(Arrays.asList(s));
 
 		return skills;
     }
@@ -164,17 +170,48 @@ public class Player implements matchup.sim.Player {
         return maxKey;
     }
 
-    public void clear() {
-        availableRows.clear();
-        for (int i=0; i<3; ++i) availableRows.add(i);
 
-        distribution.clear();
-
-        List<Game> games = History.getHistory();
-        if (games.size() > 1) {
+    private void checkLoss(List<Game> games) {
+        if(isPlayerA) {
             int lastScoreA = games.get(games.size()-1).playerA.score + games.get(games.size()-2).playerA.score;
             int lastScoreB = games.get(games.size()-1).playerB.score + games.get(games.size()-2).playerB.score;
             int lastScore = lastScoreA - lastScoreB;
+            if (lastScore < 0) { //lost last game
+                lossStreak ++;
+            } else {
+                lossStreak = 0; //reset
+            }
+            if (lossStreak == 3) {
+                lossStreak = 0; // reset, give new strategy a chance to win
+                List<Integer> opskills1 = games.get(games.size()-5).playerB.skills;
+                List<Integer> opskills2 = games.get(games.size()-3).playerB.skills;
+                List<Integer> opskills3 = games.get(games.size()-1).playerB.skills;
+
+                List<Integer> predOppSkills = new ArrayList<Integer>();
+
+                for (int i=0;i<15;i++) {
+                    List<Integer> temp = new ArrayList<Integer>();
+                    temp.add(opskills1.get(i));
+                    temp.add(opskills2.get(i));
+                    temp.add(opskills3.get(i));
+
+                    predOppSkills.add(maxmode(temp));
+                }
+
+                System.out.println(opskills1);
+                System.out.println(opskills2);
+                System.out.println(opskills3);
+                System.out.println("predicted:");
+                System.out.println(predOppSkills);
+
+        
+               // skills = new Skills(counter(predOppSkills));
+            }
+        } else {
+
+            int lastScoreA = games.get(games.size()-1).playerA.score + games.get(games.size()-2).playerA.score;
+            int lastScoreB = games.get(games.size()-1).playerB.score + games.get(games.size()-2).playerB.score;
+            int lastScore = lastScoreB - lastScoreA;
 
             if (lastScore < 0) { //lost last game
                 lossStreak ++;
@@ -184,9 +221,9 @@ public class Player implements matchup.sim.Player {
 
             if (lossStreak == 3) {
                 lossStreak = 0; // reset, give new strategy a chance to win
-                List<Integer> opskills1 = games.get(games.size()-5).playerB.skills;
-                List<Integer> opskills2 = games.get(games.size()-3).playerB.skills;
-                List<Integer> opskills3 = games.get(games.size()-1).playerB.skills;
+                List<Integer> opskills1 = games.get(games.size()-5).playerA.skills;
+                List<Integer> opskills2 = games.get(games.size()-3).playerA.skills;
+                List<Integer> opskills3 = games.get(games.size()-1).playerA.skills;
 
 
                 Collections.sort(opskills1);
@@ -210,81 +247,29 @@ public class Player implements matchup.sim.Player {
                 System.out.println("predicted:");
                 System.out.println(predOppSkills);
 
-                counter(predOppSkills);
-
+        
+                //skills = new Skills(counter(predOppSkills));
             }
         }
 
+    }
 
-        //System.out.println(games.size());
-        if(games.size() == 1000) {
-            for (int i=0;i<games.size();i++) {
+    public void clear() {
+        availableRows.clear();
+        for (int i=0; i<3; ++i) availableRows.add(i);
 
-                Double skillVar = 0.0;
-                Double skillMean = 0.0;
-                for (Integer n: games.get(i).playerB.skills) {
-                    skillMean += n;
-                }
-                for (Integer n: games.get(i).playerB.skills) {
-                    skillVar += Math.pow(n-skillMean,2);
-                }
-                skillVar /= 4;
-                //System.out.println("Skills Var: " + skillVar);
-
-                if (games.get(i).playerB.isHome) {
-                    List<Double> homeMeans = new ArrayList<Double>();
-                    List<Double> homeVars = new ArrayList<Double>();
-                    for(List<Integer> d: games.get(i).playerB.distribution) {
-                        Double mean = 0.0;
-                        for (Integer n: d) {
-                            mean += n;
-                        }
-                        mean /= 5;
-                        homeMeans.add(mean);
-                        
-                        Double var = 0.0;
-                        for (Integer n: d) {
-                            var += Math.pow(n-mean,2);
-                        }
-                        var /= 4;
-                        homeVars.add(var);
-                    }
-                    //System.out.println("Home Dist Means:" + homeMeans);
-                    //System.out.println("Home Dist Vars:" + homeVars);
-
-                } else {
-                    List<Double> awayMeans = new ArrayList<Double>();
-                    List<Double> awayVars = new ArrayList<Double>();
-                    for(List<Integer> d: games.get(i).playerB.distribution) {
-                        Double mean = 0.0;
-                        for (Integer n: d) {
-                            mean += n;
-                        }
-                        mean /= 5;
-                        awayMeans.add(mean);
-
-                        Double var = 0.0;
-                        for (Integer n: d) {
-                            var += Math.pow(n-mean,2);
-                        }
-                        var /= 4;
-                        awayVars.add(var);
-                    }
-                    //System.out.println("Away Dist Means:" + awayMeans);
-                    //System.out.println("Away Dist Vars:" + awayVars);
-                }
-                //System.out.println(games.get(i).playerA.name);
-                //System.out.println(games.get(i).playerA.skills);
-                
-                //System.out.println(games.get(i).playerB.name);
-                //System.out.println(games.get(i).playerB.skills);
-                //System.out.println(games.get(i).playerB.rounds);
-                //System.out.println(games.get(i).playerB.distribution);
-                //System.out.println(games.get(i).playerB.isHome);
-                //System.out.println(games.get(i).playerB.score);
-
-            }
+        distribution.clear();
+        List<Game> games = History.getHistory();
+        if (games.get(0).playerA.name.equals("g4")) {
+            isPlayerA = true;
+        } else {
+            isPlayerA = false;
         }
+
+        if (games.size() % 2 == 0) {
+            checkLoss(games);
+        }
+
     }
 
     private int lineToUse(Line opponent) {
