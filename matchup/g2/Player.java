@@ -233,13 +233,13 @@ public class Player implements matchup.sim.Player {
 	        			count_current += oppSkillCount.get(s);
 	        			historySkillCount.replace(s, count_current);
 	        		}
-	        		System.out.println("historySkillCount: " + historySkillCount); //
+	        		//System.out.println("historySkillCount: " + historySkillCount); //
 
 	        		// Add the statistics of the overall skill distribution for this round to historySkillStats
 	        		for (String stat : historySkillStats.keySet()) {
 	        			historySkillStats.get(stat).add(oppSkillStats.get(stat));
 	        		}
-	        		System.out.println("historySkillStats: " + historySkillStats); //
+	        		//System.out.println("historySkillStats: " + historySkillStats); //
 
 	        		// For each line, add the statistics of the line skill distribution for this round to historyLineStats
 	        		for (int i=0; i<3; i++) {
@@ -249,7 +249,7 @@ public class Player implements matchup.sim.Player {
 	        				historyLineStats.get(stat).get(i).add(lineStats.get(stat));
 	        			}
 	        		}
-	        		System.out.println("historyLineStats: " + historyLineStats); //
+	        		//System.out.println("historyLineStats: " + historyLineStats); //
         		}
 
 	        }
@@ -259,7 +259,7 @@ public class Player implements matchup.sim.Player {
 	        
 	        if (notNull) {
 		        
-		        System.out.println("historySkillCount: " + historySkillCount); //
+		        //System.out.println("historySkillCount: " + historySkillCount); //
 
 		        // Get percentages for the skill counts in the overall skill distribution
 		        for (int s : historySkillCount.keySet()) {
@@ -267,7 +267,7 @@ public class Player implements matchup.sim.Player {
 		        	double percent = (historySkillCount.get(s)/(numGamePairs*15.0))*100.0;
 		        	historySkillPercents.put(s, Math.round(percent));
 		        }
-		        System.out.println("historySkillPercents: " + historySkillPercents); //
+		        //System.out.println("historySkillPercents: " + historySkillPercents); //
 
 		        // Get averages for the overall skill distribution statistics		
 			for (String stat : historySkillStats.keySet()) {
@@ -277,7 +277,7 @@ public class Player implements matchup.sim.Player {
 				}
 				aveSkillHistory.replace(stat, total/historySkillStats.get(stat).size());
 			}
-			System.out.println("aveSkillHistory: " + aveSkillHistory); //
+			//System.out.println("aveSkillHistory: " + aveSkillHistory); //
 
 			// Get averages for the line statistics
 			for (String stat : historyLineStats.keySet()) {
@@ -289,7 +289,7 @@ public class Player implements matchup.sim.Player {
 					aveLineHistory.get(stat).put(i, total/historyLineStats.get(stat).get(i).size());
 				}
 			}
-			System.out.println("aveLineHistory: " + aveLineHistory); //
+			//System.out.println("aveLineHistory: " + aveLineHistory); //
 
 		        // Create a list of skills in order of decreasing frequency of use in the opponents skill distribution
 		        // Each pair consists of a count and a list of all skills with that count (to catch the case in which there more than one skill is used the most)
@@ -309,7 +309,7 @@ public class Player implements matchup.sim.Player {
 					usedVals.add(val);
 				}
 			}
-			System.out.println("popularSkills: " + popularSkills); //
+			//System.out.println("popularSkills: " + popularSkills); //
 			 
 		}
 
