@@ -16,9 +16,6 @@ public class Player implements matchup.sim.Player {
 
     private Random rand;
 
-    // private int totalSkill = 90;
-    private int leftover = 90;
-
     public Player() {
         rand = new Random();
         skills = new ArrayList<Integer>();
@@ -68,19 +65,13 @@ public class Player implements matchup.sim.Player {
 
         if (sz > 1) {
             // get opponent past skill distribution
-            System.out.print(games.get(sz - 1).playerB.name + ": ");
-            System.out.println(games.get(sz - 1).playerB.skills);
-
+            // System.out.print(games.get(sz - 1).playerB.name + ": ");
+            // System.out.println(games.get(sz - 1).playerB.skills);
             opponentPastSkills = games.get(sz - 1).playerB.skills;
             Collections.sort(opponentPastSkills);
-            // System.out.println(opponentPastSkills);
             opponentPastSkills.get(0);
             range = opponentPastSkills.get(14) - opponentPastSkills.get(0);
-
-            // average range?
         }
-
-        System.out.println("range: " + range);
 
         // if range of opponent skill level is 4-8
         if (range > 3 && range < 9) {
@@ -118,7 +109,7 @@ public class Player implements matchup.sim.Player {
             }
         }
 
-        int veryfySum = 0;
+        int verifySum = 0;
         /*** James new learning version skills generator ***/
         //getFrequencyDensity();
         if (History.getHistory()!=null && History.getHistory().size() > 3 ) {
@@ -172,7 +163,7 @@ public class Player implements matchup.sim.Player {
 
 
             for(int x: skills){
-                veryfySum+=x;
+                verifySum+=x;
             }
 
         }
