@@ -33,18 +33,13 @@ public class Player implements matchup.sim.Player {
 
         //skills.clear();
         skills = new ArrayList<Integer>();
-        // for (int i=0; i<7; ++i) {
-        //     int x = rand.nextInt(11) + 1;
-        //     skills.add(x);
-        //     skills.add(12 - x);
-        // }
+        for (int i=0; i<7; ++i) {
+            int x = rand.nextInt(11) + 1;
+            skills.add(x);
+            skills.add(12 - x);
+        }
 
-        // skills.add(6);
-        for (int i = 0; i<4; i++) skills.add(1);
-        for (int i = 0; i<5; i++) skills.add(7);
-        for (int i = 0; i<2; i++) skills.add(9);
-        for (int i = 0; i<3; i++) skills.add(10);
-        skills.add(3);
+        skills.add(6);
         Collections.shuffle(skills, rand);
 
         return skills;
