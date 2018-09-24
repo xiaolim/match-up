@@ -119,6 +119,7 @@ public class Player implements matchup.sim.Player {
                 result.add(temp);
             }
 
+
         }
         return result;
     }
