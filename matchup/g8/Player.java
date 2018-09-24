@@ -15,6 +15,7 @@ public class Player implements matchup.sim.Player {
 
 	private List<Integer> availableRows;
 	private PlayerData Opponent, Self;
+	private int Opponent_score,Self_score;
 	private Random rand;
 	private boolean playHome, WonLast, first_game;
 	private Integer lossStreak;
@@ -73,30 +74,30 @@ public class Player implements matchup.sim.Player {
 	{
 
 		List<Game> hist  = Simulator.getGames();
-		if(hist.size()>=2 && hist.get(hist.size()-1).playerA.name == "g8")
+		if(hist.size()>=2 && hist.get(hist.size()-1).playerA.name.equals("g8"))
 		{
 			Opponent = hist.get(hist.size()-1).playerB;
-			Opponent.score = hist.get(hist.size()-1).playerB.score + hist.get(hist.size()-2).playerB.score;
+			Opponent_score = hist.get(hist.size()-1).playerB.score + hist.get(hist.size()-2).playerB.score;
 			Self = hist.get(hist.size()-1).playerA;
-			Self.score = hist.get(hist.size()-1).playerA.score + hist.get(hist.size()-2).playerA.score;
+			Self_score = hist.get(hist.size()-1).playerA.score + hist.get(hist.size()-2).playerA.score;
 		}
 		else if(hist.size()>=2)
 			{
 				Opponent = hist.get(hist.size()-1).playerA;
-				Opponent.score = hist.get(hist.size()-1).playerA.score + hist.get(hist.size()-2).playerA.score;
+				Opponent_score = hist.get(hist.size()-1).playerA.score + hist.get(hist.size()-2).playerA.score;
 				Self = hist.get(hist.size()-1).playerB;
-				Self.score = hist.get(hist.size()-1).playerB.score + hist.get(hist.size()-2).playerB.score;
+				Self_score = hist.get(hist.size()-1).playerB.score + hist.get(hist.size()-2).playerB.score;
 			}
 
 		if(Opponent!=null) 
 		{
-			if(Opponent.score> Self.score)
+			if(Opponent_score> Self_score)
 				{
 					WonLast  = false;
 					lossStreak++;
 				}
 
-			else if(Opponent.score == Self.score)
+			else if(Opponent_score == Self_score)
 			{
 				System.out.println("last game was a tie thus keeping previous team");
 				if(lossStreak>0) WonLast = false;
