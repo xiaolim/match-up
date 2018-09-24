@@ -124,12 +124,7 @@ public class Player implements matchup.sim.Player {
                 myFreqEst.add(new Pair<>(i++, Math.round((float) x * 15)));
             }
 
-            Collections.sort(myFreqEst, new Comparator<Pair<Integer, Integer>>() {
-                @Override
-                public int compare(Pair<Integer, Integer> o1, Pair<Integer, Integer> o2) {
-                    return o1.getValue() - o2.getValue();
-                }
-            });
+            Collections.sort(myFreqEst, Comparator.comparingInt(Pair::getValue));
             int skillIndex = 0;
             int densityIndex = 0;
             while (remainingSkill > 0 && skillIndex < 11) {
@@ -401,7 +396,14 @@ public class Player implements matchup.sim.Player {
         List<List<Integer>> myHistory = new ArrayList<>();
         for (Game g : History.getHistory()) {
             List<Integer> tmp = new ArrayList<>();
-            for (int x : g.playerB.skills) {
+            PlayerData opponent;
+            if(g.playerA.name.compareTo("g6") == 0){
+                opponent=g.playerB;
+            }
+            else {
+                opponent=g.playerA;
+            }
+            for (int x : opponent.skills) {
                 tmp.add(x);
             }
             myHistory.add(tmp);
