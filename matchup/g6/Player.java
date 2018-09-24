@@ -1,11 +1,11 @@
 package matchup.g6;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import java.util.*;
-
 import javafx.util.Pair;
-import matchup.sim.utils.*;
-
-// To get game history.
 import matchup.sim.utils.*;
 
 public class Player implements matchup.sim.Player {

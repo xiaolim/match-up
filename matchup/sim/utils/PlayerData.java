@@ -1,9 +1,10 @@
 package matchup.sim.utils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayerData {
+public class PlayerData implements Serializable {
     public String name;
 
     public List<Integer> skills;
@@ -19,5 +20,11 @@ public class PlayerData {
         skills = new ArrayList<Integer>();
         rounds = new ArrayList<List<Integer>>();
         distribution = new ArrayList<List<Integer>>();
+    }
+
+    @Override
+    public String toString() {
+        return "Name: " + name + "\nSkills: " + skills + "\nDistribution: " + distribution
+            + "\nRounds: " + rounds + "\nScore: " + score;
     }
 }
