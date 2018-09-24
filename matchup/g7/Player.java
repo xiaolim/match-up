@@ -22,7 +22,7 @@ public class Player implements matchup.sim.Player {
     // keep track of history distribution
     private Map<Integer, Integer> dic;
     // keep track of their home line up
-    private List<List<Float>> home_line;
+    private List<Float> home_line;
     private float opponentVar = 0;
     // keep track of their away line up
     private List<List<Integer>> away_line;
@@ -46,7 +46,7 @@ public class Player implements matchup.sim.Player {
     @Override
     public void init(String opponent) {
         skills = stat();
-        home_line = new ArrayList<List<Float>>();
+        home_line = new ArrayList<Float>();
         away_line = new ArrayList<List<Integer>>();
     }
     
@@ -70,6 +70,7 @@ public class Player implements matchup.sim.Player {
         else {
             distribution = counter_var(home_line);
         }
+
         
         for (int i=0; i<distribution.size(); i++){
             averageStrength.add(findAverage(distribution.get(i)));
@@ -92,31 +93,34 @@ public class Player implements matchup.sim.Player {
     }
     
     
-    public List<List<Integer>> counter_var(List<List<Integer>> line){
-        if (sum(home_line) > 0){
-            skills.sort()
-            List<List<Integer>> result = new ArrayList<List<Integer>>();
+    
+    public List<List<Integer>> counter_var(List<Float> line){
+        float sum = 0;
+        for (Float i : line)
+            sum = sum + i;
+        List<List<Integer>> result = new ArrayList<List<Integer>>();
+        if (sum > 0){
+            Collections.sort(skills);
             for (int i=0 ; i< 3; i++){
                 List<Integer> temp = new ArrayList<Integer>();
                 for (int j=0; j<5; j++){
-                    temp.add(skills[i*5+j]);
+                    temp.add(skills.get(i*5+j));
                 }
-                result.add(temp)
+                result.add(temp);
             }
         }
         else{
-            skills.sort()
-            List<List<Integer>> result = new ArrayList<List<Integer>>();
+            Collections.sort(skills);
             for (int i=0 ; i< 3; i++){
                 List<Integer> temp = new ArrayList<Integer>();
                 for (int j=0; j<5; j++){
-                    temp.add(skills[i+j*3]);
+                    temp.add(skills.get(i+j*3));
                 }
-                result.add(temp)
+                result.add(temp);
             }
 
         }
-        return result
+        return result;
     }
     
     /**
@@ -416,10 +420,13 @@ public class Player implements matchup.sim.Player {
             availableRows.remove(temp.getKey());
             away_line.add(opponentRound);
         }
+
         else{
-            round =	distribution.get(availableRows.get(0));
+            round = distribution.get(availableRows.get(0));
             availableRows.remove(0);
-            home_line.add(findVariance(opponentRound)-opponentVar);
+            if (opponentRound!=null){
+                home_line.add(findVariance(opponentRound)-opponentVar);
+            }
         }
         
         
