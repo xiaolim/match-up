@@ -105,16 +105,57 @@ public class Player implements matchup.sim.Player {
         skills = fixed;
 	    return skills;
     }
-	if(game_num<5 && game_num>0){
-        for(int i=0; i<3 ;i++){
-            fixed.add(10);
-            fixed.add(4);
-            fixed.add(7);
-            fixed.add(3);
-            fixed.add(6);
+	if(game_num==1){
+        for(int i=0; i<5 ;i++){
+            fixed.add(2);
         }
+		for(int i=0; i<5 ;i++){
+			fixed.add(6);
+		}
+		for(int i=0; i<5 ;i++){
+			fixed.add(10);
+		}
         skills = fixed;
         return skills;
+    }
+    if(game_num==2){
+			for(int i=0; i<5 ;i++){
+				fixed.add(1);
+			}
+			for(int i=0; i<5 ;i++){
+				fixed.add(8);
+			}
+			for(int i=0; i<5 ;i++){
+				fixed.add(9);
+			}
+			skills = fixed;
+			return skills;
+    }
+    if(game_num==3){
+			for(int i=0; i<5 ;i++){
+				fixed.add(2);
+			}
+			for(int i=0; i<5 ;i++){
+				fixed.add(7);
+			}
+			for(int i=0; i<5 ;i++){
+				fixed.add(9);
+			}
+			skills = fixed;
+			return skills;
+    }
+    if(game_num==4){
+			for(int i=0; i<5 ;i++){
+				fixed.add(2);
+			}
+			for(int i=0; i<5 ;i++){
+				fixed.add(6);
+			}
+			for(int i=0; i<5 ;i++){
+				fixed.add(10);
+			}
+			skills = fixed;
+			return skills;
     }
    // System.out.println(games.size()-1);
     Game g_end = History.getLastGame();
