@@ -260,7 +260,7 @@ public class Player implements matchup.sim.Player {
 	int opponent_total_score = 0;
 	int friendly_total_wins = 0;
 	int opponent_total_wins = 0;
-	int numGames = 20000;
+	int numGames = 2000;
 	//int count_playerA_friendly = 0;
 	if (games.size() >= numGames) {
 	    System.out.println(games.size());
@@ -396,7 +396,11 @@ public class Player implements matchup.sim.Player {
                 score++;
             } else if(awayTeam.get(i) > homeTeam.get(i) + 2) {
                 score--;
-            }
+            } else if (homeTeam.get(i) == awayTeam.get(i) - 2) {
+		score++;
+	    } else if (awayTeam.get(i) == homeTeam.get(i) - 2) {
+		score--;
+	    }
         }
         return score;
     }
