@@ -14,13 +14,13 @@ public class Player implements matchup.sim.Player {
     private List<Integer> skills;
     private List<List<Integer>> distribution;
     private List<Integer> availableRows;
+    private Stats stats;
 
     private boolean isHome;
     private boolean isPlayerA = true;
 
     private List<Integer> opponentSkills = new ArrayList<Integer>();
     private List<Integer> opponentSkillsLeft = new ArrayList<Integer>();
-
 
     private int lossStreak = 0;
 
@@ -30,12 +30,12 @@ public class Player implements matchup.sim.Player {
 
     public Player() {
     	rand = new Random(seed);
-        Integer s[] = {9,9,9,9,9,8,8,8,8,8,1,1,1,1,1};
+        Integer s[] = {1,1,1,1,1,8,8,8,8,8,9,9,9,9,9};
         skills = new Skills(Arrays.asList(s));
-
 
         distribution = new ArrayList<List<Integer>>();
         availableRows = new ArrayList<Integer>();
+        stats = null;
 
         for (int i=0; i<3; ++i) availableRows.add(i);
     }
@@ -44,53 +44,16 @@ public class Player implements matchup.sim.Player {
     }
 
     public List<Integer> getSkills() {
-		//Integer s[] = {9,9,9,9,9,8,8,8,8,8,1,1,1,1,1};
-		//this.skills = new Skills(Arrays.asList(s));
+        if (stats != null) {
+			stats.update();
+
+			if (stats.doCounter()) {
+				skills = stats.getCounter();
+			}
+		}
 
 		return skills;
     }
-
-    private List<Integer> counter(List<Integer> opponentSkills) {
-        Collections.sort(opponentSkills);
-        for(int i=0; i<opponentSkills.size();i++ ){
-            if (i>=6) {
-                opponentSkills.set(i, opponentSkills.get(i)-2);
-            }
-            else if (i<6) {
-                opponentSkills.set(i, opponentSkills.get(i)+3);
-            }
-        }
-        Collections.sort(opponentSkills);
-        int sum = opponentSkills.stream().mapToInt(Integer::intValue).sum();
-        if(sum>90){
-            int difference = sum-90;
-            int i = opponentSkills.size() - 1;
-            while(difference != 0){
-                i--;
-                if(i<0) i = opponentSkills.size()-1;
-                if(opponentSkills.get(i)>=9 && opponentSkills.get(i)>2) continue;
-                else{
-                	opponentSkills.set(i,opponentSkills.get(i)-1);
-                    difference-=1;
-                }
-            }
-        }
-        else if (sum<90){
-            int difference = 90-sum;
-            int i=0;
-            while(difference != 0){
-                i++;
-                if(i==opponentSkills.size()) i = 0;
-                if(opponentSkills.get(i)<3 && opponentSkills.get(i)<11) continue;
-                else{
-                	opponentSkills.set(i,opponentSkills.get(i)+1);
-                    difference-=1;
-                }
-            }
-        }
-        return opponentSkills;
-    }
-
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
     	int GROUP_SIZE = 5;
@@ -145,131 +108,15 @@ public class Player implements matchup.sim.Player {
         return toUse;
     }
 
-    private int maxmode(List<Integer> arr) {
-        int maxCount = 0;
-        int maxKey = 0;
-        Collections.sort(arr);
-        int curCount = 0;
-        int curKey = arr.get(0);
-        for (int i=0; i<arr.size();i++) {
-            if (arr.get(i) == curKey) { curCount ++;}
-            else {
-                if (curCount >= maxCount) {
-                    maxCount = curCount;
-                    maxKey = curKey;
-                }
-                curCount = 1;
-                curKey = arr.get(i);
-            }
-        }
-        if (curCount >= maxCount) {
-            maxCount = curCount;
-            maxKey = curKey;
-        }
-
-        return maxKey;
-    }
-
-
-    private void checkLoss(List<Game> games) {
-        if(isPlayerA) {
-            int lastScoreA = games.get(games.size()-1).playerA.score + games.get(games.size()-2).playerA.score;
-            int lastScoreB = games.get(games.size()-1).playerB.score + games.get(games.size()-2).playerB.score;
-            int lastScore = lastScoreA - lastScoreB;
-            if (lastScore < 0) { //lost last game
-                lossStreak ++;
-            } else {
-                lossStreak = 0; //reset
-            }
-            if (lossStreak == 3) {
-                lossStreak = 0; // reset, give new strategy a chance to win
-                List<Integer> opskills1 = games.get(games.size()-5).playerB.skills;
-                List<Integer> opskills2 = games.get(games.size()-3).playerB.skills;
-                List<Integer> opskills3 = games.get(games.size()-1).playerB.skills;
-
-                List<Integer> predOppSkills = new ArrayList<Integer>();
-
-                for (int i=0;i<15;i++) {
-                    List<Integer> temp = new ArrayList<Integer>();
-                    temp.add(opskills1.get(i));
-                    temp.add(opskills2.get(i));
-                    temp.add(opskills3.get(i));
-
-                    predOppSkills.add(maxmode(temp));
-                }
-
-                System.out.println(opskills1);
-                System.out.println(opskills2);
-                System.out.println(opskills3);
-                System.out.println("predicted:");
-                System.out.println(predOppSkills);
-
-        
-               skills = new Skills(counter(predOppSkills));
-            }
-        } else {
-
-            int lastScoreA = games.get(games.size()-1).playerA.score + games.get(games.size()-2).playerA.score;
-            int lastScoreB = games.get(games.size()-1).playerB.score + games.get(games.size()-2).playerB.score;
-            int lastScore = lastScoreB - lastScoreA;
-
-            if (lastScore < 0) { //lost last game
-                lossStreak ++;
-            } else {
-                lossStreak = 0; //reset
-            }
-
-            if (lossStreak == 3) {
-                lossStreak = 0; // reset, give new strategy a chance to win
-                List<Integer> opskills1 = games.get(games.size()-5).playerA.skills;
-                List<Integer> opskills2 = games.get(games.size()-3).playerA.skills;
-                List<Integer> opskills3 = games.get(games.size()-1).playerA.skills;
-
-
-                Collections.sort(opskills1);
-                Collections.sort(opskills2);
-                Collections.sort(opskills3);
-
-                List<Integer> predOppSkills = new ArrayList<Integer>();
-
-                for (int i=0;i<15;i++) {
-                    List<Integer> temp = new ArrayList<Integer>();
-                    temp.add(opskills1.get(i));
-                    temp.add(opskills2.get(i));
-                    temp.add(opskills3.get(i));
-
-                    predOppSkills.add(maxmode(temp));
-                }
-
-                System.out.println(opskills1);
-                System.out.println(opskills2);
-                System.out.println(opskills3);
-                System.out.println("predicted:");
-                System.out.println(predOppSkills);
-
-        
-                skills = new Skills(counter(predOppSkills));
-            }
-        }
-
-    }
-
     public void clear() {
         availableRows.clear();
         for (int i=0; i<3; ++i) availableRows.add(i);
 
         distribution.clear();
-        List<Game> games = History.getHistory();
-        if (games.get(0).playerA.name.equals("g4")) {
-            isPlayerA = true;
-        } else {
-            isPlayerA = false;
-        }
 
-        if (games.size() % 2 == 0) {
-            checkLoss(games);
+        if (stats == null) {
+        	stats = new Stats();
         }
-
     }
 
     private int lineToUse(Line opponent) {
