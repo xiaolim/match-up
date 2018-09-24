@@ -405,7 +405,14 @@ public class Player implements matchup.sim.Player {
         List<List<Integer>> myHistory = new ArrayList<>();
         for (Game g : History.getHistory()) {
             List<Integer> tmp = new ArrayList<>();
-            for (int x : g.playerB.skills) {
+            PlayerData opponent;
+            if(g.playerA.name.compareTo("g6") == 0){
+                opponent=g.playerB;
+            }
+            else {
+                opponent=g.playerA;
+            }
+            for (int x : opponent.skills) {
                 tmp.add(x);
             }
             myHistory.add(tmp);
