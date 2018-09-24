@@ -14,16 +14,28 @@ public class Player implements matchup.sim.Player {
     private List<Integer> skills;
     private List<List<Integer>> distribution;
     private List<Integer> availableRows;
+    private Stats stats;
 
     private boolean isHome;
+    private boolean isPlayerA = true;
 
     private List<Integer> opponentSkills = new ArrayList<Integer>();
     private List<Integer> opponentSkillsLeft = new ArrayList<Integer>();
 
+    private int lossStreak = 0;
+
+    // Random seed of 64.
+    private int seed = 64;
+    private Random rand;
+
     public Player() {
-        skills = new ArrayList<Integer>();
+    	rand = new Random(seed);
+        Integer s[] = {1,1,1,1,1,8,8,8,8,8,9,9,9,9,9};
+        skills = new Skills(Arrays.asList(s));
+
         distribution = new ArrayList<List<Integer>>();
         availableRows = new ArrayList<Integer>();
+        stats = null;
 
         for (int i=0; i<3; ++i) availableRows.add(i);
     }
@@ -32,20 +44,16 @@ public class Player implements matchup.sim.Player {
     }
 
     public List<Integer> getSkills() {
-		Integer s[] = {9,9,9,9,9,8,8,8,8,8,1,1,1,1,1};
-		this.skills = new Skills(Arrays.asList(s));
+        if (stats != null) {
+			stats.update();
+
+			if (stats.doCounter()) {
+				skills = stats.getCounter();
+			}
+		}
 
 		return skills;
     }
-
-    // private List<Integer> counter(List<Integer> opponentSkills) {
-    //     Collections.sort(opponentSkills);
-    //     for(int i=0; i<opponentSkills.size();i++ ){
-    //         if(i>=6) opponentSkills.set(i, Integer.valueof(opponentSkills.get(i)-2));
-    //         else if(i<6) opponentSkills.set(i, Integer.valueof(opponentSkills.get(i)+3));
-    //         return opponentSkills;
-    //      }
-    // }
 
     public List<List<Integer>> getDistribution(List<Integer> opponentSkills, boolean isHome) {
     	int GROUP_SIZE = 5;
@@ -53,9 +61,9 @@ public class Player implements matchup.sim.Player {
         Skills skills = (Skills)this.skills;
 
         if (isHome) {
-        	skills.groupForHome(GROUP_SIZE);
+        	skills.groupForHome();
         } else {
-        	skills.groupForAway(GROUP_SIZE);
+        	skills.groupForAway();
         }
 
         for (int i = 0; i < skills.size(); i += GROUP_SIZE) {
@@ -73,33 +81,29 @@ public class Player implements matchup.sim.Player {
 
     public List<Integer> playRound(List<Integer> opponentRound) {  
         List<Integer> toUse;
+        int idx = 0;
+
         if (isHome) {
             for (Integer i: opponentRound) {
-                    opponentSkillsLeft.remove(i);
+                opponentSkillsLeft.remove(i);
             }
 
             if (availableRows.size() == 3) {
-                int idx = lineToUse(new Line(opponentRound));
-                toUse = distribution.get(availableRows.get(idx));
-                availableRows.remove(idx);
-            }
-            
-            else if (availableRows.size() == 2) {
-                int idx = lineToUse2(new Line(opponentRound), new Line(opponentSkillsLeft));
-                toUse = distribution.get(availableRows.get(idx));
-                availableRows.remove(idx);
+                idx = lineToUse(new Line(opponentRound));
+
+            } else if (availableRows.size() == 2) {
+                idx = lineToUse2(new Line(opponentRound), new Line(opponentSkillsLeft));   
                 
             } else { // size is 1
-                Line last = new Line(distribution.get(availableRows.get(0)));
+                Line last = (Line)distribution.get(availableRows.get(0));
                 last.permuteFor(new Line(opponentRound));
-                availableRows.remove(0);
-                toUse = (List<Integer>) last;
-            } 
-
-        }   else { // away
-            toUse = distribution.get(availableRows.get(0));
-            availableRows.remove(0);
+            }
+        } else { // away
+        	idx = rand.nextInt(availableRows.size());
         }
+
+        toUse = distribution.get(availableRows.get(idx));
+        availableRows.remove(idx);
 
         return toUse;
     }
@@ -110,75 +114,8 @@ public class Player implements matchup.sim.Player {
 
         distribution.clear();
 
-        List<Game> games = History.getHistory();
-        //System.out.println(games.size());
-        if(games.size() == 6) {
-            for (int i=0;i<games.size();i++) {
-
-                Double skillVar = 0.0;
-                Double skillMean = 0.0;
-                for (Integer n: games.get(i).playerB.skills) {
-                    skillMean += n;
-                }
-                for (Integer n: games.get(i).playerB.skills) {
-                    skillVar += Math.pow(n-skillMean,2);
-                }
-                skillVar /= 4;
-                //System.out.println("Skills Var: " + skillVar);
-
-                if (games.get(i).playerB.isHome) {
-                    List<Double> homeMeans = new ArrayList<Double>();
-                    List<Double> homeVars = new ArrayList<Double>();
-                    for(List<Integer> d: games.get(i).playerB.distribution) {
-                        Double mean = 0.0;
-                        for (Integer n: d) {
-                            mean += n;
-                        }
-                        mean /= 5;
-                        homeMeans.add(mean);
-                        
-                        Double var = 0.0;
-                        for (Integer n: d) {
-                            var += Math.pow(n-mean,2);
-                        }
-                        var /= 4;
-                        homeVars.add(var);
-                    }
-                    //System.out.println("Home Dist Means:" + homeMeans);
-                    //System.out.println("Home Dist Vars:" + homeVars);
-
-                } else {
-                    List<Double> awayMeans = new ArrayList<Double>();
-                    List<Double> awayVars = new ArrayList<Double>();
-                    for(List<Integer> d: games.get(i).playerB.distribution) {
-                        Double mean = 0.0;
-                        for (Integer n: d) {
-                            mean += n;
-                        }
-                        mean /= 5;
-                        awayMeans.add(mean);
-
-                        Double var = 0.0;
-                        for (Integer n: d) {
-                            var += Math.pow(n-mean,2);
-                        }
-                        var /= 4;
-                        awayVars.add(var);
-                    }
-                    //System.out.println("Away Dist Means:" + awayMeans);
-                    //System.out.println("Away Dist Vars:" + awayVars);
-                }
-                //System.out.println(games.get(i).playerA.name);
-                //System.out.println(games.get(i).playerA.skills);
-                
-                //System.out.println(games.get(i).playerB.name);
-                //System.out.println(games.get(i).playerB.skills);
-                //System.out.println(games.get(i).playerB.rounds);
-                //System.out.println(games.get(i).playerB.distribution);
-                //System.out.println(games.get(i).playerB.isHome);
-                //System.out.println(games.get(i).playerB.score);
-
-            }
+        if (stats == null) {
+        	stats = new Stats();
         }
     }
 
