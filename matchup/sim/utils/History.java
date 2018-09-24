@@ -7,4 +7,8 @@ public class History {
     public static List<Game> getHistory() {
         return Simulator.getGames();
     }
+
+    public static Game getLastGame() {
+        return Simulator.getLastGame();
+    }
 }

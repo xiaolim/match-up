@@ -1,9 +1,13 @@
 package matchup.sim;
 
 import java.awt.Desktop;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -67,18 +71,14 @@ public class Simulator {
         isHome = true;
 
         for (int j=0; j < n_games; ++j) {
-
-            List<List<Integer>> skills = new ArrayList<List<Integer>>();
-            List<List<List<Integer>>> distribution = new ArrayList<List<List<Integer>>>();
-
             System.out.println("\nStarting game with players " + playerA.getName() + ", " + playerB.getName());
 
             try {
                 playerA.init(playerBName);
                 playerB.init(playerAName);
 
-                List<Integer> skillsA = playerA.getSkills();
-                List<Integer> skillsB = playerB.getSkills();
+                List<Integer> skillsA = new ArrayList<Integer>(playerA.getSkills());
+                List<Integer> skillsB = new ArrayList<Integer>(playerB.getSkills());
 
                 for (int i = 0; i < 2; ++i)
                 {
@@ -92,8 +92,8 @@ public class Simulator {
                     game.playerA.skills = skillsA;
                     game.playerB.skills = skillsB;
 
-                    game.playerA.distribution = playerA.getDistribution(skillsB, isHome);
-                    game.playerB.distribution = playerB.getDistribution(skillsA, !isHome);
+                    game.playerA.distribution = getClone(playerA.getDistribution(skillsB, isHome));
+                    game.playerB.distribution = getClone(playerB.getDistribution(skillsA, !isHome));
 
                     List<Integer> roundA = null;
                     List<Integer> roundB = null;
@@ -110,8 +110,8 @@ public class Simulator {
                             roundB = playerB.playRound(roundA);
                         }
 
-                        game.playerA.rounds.add(roundA);
-                        game.playerB.rounds.add(roundB);
+                        game.playerA.rounds.add(new ArrayList<Integer>(roundA));
+                        game.playerB.rounds.add(new ArrayList<Integer>(roundB));
 
                         int[] scores = getScores(roundA, roundB);
                         game.playerA.score += scores[0];
@@ -221,8 +221,41 @@ public class Simulator {
         System.out.println(playerBName + ": " + ((double)playerBAwayScores*2/games.size()));
     }
 
+    private static List<List<Integer>> getClone(List<List<Integer>> lol) {
+        List<List<Integer>> newLol = new ArrayList<>();
+        for (List<Integer> l : lol) {
+            newLol.add(new ArrayList<Integer>(l));
+        }
+
+        return newLol;
+    }
+
     public static List<Game> getGames() {
-        return games;
+        List<Game> cloneGames = new ArrayList<Game>();
+        for (Game g : games) {
+            cloneGames.add(deepClone(g));
+        }
+
+        return cloneGames;
+    }
+
+    public static Game getLastGame() {
+        return deepClone(games.get(games.size() - 1));
+    }
+
+    private static Game deepClone(Object object) {
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+            objectOutputStream.writeObject(object);
+            ByteArrayInputStream bais = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+            ObjectInputStream objectInputStream = new ObjectInputStream(bais);
+            return (Game) objectInputStream.readObject();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private static int[] getScores(List<Integer> roundA, List<Integer> roundB) {
