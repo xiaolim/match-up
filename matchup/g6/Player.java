@@ -136,7 +136,7 @@ public class Player implements matchup.sim.Player {
             Collections.sort(myFreqEst, Comparator.comparingInt(Pair::getValue));
             int skillIndex = 0;
             int densityIndex = 0;
-            while (remainingSkill > 0 && skillIndex < 11) {
+            while (remainingSkill > 0 && skillIndex < 10) {
                 Pair<Integer, Integer> p = myFreqEst.get(densityIndex);
                 for (int j = 0; j < p.getValue(); j++) {
                     if (counterStrats.get(p.getKey()-1) > skills.get(skillIndex)) {
