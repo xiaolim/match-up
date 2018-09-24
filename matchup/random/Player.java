@@ -74,15 +74,15 @@ public class Player implements matchup.sim.Player {
 
         Collections.shuffle(round, rand);
 
+        return round;
+    }
+
     public void clear() {
         availableRows.clear();
-        for (int i = 0; i < 3; ++i) availableRows.add(i);
-        distribution.clear();
-
-        List<Game> previousGames = History.getHistory();
+        for (int i=0; i<3; ++i) availableRows.add(i);
 
         // Get history of games.
         // List<Game> games = History.getHistory();
-        // System.out.println("game no: " + games.size());
+        // System.out.println(games.size());
     }
 }
