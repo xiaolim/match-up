@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.lang.Math;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+
 // To get game history.
 import matchup.sim.utils.*;
 
@@ -24,6 +26,14 @@ public class Player implements matchup.sim.Player {
 	private List<Integer> bestLine = new ArrayList<Integer>();
 	private int score; 
 	private int counter; 
+
+	private Map<Integer, Double> historySkillCount;
+	private Map<Integer, Long> historySkillPercents;
+	private Map<String, List<Double>> historySkillStats;
+	private Map<String, Double> aveSkillHistory;
+	private Map<String, Map<Integer, List<Double>>> historyLineStats;
+	private Map<String, Map<Integer, Double>> aveLineHistory;
+	private Map<Integer, List<Integer>> popularSkills;
 
 	public Player() {
 		rand = new Random();
@@ -43,14 +53,20 @@ public class Player implements matchup.sim.Player {
 
 		Map<String, Double> stats = new HashMap<String, Double>();
 
-		stats.put("mean", 6.0);
+		double sum = 0.0;
+		double mean = 0.0;
+		for (int i : skills) {
+			sum += i;
+		}
+		mean = sum/skills.size();
+		stats.put("mean", mean);
 
 		skills.sort(null);
 
 		// Min and max
 		double min, max;
 		min = skills.get(0);
-		max = skills.get(14);
+		max = skills.get(skills.size()-1);
 		stats.put("min", min);
 		stats.put("max", max);
 
@@ -64,7 +80,7 @@ public class Player implements matchup.sim.Player {
 		for (int s : skills) {
 			sqr_sum += Math.pow((s-6), 2);
 		}
-		stdev = Math.sqrt(sqr_sum/14);
+		stdev = Math.sqrt(sqr_sum/(skills.size()-1));
 		stats.put("stdev", stdev);
 
 		return stats;
@@ -132,68 +148,176 @@ public class Player implements matchup.sim.Player {
 	// NINE 9s one 4 five 1s
 	public List<Integer> getSkills() {
 
-		// Get history of games.
+		// ###############################################
+		// ### Gather information about previous games ###
+		// ###############################################
+
+		// Get history of games
+		//-> this is the first function called once a round has started so we can collect history info in this function
+		//-> store the information in class members for other functions to use
 	        List<Game> games = History.getHistory();
 	        double numGamePairs = games.size();
 	        //System.out.println(games.size());
-
 
 	        PlayerData opponent;
 	        List<Integer> oppSkills;
 	        Map<String, Double> oppSkillStats;
 	        Map<Integer, Integer> oppSkillCount;
-	        Map<Integer, Double> historyCount = new HashMap<Integer, Double>();
+
+	        List<String> statsLong = new ArrayList<String>(Arrays.asList("stdev", "mean", "min", "max", "range"));
+	        List<String> statsShort = new ArrayList<String>(Arrays.asList("stdev", "min", "max"));
+	        
+	        // historySkillCount keeps track of the number of times each skill have shown up across all previous games
+	        historySkillCount = new HashMap<Integer, Double>();
 	        for (int i=1; i<12; i++) {
-	        	historyCount.put(i, 0.0);
+	        	historySkillCount.put(i, 0.0);
 	        }
+
+	        // historySkillPercents keeps track of the frequency of each skill across all previous games
+	        historySkillPercents = new HashMap<Integer, Long>();
+
+	        // historySkillStats keeps track of the statistics for the overall skill distributions in each previous game
+	        historySkillStats = new HashMap<String, List<Double>>();
+	        for (String s : statsShort) {
+	        	historySkillStats.put(s, new ArrayList<Double>());
+	        }
+
+	        // aveSkillHistory keeps track of the average statistics for the overall skill distribution across all previous games
+	        aveSkillHistory = new HashMap<String, Double>();
+	        for (String s : statsShort) {
+	        	aveSkillHistory.put(s, 0.0);
+	        }
+
+	        // historyLineStats keeps track of the statistics for each of the opponent's lines
+	        historyLineStats = new HashMap<String, Map<Integer, List<Double>>>();
+	        //the lines are ordered according to the order in which they are played in the game
+	        for (String s : statsLong) {
+	        	historyLineStats.put(s, new HashMap<Integer, List<Double>>());
+	        	for (int i=0; i<3; i++) {
+	        		historyLineStats.get(s).put(i, new ArrayList<Double>());
+	        	}	
+	        }
+
+	        // aveLineHistory keeps track of the average statistics for each of the opponent's lines across all previous games
+	       	aveLineHistory = new HashMap<String, Map<Integer, Double>>();
+	        for (String s : statsLong) {
+	        	aveLineHistory.put(s, new HashMap<Integer, Double>());
+	        }
+
+	        // popularSkills contains a single list of skills in order of decreasing frequency of use in the opponent's skill distribution
+	        popularSkills = new LinkedHashMap<Integer, List<Integer>>();
+
 
 	        boolean notNull = false;
 	        for (Game g : games) {
-	        	notNull = false;
 
-	        	if (g.playerA.name.equals("g2")) oppSkills = g.playerB.skills; 
-	        	else oppSkills = g.playerA.skills;
+	        	notNull = false;
+	        	// Find out which player is the opponent
+	        	if (g.playerA.name.equals("g2")) {
+	        		opponent = g.playerB;
+	        		oppSkills = g.playerB.skills; 
+	        	} else {
+	        		opponent = g.playerA;
+	        		oppSkills = g.playerA.skills;
+	        	}
 
 	        	if (!oppSkills.isEmpty()) {
 	        		notNull = true;
-	        		//playerA is the opponent and they are playing home--gather information
-				//System.out.println("OPPONENT!");
-				//oppSkills = g.playerA.skills;
-				//System.out.println("oppSkills: " + oppSkills);
+				
 				oppSkillStats = getSkillStats(oppSkills);
 				oppSkillCount = getSkillCount(oppSkills);
-				//System.out.println("oppSkillCount: " + oppSkillCount);
 
+	        		// Update the total skill count for the skills in the overall distribution
 	        		for (int s : oppSkillCount.keySet()) {
-	        			//System.out.println(s);
-	        			double count_current = historyCount.get(s);
-	        			//System.out.println(count_current);
+	        			double count_current = historySkillCount.get(s);
 	        			count_current += oppSkillCount.get(s);
-	        			historyCount.replace(s, count_current);
+	        			historySkillCount.replace(s, count_current);
 	        		}
+	        		//System.out.println("historySkillCount: " + historySkillCount); //
+
+	        		// Add the statistics of the overall skill distribution for this round to historySkillStats
+	        		for (String stat : historySkillStats.keySet()) {
+	        			historySkillStats.get(stat).add(oppSkillStats.get(stat));
+	        		}
+	        		//System.out.println("historySkillStats: " + historySkillStats); //
+
+	        		// For each line, add the statistics of the line skill distribution for this round to historyLineStats
+	        		for (int i=0; i<3; i++) {
+	        			List<Integer> line = opponent.rounds.get(i);
+	        			Map<String, Double> lineStats= getSkillStats(line);
+	        			for (String stat : historyLineStats.keySet()) {
+	        				historyLineStats.get(stat).get(i).add(lineStats.get(stat));
+	        			}
+	        		}
+	        		//System.out.println("historyLineStats: " + historyLineStats); //
         		}
+
 	        }
+
 	        Long maxSkillUsed = 0L;
 	        int maxSkill = 0;
+	        
 	        if (notNull) {
-		        //System.out.println("historyCount: " + historyCount);
+		        
+		        //System.out.println("historySkillCount: " + historySkillCount); //
 
-		        // get percentages
-		        Map<Integer, Long> historyPercents = new HashMap<Integer, Long>();
-		        for (int s : historyCount.keySet()) {
-		        	//System.out.println(historyCount.get(s));
-		        	double percent = (historyCount.get(s)/(numGamePairs*15.0))*100.0;
-		        	historyPercents.put(s, Math.round(percent));
+		        // Get percentages for the skill counts in the overall skill distribution
+		        for (int s : historySkillCount.keySet()) {
+		        	//System.out.println(historySkillCount.get(s));
+		        	double percent = (historySkillCount.get(s)/(numGamePairs*15.0))*100.0;
+		        	historySkillPercents.put(s, Math.round(percent));
 		        }
-		        //System.out.println("historyPercents: " + historyPercents);
-		        for (int s : historyPercents.keySet()) {
-		        	if (historyPercents.get(s) > maxSkillUsed) {
-		        		maxSkillUsed = historyPercents.get(s);
-		        		maxSkill = s;
-		        	}
-		        }
-		        //System.out.println("MAX: " + maxSkillUsed);
+		        //System.out.println("historySkillPercents: " + historySkillPercents); //
+
+		        // Get averages for the overall skill distribution statistics		
+			for (String stat : historySkillStats.keySet()) {
+				double total = 0.0;
+				for (int val=0; val<historySkillStats.get(stat).size(); val++) {
+					total += val;
+				}
+				aveSkillHistory.replace(stat, total/historySkillStats.get(stat).size());
+			}
+			//System.out.println("aveSkillHistory: " + aveSkillHistory); //
+
+			// Get averages for the line statistics
+			for (String stat : historyLineStats.keySet()) {
+				for (int i=0; i<3; i++) {
+					double total = 0.0;
+					for (int val=0; val<historyLineStats.get(stat).get(i).size(); val++) {
+						total += val;
+					}
+					aveLineHistory.get(stat).put(i, total/historyLineStats.get(stat).get(i).size());
+				}
+			}
+			//System.out.println("aveLineHistory: " + aveLineHistory); //
+
+		        // Create a list of skills in order of decreasing frequency of use in the opponents skill distribution
+		        // Each pair consists of a count and a list of all skills with that count (to catch the case in which there more than one skill is used the most)
+			List<Long> sortedVals = new ArrayList(historySkillPercents.values());
+			sortedVals.sort(null);
+			Collections.reverse(sortedVals);
+			List<Integer> usedVals = new ArrayList<Integer>();
+			for (Long longVal : sortedVals) {
+				int val = longVal.intValue();
+				if (!usedVals.contains(val)) {
+					List<Integer> sList = new ArrayList<Integer>();
+					for (int s : historySkillPercents.keySet()) {
+						if (historySkillPercents.get(s).intValue() == val)
+							sList.add(s);
+					}
+					popularSkills.put(val, sList);
+					usedVals.add(val);
+				}
+			}
+			//System.out.println("popularSkills: " + popularSkills); //
+			 
 		}
+
+		// ##########################################################
+		// ### End collection of information about previous games ###
+		// ##########################################################
+
+		maxSkill = 0;
 
 		int pickRandLine;
 
@@ -673,4 +797,6 @@ public class Player implements matchup.sim.Player {
 	        return bestLine; 
 
     	}
+
 }
+
