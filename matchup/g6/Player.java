@@ -1,11 +1,11 @@
 package matchup.g6;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import java.util.*;
-
 import javafx.util.Pair;
-import matchup.sim.utils.*;
-
-// To get game history.
 import matchup.sim.utils.*;
 
 public class Player implements matchup.sim.Player {
@@ -15,9 +15,6 @@ public class Player implements matchup.sim.Player {
     private List<Integer> availableRows;
 
     private Random rand;
-
-    // private int totalSkill = 90;
-    private int leftover = 90;
 
     public Player() {
         rand = new Random();
@@ -68,19 +65,13 @@ public class Player implements matchup.sim.Player {
 
         if (sz > 1) {
             // get opponent past skill distribution
-            System.out.print(games.get(sz - 1).playerB.name + ": ");
-            System.out.println(games.get(sz - 1).playerB.skills);
-
+            // System.out.print(games.get(sz - 1).playerB.name + ": ");
+            // System.out.println(games.get(sz - 1).playerB.skills);
             opponentPastSkills = games.get(sz - 1).playerB.skills;
             Collections.sort(opponentPastSkills);
-            // System.out.println(opponentPastSkills);
             opponentPastSkills.get(0);
             range = opponentPastSkills.get(14) - opponentPastSkills.get(0);
-
-            // average range?
         }
-
-        System.out.println("range: " + range);
 
         // if range of opponent skill level is 4-8
         if (range > 3 && range < 9) {
@@ -118,7 +109,7 @@ public class Player implements matchup.sim.Player {
             }
         }
 
-        int veryfySum = 0;
+        int verifySum = 0;
         /*** James new learning version skills generator ***/
         //getFrequencyDensity();
         if (History.getHistory()!=null && History.getHistory().size() > 3 ) {
@@ -133,12 +124,7 @@ public class Player implements matchup.sim.Player {
                 myFreqEst.add(new Pair<>(i++, Math.round((float) x * 15)));
             }
 
-            Collections.sort(myFreqEst, new Comparator<Pair<Integer, Integer>>() {
-                @Override
-                public int compare(Pair<Integer, Integer> o1, Pair<Integer, Integer> o2) {
-                    return o1.getValue() - o2.getValue();
-                }
-            });
+            Collections.sort(myFreqEst, Comparator.comparingInt(Pair::getValue));
             int skillIndex = 0;
             int densityIndex = 0;
             while (remainingSkill > 0 && skillIndex < 11) {
@@ -172,7 +158,7 @@ public class Player implements matchup.sim.Player {
 
 
             for(int x: skills){
-                veryfySum+=x;
+                verifySum+=x;
             }
 
         }
@@ -410,7 +396,14 @@ public class Player implements matchup.sim.Player {
         List<List<Integer>> myHistory = new ArrayList<>();
         for (Game g : History.getHistory()) {
             List<Integer> tmp = new ArrayList<>();
-            for (int x : g.playerB.skills) {
+            PlayerData opponent;
+            if(g.playerA.name.compareTo("g6") == 0){
+                opponent=g.playerB;
+            }
+            else {
+                opponent=g.playerA;
+            }
+            for (int x : opponent.skills) {
                 tmp.add(x);
             }
             myHistory.add(tmp);
