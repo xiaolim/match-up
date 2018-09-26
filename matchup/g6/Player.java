@@ -109,12 +109,11 @@ public class Player implements matchup.sim.Player {
             }
         }
 
-        int verifySum = 0;
         /*** James new learning version skills generator ***/
         //getFrequencyDensity();
         if (History.getHistory()!=null && History.getHistory().size() > 3 ) {
             skills.clear();
-            List<Integer> counterStrats = Arrays.asList(4, 5, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            List<Integer> counterStrats = Arrays.asList(4, 5, 6, 2, 3, 4, 5, 6, 7, 8, 9);
             List<Double> density = getFrequencyDensity();
             skills = new ArrayList<>(Collections.nCopies(15, 1));
             int remainingSkill = 75;
@@ -154,11 +153,6 @@ public class Player implements matchup.sim.Player {
                 }
                 else skillIndex--;
                 if(skillIndex<0)skillIndex=14;
-            }
-
-
-            for(int x: skills){
-                verifySum+=x;
             }
 
         }
