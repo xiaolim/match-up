@@ -67,7 +67,12 @@ public class Player implements matchup.sim.Player {
             // get opponent past skill distribution
             // System.out.print(games.get(sz - 1).playerB.name + ": ");
             // System.out.println(games.get(sz - 1).playerB.skills);
-            opponentPastSkills = games.get(sz - 1).playerB.skills;
+            if (games.get(sz - 1).playerB.name != "g6"){
+                opponentPastSkills = games.get(sz - 1).playerB.skills;
+            }
+            else{
+                opponentPastSkills = games.get(sz - 1).playerA.skills;
+            }
             Collections.sort(opponentPastSkills);
             opponentPastSkills.get(0);
             range = opponentPastSkills.get(14) - opponentPastSkills.get(0);
