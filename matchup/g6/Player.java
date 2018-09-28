@@ -1,15 +1,17 @@
 package matchup.g6;
 
-import java.util.ArrayList;
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.*;
+import java.util.Map;
 
-import javafx.util.Pair;
+//import javafx.util.Pair;
 import matchup.sim.utils.*;
 
 public class Player implements matchup.sim.Player {
+
     private List<Integer> skills;
     private List<List<Integer>> distribution;
 
@@ -122,18 +124,22 @@ public class Player implements matchup.sim.Player {
             List<Double> density = getFrequencyDensity();
             skills = new ArrayList<>(Collections.nCopies(15, 1));
             int remainingSkill = 75;
-            List<Pair<Integer, Integer>> myFreqEst = new ArrayList<>();
+            // changed Pair to Map.Entry
+            List<Map.Entry<Integer, Integer>> myFreqEst = new ArrayList<>();
             int i = 1;
             for (double x : density) {
-                myFreqEst.add(new Pair<>(i++, Math.round((float) x * 15)));
+            	// changed Pair to Map.Entry
+                myFreqEst.add(new AbstractMap.SimpleEntry(i++, Math.round((float) x * 15)));
             }
 
-            Collections.sort(myFreqEst, Comparator.comparingInt(Pair::getValue));
+            // changed Pair to Map.Entry
+            Collections.sort(myFreqEst, Comparator.comparingInt(Map.Entry::getValue));
             int skillIndex = 0;
             int densityIndex = 0;
             try {
                 while (remainingSkill > 0 && skillIndex < 15) {
-                    Pair<Integer, Integer> p = myFreqEst.get(densityIndex);
+                	// changed Pair to Map.Entry
+                    Map.Entry<Integer, Integer> p = myFreqEst.get(densityIndex);
                     for (int j = 0; j < p.getValue(); j++) {
                         if (counterStrats.get(p.getKey() - 1) > skills.get(skillIndex)) {
                             remainingSkill -= counterStrats.get(p.getKey() - 1) - skills.get(skillIndex);
